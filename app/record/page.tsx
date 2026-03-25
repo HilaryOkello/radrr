@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useAccount } from "wagmi";
 import { ConnectWallet } from "@/components/ConnectWallet";
@@ -48,6 +49,7 @@ export default function RecordPage() {
 
   const { address: connectedAddress } = useAccount();
 
+  const [title, setTitle] = useState("");
   const [phase, setPhase] = useState<RecordingPhase>("idle");
   const [chunkHashes, setChunkHashes] = useState<ChunkHash[]>([]);
   const [merkleRoot, setMerkleRoot] = useState<string | null>(null);
@@ -104,6 +106,7 @@ export default function RecordPage() {
             recordingId: id,
             merkleRoot: root,
             gpsApprox: gps ?? "unknown",
+            title: title.trim() || "Untitled Recording",
             timestamp: Date.now(),
             witness: connectedAddress ?? undefined,
           }),
@@ -361,9 +364,22 @@ export default function RecordPage() {
               </div>
             )}
             {phase === "idle" && connectedAddress && (
-              <Button size="lg" onClick={startRecording} className="w-full text-base">
-                Start Recording
-              </Button>
+              <div className="flex flex-col gap-3">
+                <div>
+                  <label className="text-xs font-base text-muted-foreground mb-1 block">
+                    What does this footage show?
+                  </label>
+                  <Input
+                    placeholder="e.g. Protest at City Hall, north entrance"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    maxLength={120}
+                  />
+                </div>
+                <Button size="lg" onClick={startRecording} className="w-full text-base">
+                  Start Recording
+                </Button>
+              </div>
             )}
             {phase === "recording" && (
               <Button

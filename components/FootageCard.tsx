@@ -89,7 +89,7 @@ export function FootageCard({
               ref={videoRef}
               src={videoSrc}
               className={`w-full h-full object-cover transition-all duration-300 ${
-                blurred ? "blur-md scale-110" : ""
+                blurred && playing ? "blur-sm scale-105" : ""
               }`}
               preload="metadata"
               muted
@@ -97,26 +97,32 @@ export function FootageCard({
               playsInline
               onLoadedMetadata={() => setThumbLoaded(true)}
             />
-            {/* Hover play indicator */}
+            {/* PREVIEW watermark — always visible for non-owners */}
+            {blurred && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+                <span className="text-white/30 font-heading text-4xl tracking-[0.3em] rotate-[-20deg]">
+                  PREVIEW
+                </span>
+              </div>
+            )}
+            {/* Hover: play indicator or "purchase to unlock" */}
             {!playing && thumbLoaded && (
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <div className="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white ml-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.841z" />
-                  </svg>
+                  {blurred ? (
+                    <span className="text-white text-lg">🔒</span>
+                  ) : (
+                    <svg className="w-5 h-5 text-white ml-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.841z" />
+                    </svg>
+                  )}
                 </div>
               </div>
             )}
-            {/* Blur overlay for marketplace */}
-            {blurred && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30">
-                <span className="text-white font-heading text-sm">🔒 Purchase to unlock</span>
-              </div>
-            )}
-            {/* No CID yet */}
+            {/* Loading skeleton */}
             {!thumbLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center bg-secondary-background">
-                <span className="text-4xl opacity-30">📹</span>
+              <div className="absolute inset-0 flex items-center justify-center bg-secondary-background animate-pulse">
+                <span className="text-4xl opacity-20">📹</span>
               </div>
             )}
           </>
@@ -160,11 +166,16 @@ export function FootageCard({
 
       <CardContent className="flex flex-col gap-3 flex-1 pt-0">
         {/* Metadata */}
-        <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs text-muted-foreground font-mono">
-          <span>📍 {r.gps_approx}</span>
-          <span>🕐 {formatDate(r.timestamp)}</span>
-          <span className="col-span-2 truncate opacity-70">
-            {r.merkle_root.slice(0, 28)}…
+        <div className="flex flex-col gap-1 text-xs text-muted-foreground font-mono">
+          <div className="flex gap-3 flex-wrap">
+            <span>📍 {r.gps_approx}</span>
+            <span>🕐 {formatDate(r.timestamp)}</span>
+          </div>
+          <span className="truncate opacity-70">
+            Witness: {r.witness.slice(0, 10)}…{r.witness.slice(-6)}
+          </span>
+          <span className="truncate opacity-50">
+            Root: {r.merkle_root.slice(0, 24)}…
           </span>
         </div>
 
