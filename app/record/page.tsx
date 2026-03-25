@@ -122,20 +122,37 @@ export default function RecordPage() {
         const { cid } = await uploadRes.json();
         toast.success("Footage stored on Filecoin!");
 
-        // 3. Encrypt with Lit Protocol (best-effort — Lit nodes may be unreachable)
+        // 3. Encrypt with Lit Protocol (browser-side — connects to Lit nodes directly)
         setPhase("encrypting");
         try {
-          const encryptRes = await fetch("/api/encrypt", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ recordingId: id, cid }),
-          });
-          if (encryptRes.ok) {
+          const { encryptVideo } = await import("@/lib/lit");
+          const videoBytes = new Uint8Array(await videoBlob.arrayBuffer());
+          const { ciphertext, dataToEncryptHash } = await encryptVideo(videoBytes, id);
+
+          // Upload ciphertext metadata to Storacha
+          const ciphertextBlob = new Blob(
+            [JSON.stringify({ ciphertext, dataToEncryptHash, recordingId: id })],
+            { type: "application/json" }
+          );
+          const encFormData = new FormData();
+          encFormData.append("video", ciphertextBlob, `${id}_encrypted.json`);
+          encFormData.append("recordingId", id);
+          const encUploadRes = await fetch("/api/upload", { method: "POST", body: encFormData });
+
+          if (encUploadRes.ok) {
+            const { cid: encryptedCid } = await encUploadRes.json();
+            // Record encrypted CID on-chain (server just calls updateEncryptedCid)
+            await fetch("/api/encrypt", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ recordingId: id, encryptedCid }),
+            });
             toast.success("Footage encrypted with Lit Protocol!");
           } else {
-            toast.warning("Lit encryption unavailable — footage stored unencrypted.");
+            toast.warning("Lit encryption upload failed — footage stored unencrypted.");
           }
-        } catch {
+        } catch (litErr) {
+          console.warn("[lit]", litErr);
           toast.warning("Lit encryption unavailable — footage stored unencrypted.");
         }
 

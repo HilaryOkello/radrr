@@ -84,7 +84,7 @@ function buildAccessConditions(recordingId: string) {
       method: "isPurchased",
       parameters: [
         ":userAddress",
-        process.env.FILECOIN_CONTRACT_ADDRESS ?? "",
+        process.env.NEXT_PUBLIC_FILECOIN_CONTRACT_ADDRESS ?? process.env.FILECOIN_CONTRACT_ADDRESS ?? "",
         recordingId,
       ],
       returnValueTest: {
