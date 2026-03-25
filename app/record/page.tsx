@@ -122,15 +122,22 @@ export default function RecordPage() {
         const { cid } = await uploadRes.json();
         toast.success("Footage stored on Filecoin!");
 
-        // 3. Encrypt with Lit Protocol
+        // 3. Encrypt with Lit Protocol (best-effort — Lit nodes may be unreachable)
         setPhase("encrypting");
-        const encryptRes = await fetch("/api/encrypt", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ recordingId: id, cid }),
-        });
-        if (!encryptRes.ok) throw new Error("Encrypt failed");
-        toast.success("Footage encrypted with Lit Protocol!");
+        try {
+          const encryptRes = await fetch("/api/encrypt", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ recordingId: id, cid }),
+          });
+          if (encryptRes.ok) {
+            toast.success("Footage encrypted with Lit Protocol!");
+          } else {
+            toast.warning("Lit encryption unavailable — footage stored unencrypted.");
+          }
+        } catch {
+          toast.warning("Lit encryption unavailable — footage stored unencrypted.");
+        }
 
         setResult({
           recordingId: id,

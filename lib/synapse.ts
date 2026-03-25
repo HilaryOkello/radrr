@@ -9,7 +9,6 @@
 
 import { http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { filecoinCalibration } from "./filecoin";
 
 const RPC_URL   = process.env.FILECOIN_RPC_URL ?? "https://api.calibration.node.glif.io/rpc/v1";
 const AGENT_KEY = (process.env.FILECOIN_AGENT_PRIVATE_KEY ?? process.env.EVM_PLATFORM_PRIVATE_KEY) as `0x${string}`;
@@ -21,9 +20,10 @@ let _client: any = null;
 async function getClient(): Promise<any> {
   if (_client) return _client;
   const { Synapse } = await import("@filoz/synapse-sdk");
+  const { calibration } = await import("@filoz/synapse-core/chains");
   const account = privateKeyToAccount(AGENT_KEY);
   _client = Synapse.create({
-    chain: filecoinCalibration as never,
+    chain: calibration,
     transport: http(RPC_URL),
     account,
   });
