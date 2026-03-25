@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       recordingId
     );
 
-    // Link encrypted CID on NEAR
+    // Link encrypted CID on Filecoin FVM
     await updateEncryptedCid(recordingId, encryptedCid);
 
     return NextResponse.json({ encryptedCid, recordingId });

@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Radrr — Community Truth Network",
   description:
-    "Eyewitnesses capture, verify, and sell footage on their own terms. Cryptographic proof on NEAR Protocol.",
+    "Eyewitnesses capture, verify, and sell footage on their own terms. Cryptographic proof on Filecoin FVM.",
 };
 
 export default function RootLayout({

@@ -13,7 +13,7 @@ interface Recording {
   title: string;
   gps_approx: string;
   timestamp: number;
-  price_yocto: string;
+  price_eth: string;
   sold: boolean;
   cid?: string;
   encrypted_cid?: string;
@@ -22,9 +22,9 @@ interface Recording {
   merkle_root: string;
 }
 
-function formatNear(yocto: string): string {
-  const n = Number(yocto) / 1e24;
-  return n.toFixed(2);
+function formatEth(wei: string): string {
+  const n = Number(wei) / 1e18;
+  return n.toFixed(4);
 }
 
 function formatDate(ts: number): string {
@@ -62,14 +62,12 @@ export default function MarketplacePage() {
       toast.error("You must verify your identity before purchasing.");
       return;
     }
-    const { nearAccountId } = JSON.parse(stored);
+    const parsed = JSON.parse(stored);
+    const walletAddress = parsed.walletAddress ?? parsed.nearAccountId;
 
     setBuying(recording.recording_id);
     try {
-      // In production: send NEAR payment transaction via NEAR wallet first.
-      // Then call /api/purchase to verify and get decrypt keys.
-      // For demo: we simulate the purchase verification step.
-      toast.info("Sending NEAR payment transaction...");
+      toast.info("Processing payment on Filecoin FVM...");
       await new Promise((r) => setTimeout(r, 1500)); // simulate wallet tx
 
       const res = await fetch("/api/purchase", {
@@ -77,7 +75,7 @@ export default function MarketplacePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           recordingId: recording.recording_id,
-          buyerAddress: nearAccountId,
+          buyerAddress: walletAddress,
         }),
       });
 
@@ -220,7 +218,7 @@ function FootageCard({
 
         {/* Proof badges */}
         <div className="flex flex-wrap gap-1">
-          <Badge variant="neutral" className="text-xs">NEAR Anchored</Badge>
+          <Badge variant="neutral" className="text-xs">FVM Anchored</Badge>
           {r.cid && <Badge variant="neutral" className="text-xs">Filecoin</Badge>}
           {r.encrypted_cid && <Badge variant="neutral" className="text-xs">Lit Encrypted</Badge>}
         </div>
@@ -228,7 +226,7 @@ function FootageCard({
         {/* Price + buy */}
         <div className="mt-auto pt-3 border-t-2 border-border flex items-center justify-between">
           <div>
-            <div className="font-heading text-xl">{formatNear(r.price_yocto)} NEAR</div>
+            <div className="font-heading text-xl">{formatEth(r.price_eth)} tFIL</div>
             <div className="text-xs text-muted-foreground font-base">85% to witness</div>
           </div>
           {r.sold ? (

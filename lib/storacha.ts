@@ -5,41 +5,29 @@
 
 import * as Client from "@storacha/client";
 import { StoreMemory } from "@storacha/client/stores/memory";
-import { importDAG } from "@ucanto/core/delegation";
-import { CarReader } from "@ipld/car";
+import * as Delegation from "@ucanto/core/delegation";
 
 let storachaClient: Client.Client | null = null;
 
-/**
- * Get or initialise the Storacha client.
- * The STORACHA_PROOF env var is a base64-encoded CAR file containing
- * the UCAN delegation from the space to the server agent.
- *
- * Setup (one-time, run via CLI):
- *   npx w3 login <email>
- *   npx w3 space create radrr-space
- *   npx w3 delegation create <server-did> --can 'store/add' --can 'upload/add' | base64
- */
 async function getClient(): Promise<Client.Client> {
   if (storachaClient) return storachaClient;
 
   const store = new StoreMemory();
   storachaClient = await Client.create({ store });
 
-  // Load delegation proof from environment
   const proofBase64 = process.env.STORACHA_PROOF;
   if (!proofBase64) {
     throw new Error("STORACHA_PROOF env var not set");
   }
 
-  const proofBytes = Buffer.from(proofBase64, "base64");
-  const blocks: import("@ucanto/interface").Block[] = [];
-  const reader = await CarReader.fromBytes(proofBytes);
-  for await (const block of reader.blocks()) {
-    blocks.push(block as import("@ucanto/interface").Block);
+  // Strip any whitespace/newlines that may have crept in
+  const clean = proofBase64.replace(/\s/g, "");
+  const proofBytes = new Uint8Array(Buffer.from(clean, "base64"));
+  const result = await Delegation.extract(proofBytes);
+  if (result.error) {
+    throw new Error(`Failed to parse STORACHA_PROOF: ${result.error.message}`);
   }
-  const delegation = await importDAG(blocks as unknown as Iterable<import("@ucanto/interface").Block<unknown, number, number, 1>>);
-  const space = await storachaClient.addSpace(delegation);
+  const space = await storachaClient.addSpace(result.ok);
   await storachaClient.setCurrentSpace(space.did());
 
   return storachaClient;

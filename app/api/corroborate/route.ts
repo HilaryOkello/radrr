@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (matchedIds.length > 0) {
-      // Update corroboration bundle on NEAR
+      // Update corroboration bundle on Filecoin FVM
       const bundle = [recordingId, ...matchedIds];
       for (const id of bundle) {
         await updateCorroboration(id, bundle.filter((b) => b !== id));

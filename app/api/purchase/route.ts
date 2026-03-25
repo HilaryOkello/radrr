@@ -6,7 +6,7 @@ import { mintSaleHypercert } from "@/lib/hypercerts";
  * Purchase confirmation endpoint.
  *
  * Flow:
- * 1. Buyer has already sent the NEAR payment transaction client-side.
+ * 1. Buyer has already sent the Filecoin payment transaction client-side.
  * 2. This endpoint verifies the purchase is recorded on-chain.
  * 3. Returns the encrypted CID + dataToEncryptHash for client-side Lit decryption.
  * 4. Mints a Hypercert recording the sale.
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     const purchased = await isPurchased(recordingId, buyerAddress);
     if (!purchased) {
       return NextResponse.json(
-        { error: "Purchase not found on-chain. Submit NEAR payment first." },
+        { error: "Purchase not found on-chain. Submit Filecoin payment first." },
         { status: 402 }
       );
     }

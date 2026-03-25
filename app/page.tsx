@@ -7,7 +7,7 @@ const features = [
   {
     icon: "🔒",
     title: "Cryptographic Proof",
-    body: "Every recording is SHA-256 hashed chunk-by-chunk. A Merkle root is anchored on NEAR Protocol — tamper-evident, forever.",
+    body: "Every recording is SHA-256 hashed chunk-by-chunk. A Merkle root is anchored on Filecoin FVM — tamper-evident, forever.",
   },
   {
     icon: "🌍",
@@ -27,7 +27,7 @@ const features = [
   {
     icon: "👤",
     title: "Verified Human",
-    body: "World ID proves you're a unique human — no bots flooding the network. Your pseudonymous identity stays protected.",
+    body: "ERC-8004 agent identity on Filecoin FVM. Your pseudonymous wallet address is your on-chain identity — no biometrics.",
   },
   {
     icon: "💸",
@@ -37,9 +37,9 @@ const features = [
 ];
 
 const stats = [
-  { value: "$0.01", label: "Max NEAR tx fee" },
+  { value: "$0.01", label: "Max tFIL tx fee" },
   { value: "85%", label: "Witness revenue share" },
-  { value: "600ms", label: "NEAR finality" },
+  { value: "~30s", label: "Filecoin finality" },
   { value: "0", label: "Middlemen" },
 ];
 

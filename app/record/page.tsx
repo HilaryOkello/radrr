@@ -92,7 +92,7 @@ export default function RecordPage() {
       const id = recordingIdRef.current;
 
       try {
-        // 1. Anchor on NEAR
+        // 1. Anchor on Filecoin FVM
         const anchorRes = await fetch("/api/anchor", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -220,7 +220,7 @@ export default function RecordPage() {
     requesting: "Requesting camera...",
     recording: "Recording",
     processing: "Computing Merkle root...",
-    anchoring: "Anchoring proof on NEAR...",
+    anchoring: "Anchoring proof on Filecoin...",
     uploading: "Uploading to Filecoin...",
     encrypting: "Encrypting with Lit Protocol...",
     done: "Complete",
@@ -408,7 +408,7 @@ export default function RecordPage() {
                 <Row label="Chunks" value={String(result.chunkCount)} />
                 <Row label="GPS Approx" value={result.gps} />
                 <div className="pt-2 border-t-2 border-border text-xs text-muted-foreground font-base">
-                  Encrypted with Lit Protocol · Stored on Filecoin · Anchored on NEAR
+                  Encrypted with Lit Protocol · Stored on Filecoin · Anchored on Filecoin FVM
                 </div>
               </CardContent>
             </Card>
@@ -424,7 +424,7 @@ export default function RecordPage() {
                 <p>1. Browser records video in 1-second chunks via MediaRecorder.</p>
                 <p>2. Each chunk is SHA-256 hashed, chained to the previous hash.</p>
                 <p>3. A Merkle root across all chunk hashes is computed in a Web Worker.</p>
-                <p>4. The Merkle root + GPS + timestamp is anchored on NEAR Protocol.</p>
+                <p>4. The Merkle root + GPS + timestamp is anchored on Filecoin FVM.</p>
                 <p>5. Full footage is uploaded to Filecoin via Storacha, CID linked on-chain.</p>
                 <p>6. Footage is encrypted with Lit Protocol — only buyers can decrypt.</p>
               </CardContent>
