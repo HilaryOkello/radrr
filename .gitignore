@@ -44,6 +44,6 @@ next-env.d.ts
 contracts/radrr-js/node_modules
 contracts/radrr-js/build
 contracts/radrr/target
-contracts/worldchain/node_modules
-contracts/worldchain/artifacts
-contracts/worldchain/cache
+contracts/filecoin/node_modules
+contracts/filecoin/artifacts
+contracts/filecoin/cache
