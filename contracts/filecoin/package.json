@@ -1,10 +1,9 @@
 {
-  "name": "radrr-worldchain",
+  "name": "radrr-filecoin",
   "version": "1.0.0",
-  "type": "module",
   "scripts": {
     "compile": "hardhat compile",
-    "deploy:testnet": "hardhat run deploy.ts --network worldchain_testnet"
+    "deploy:testnet": "hardhat run deploy.ts --network filecoin_calibration"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
