@@ -1,25 +1,30 @@
 {
   "schema_version": "1.0",
   "agent_name": "Radrr Corroboration Agent",
-  "agent_description": "Autonomous agent that discovers citizen journalism recordings on World Chain, runs SigLIP similarity analysis to find corroborating footage, bundles matched recordings on-chain, and updates ERC-8004 reputation scores. Operates without human intervention after deployment.",
-  "operator_wallet": "",
-  "erc8004_identity": "",
-  "erc8004_registry": "",
+  "agent_description": "Autonomous agent that discovers citizen journalism recordings on Filecoin FVM, runs SigLIP similarity analysis to find corroborating footage, bundles matched recordings on-chain, and updates ERC-8004 reputation scores. Operates without human intervention after deployment.",
+  "operator_wallet": "0xb81Ad6d45a468D69212131DE3Dc9cfdaD86367fE",
+  "agent_address": "0x3B5FA5297f158cBB1c375372594858BB3B150463",
+  "erc8004_identity": "0x3B5FA5297f158cBB1c375372594858BB3B150463",
+  "erc8004_registry": "0x7Fe730B43d6A799c74573C3d24da7081Ef1EecDc",
+  "radrr_contract": "0x7558AF2375276Aa735B3766dd57F57b567A86cA2",
+  "network": "Filecoin Calibration Testnet",
+  "chain_id": 314159,
   "supported_tools": [
-    "world-chain-rpc",
+    "filecoin-fvm-rpc",
     "storacha-retrieval",
     "siglip-embeddings",
     "huggingface-inference-api",
-    "on-chain-write"
+    "on-chain-write",
+    "synapse-sdk-storage"
   ],
   "supported_tech_stacks": [
     "Next.js",
     "TypeScript",
     "viem",
-    "World Chain (EVM)",
+    "Filecoin FVM (EVM)",
     "Storacha / Filecoin",
+    "Synapse SDK (@filoz/synapse-sdk)",
     "Lit Protocol V1 Naga",
-    "World ID",
     "Hypercerts",
     "ERC-8004"
   ],
@@ -37,13 +42,13 @@
     "evidence-bundling"
   ],
   "decision_loop": [
-    "discover: fetch unprocessed recordings from World Chain",
+    "discover: fetch unprocessed recordings from Filecoin FVM contract",
     "plan: group by GPS cluster, identify candidates with ≥2 recordings",
     "execute: run SigLIP embeddings + cosine similarity via HuggingFace",
     "verify: check similarity ≥ 0.85 threshold",
-    "commit: update corroboration bundle on World Chain",
+    "commit: update corroboration bundle on Filecoin FVM",
     "reputation: record task success/failure in ERC-8004 registry",
-    "log: append structured entry to agent_log.json"
+    "log: append structured entry to agent_log.json and store on Filecoin via Synapse SDK"
   ],
   "safety_guardrails": [
     "never writes to contract without similarity threshold verification",
