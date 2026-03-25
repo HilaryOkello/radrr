@@ -7,10 +7,10 @@ import {
   createPublicClient,
   createWalletClient,
   http,
-  parseAbi,
   parseEther,
   type Address,
   type Hash,
+  type Abi,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
@@ -32,31 +32,49 @@ export const filecoinCalibration = {
   testnet: true,
 } as const;
 
-// ─── ABI (minimal — only what we call from server) ──────────────────────────
+// ─── ABI (JSON format — required for tuple + array return types) ─────────────
 
-const RADRR_ABI = parseAbi([
-  "function anchorRecording(string, string, string, string, uint256) external",
-  "function updateCid(string, string) external",
-  "function updateEncryptedCid(string, string) external",
-  "function updateCorroboration(string, string[]) external",
-  "function incrementCredibility(address, uint256) external",
-  "function isPurchased(string, address) external view returns (bool)",
-  "function getRecording(string) external view returns (tuple(string, string, string, uint256, string, string, address, string, uint256, bool, address, string[]))",
-  "function getRecordings(uint256, uint256) external view returns (tuple(string, string, string, uint256, string, string, address, string, uint256, bool, address, string[])[])",
-  "function getRecordingsByWitness(address) external view returns (tuple(string, string, string, uint256, string, string, address, string, uint256, bool, address, string[])[])",
-  "function getRecordingsByGps(string) external view returns (string[])",
-  "function getIdentity(address) external view returns (tuple(address, string, uint256, uint256, uint256))",
-  "function totalRecordings() external view returns (uint256)",
-]);
+const RECORDING_TUPLE = {
+  type: "tuple",
+  components: [
+    { name: "recordingId",          type: "string"   },
+    { name: "merkleRoot",           type: "string"   },
+    { name: "gpsApprox",            type: "string"   },
+    { name: "timestamp",            type: "uint256"  },
+    { name: "cid",                  type: "string"   },
+    { name: "encryptedCid",         type: "string"   },
+    { name: "witness",              type: "address"  },
+    { name: "title",                type: "string"   },
+    { name: "priceWei",             type: "uint256"  },
+    { name: "sold",                 type: "bool"     },
+    { name: "buyer",                type: "address"  },
+    { name: "corroborationBundle",  type: "string[]" },
+  ],
+} as const;
 
-const AGENT_REGISTRY_ABI = parseAbi([
-  "function registerAgent(address, string, string, string[], string) external",
-  "function recordTaskSuccess(address, string) external",
-  "function recordTaskFailure(address, string) external",
-  "function issueCredential(address, string, string) external",
-  "function getAgentReputation(address) external view returns (tuple(uint256, uint256, uint256, uint256))",
-  "function hasCredential(address, string) external view returns (bool)",
-]);
+const RADRR_ABI = [
+  { type: "function", name: "anchorRecording",    stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "uint256" }], outputs: [] },
+  { type: "function", name: "updateCid",          stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }], outputs: [] },
+  { type: "function", name: "updateEncryptedCid", stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }], outputs: [] },
+  { type: "function", name: "updateCorroboration",stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string[]" }], outputs: [] },
+  { type: "function", name: "incrementCredibility",stateMutability: "nonpayable", inputs: [{ type: "address" }, { type: "uint256" }], outputs: [] },
+  { type: "function", name: "isPurchased",        stateMutability: "view",        inputs: [{ type: "string" }, { type: "address" }], outputs: [{ type: "bool" }] },
+  { type: "function", name: "getRecording",       stateMutability: "view",        inputs: [{ type: "string" }], outputs: [RECORDING_TUPLE] },
+  { type: "function", name: "getRecordings",      stateMutability: "view",        inputs: [{ type: "uint256" }, { type: "uint256" }], outputs: [{ ...RECORDING_TUPLE, type: "tuple[]" }] },
+  { type: "function", name: "getRecordingsByWitness", stateMutability: "view",    inputs: [{ type: "address" }], outputs: [{ ...RECORDING_TUPLE, type: "tuple[]" }] },
+  { type: "function", name: "getRecordingsByGps", stateMutability: "view",        inputs: [{ type: "string" }], outputs: [{ type: "string[]" }] },
+  { type: "function", name: "getIdentity",        stateMutability: "view",        inputs: [{ type: "address" }], outputs: [{ type: "tuple", components: [{ name: "account", type: "address" }, { name: "pseudonym", type: "string" }, { name: "credibilityScore", type: "uint256" }, { name: "recordingCount", type: "uint256" }, { name: "totalSales", type: "uint256" }] }] },
+  { type: "function", name: "totalRecordings",    stateMutability: "view",        inputs: [], outputs: [{ type: "uint256" }] },
+] as const satisfies Abi;
+
+const AGENT_REGISTRY_ABI = [
+  { type: "function", name: "registerAgent",      stateMutability: "nonpayable", inputs: [{ type: "address" }, { type: "string" }, { type: "string" }, { type: "string[]" }, { type: "string" }], outputs: [] },
+  { type: "function", name: "recordTaskSuccess",  stateMutability: "nonpayable", inputs: [{ type: "address" }, { type: "string" }], outputs: [] },
+  { type: "function", name: "recordTaskFailure",  stateMutability: "nonpayable", inputs: [{ type: "address" }, { type: "string" }], outputs: [] },
+  { type: "function", name: "issueCredential",    stateMutability: "nonpayable", inputs: [{ type: "address" }, { type: "string" }, { type: "string" }], outputs: [] },
+  { type: "function", name: "getAgentReputation", stateMutability: "view",       inputs: [{ type: "address" }], outputs: [{ type: "tuple", components: [{ name: "score", type: "uint256" }, { name: "tasksCompleted", type: "uint256" }, { name: "tasksFailed", type: "uint256" }, { name: "lastUpdated", type: "uint256" }] }] },
+  { type: "function", name: "hasCredential",      stateMutability: "view",       inputs: [{ type: "address" }, { type: "string" }], outputs: [{ type: "bool" }] },
+] as const satisfies Abi;
 
 // ─── Client setup ────────────────────────────────────────────────────────────
 

@@ -7,20 +7,25 @@
  * Network: Filecoin Calibration Testnet (chain ID 314159)
  */
 
-// Synapse SDK uses ESM exports — import via the dist path
-import type { SynapseClient } from "@filoz/synapse-sdk";
+import { http } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { filecoinCalibration } from "./filecoin";
 
-const RPC_URL    = process.env.FILECOIN_RPC_URL ?? "https://api.calibration.node.glif.io/rpc/v1";
-const AGENT_KEY  = process.env.FILECOIN_AGENT_PRIVATE_KEY ?? process.env.EVM_PLATFORM_PRIVATE_KEY;
+const RPC_URL   = process.env.FILECOIN_RPC_URL ?? "https://api.calibration.node.glif.io/rpc/v1";
+const AGENT_KEY = (process.env.FILECOIN_AGENT_PRIVATE_KEY ?? process.env.EVM_PLATFORM_PRIVATE_KEY) as `0x${string}`;
 
-let _client: SynapseClient | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _client: any = null;
 
-async function getClient(): Promise<SynapseClient> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getClient(): Promise<any> {
   if (_client) return _client;
-  const { SynapseClient: SC } = await import("@filoz/synapse-sdk");
-  _client = new SC({
-    rpcUrl: RPC_URL,
-    privateKey: AGENT_KEY!,
+  const { Synapse } = await import("@filoz/synapse-sdk");
+  const account = privateKeyToAccount(AGENT_KEY);
+  _client = Synapse.create({
+    chain: filecoinCalibration as never,
+    transport: http(RPC_URL),
+    account,
   });
   return _client;
 }
