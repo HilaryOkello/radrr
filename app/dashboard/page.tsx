@@ -15,7 +15,7 @@ interface Recording {
   cid?: string;
   encrypted_cid?: string;
   title: string;
-  price_yocto: string;
+  price_eth: string;
   sold: boolean;
   corroboration_bundle: string[];
   witness: string;
@@ -26,13 +26,12 @@ interface Identity {
   credibility_score: number;
   recording_count: number;
   total_sales: number;
-  world_id_verified: boolean;
 }
 
-function formatNear(yocto: string): string {
-  const n = BigInt(yocto);
-  const near = Number(n) / 1e24;
-  return near.toFixed(2);
+function formatEth(wei: string): string {
+  const n = BigInt(wei);
+  const eth = Number(n) / 1e18;
+  return eth.toFixed(4);
 }
 
 function formatDate(ts: number): string {
@@ -43,16 +42,16 @@ export default function DashboardPage() {
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [recordings, setRecordings] = useState<Recording[]>([]);
   const [loading, setLoading] = useState(true);
-  const [nearAccountId, setNearAccountId] = useState<string | null>(null);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("radrr_identity");
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        setNearAccountId(parsed.nearAccountId);
-        // Fetch from NEAR
-        fetchData(parsed.nearAccountId);
+        const addr = parsed.walletAddress ?? parsed.nearAccountId;
+        setWalletAddress(addr);
+        fetchData(addr);
       } catch {
         setLoading(false);
       }
@@ -90,7 +89,7 @@ export default function DashboardPage() {
       ? "bg-chart-3 text-black"
       : "bg-main";
 
-  if (!nearAccountId && !loading) {
+  if (!walletAddress && !loading) {
     return (
       <main className="min-h-screen flex flex-col">
         <nav className="border-b-2 border-border px-6 py-4 flex items-center justify-between bg-secondary-background">
@@ -102,10 +101,10 @@ export default function DashboardPage() {
               <div className="text-5xl mb-4">👤</div>
               <h2 className="font-heading text-xl mb-3">No identity found</h2>
               <p className="text-muted-foreground font-base mb-6">
-                You need to verify your identity with World ID before accessing your dashboard.
+                Start recording to create your on-chain identity.
               </p>
-              <Link href="/verify">
-                <Button size="lg">Verify Identity →</Button>
+              <Link href="/record">
+                <Button size="lg">Start Recording →</Button>
               </Link>
             </CardContent>
           </Card>
@@ -137,12 +136,7 @@ export default function DashboardPage() {
               <Card className="border-2 border-border md:col-span-2">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3">
-                    <span>{identity?.pseudonym ?? nearAccountId}</span>
-                    {identity?.world_id_verified && (
-                      <Badge className="bg-chart-2 text-black text-xs">
-                        World ID Verified
-                      </Badge>
-                    )}
+                    <span>{identity?.pseudonym ?? walletAddress}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -282,7 +276,7 @@ function RecordingsList({ recordings }: { recordings: Recording[] }) {
               </div>
               <div className="flex flex-col items-end gap-2 shrink-0">
                 <span className="font-heading text-lg">
-                  {r.price_yocto ? formatNear(r.price_yocto) : "—"} NEAR
+                  {r.price_eth ? formatEth(r.price_eth) : "—"} tFIL
                 </span>
                 {r.cid && (
                   <a
