@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# contracts
+contracts/radrr-js/node_modules
+contracts/radrr-js/build
+contracts/radrr/target
