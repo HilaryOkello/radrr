@@ -21,10 +21,10 @@ import {
   recordAgentTaskSuccess,
   recordAgentTaskFailure,
   issueAgentCredential,
-} from "../lib/worldchain";
+} from "../lib/filecoin";
 import { runCorroboration } from "../lib/siglip";
 
-const AGENT_ADDRESS   = process.env.WORLDCHAIN_AGENT_ADDRESS!;
+const AGENT_ADDRESS   = process.env.FILECOIN_AGENT_ADDRESS!;
 const LOG_PATH        = path.join(process.cwd(), "agent_log.json");
 const SIMILARITY_THRESHOLD = 0.85;
 const POLL_INTERVAL_MS     = 30_000; // 30s
