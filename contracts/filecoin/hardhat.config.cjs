@@ -18,14 +18,14 @@ module.exports = {
     settings: { optimizer: { enabled: true, runs: 200 }, viaIR: true },
   },
   networks: {
-    worldchain_testnet: {
-      url: "https://worldchain-sepolia.g.alchemy.com/public",
-      chainId: 4801,
+    filecoin_calibration: {
+      url: "https://api.calibration.node.glif.io/rpc/v1",
+      chainId: 314159,
       accounts: DEPLOYER_KEY ? [DEPLOYER_KEY] : [],
     },
-    worldchain_mainnet: {
-      url: "https://worldchain-mainnet.g.alchemy.com/public",
-      chainId: 480,
+    filecoin_mainnet: {
+      url: "https://api.node.glif.io/rpc/v1",
+      chainId: 314,
       accounts: DEPLOYER_KEY ? [DEPLOYER_KEY] : [],
     },
   },

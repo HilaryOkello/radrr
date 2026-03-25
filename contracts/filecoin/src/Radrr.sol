@@ -24,8 +24,6 @@ contract Radrr {
     struct Identity {
         address account;
         string  pseudonym;
-        string  worldIdHash;     // nullifier hash — proves unique human, no biometrics stored
-        bool    worldIdVerified;
         uint256 credibilityScore;
         uint256 recordingCount;
         uint256 totalSales;
@@ -52,7 +50,7 @@ contract Radrr {
 
     // ─── Events ─────────────────────────────────────────────────────────────
 
-    event IdentityRegistered(address indexed account, string pseudonym, bool worldIdVerified);
+    event IdentityRegistered(address indexed account, string pseudonym);
     event RecordingAnchored(string indexed recordingId, address indexed witness, uint256 priceWei);
     event CidUpdated(string indexed recordingId, string cid);
     event EncryptedCidUpdated(string indexed recordingId);
@@ -75,26 +73,20 @@ contract Radrr {
 
     // ─── Identity ───────────────────────────────────────────────────────────
 
-    /// @notice Register a pseudonymous identity. World ID hash is optional for bonus credibility.
-    function registerIdentity(
-        string calldata pseudonym,
-        string calldata worldIdHash
-    ) external {
+    /// @notice Register a pseudonymous identity linked to a wallet address.
+    function registerIdentity(string calldata pseudonym) external {
         require(_identities[msg.sender].account == address(0), "Already registered");
         require(bytes(pseudonym).length > 0, "Pseudonym required");
 
-        bool verified = bytes(worldIdHash).length > 0;
         _identities[msg.sender] = Identity({
             account:          msg.sender,
             pseudonym:        pseudonym,
-            worldIdHash:      worldIdHash,
-            worldIdVerified:  verified,
-            credibilityScore: verified ? 25 : 10,  // World ID users start higher
+            credibilityScore: 10,
             recordingCount:   0,
             totalSales:       0
         });
 
-        emit IdentityRegistered(msg.sender, pseudonym, verified);
+        emit IdentityRegistered(msg.sender, pseudonym);
     }
 
     // ─── Recording ──────────────────────────────────────────────────────────
