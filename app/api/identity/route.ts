@@ -3,7 +3,7 @@ import { getIdentity } from "@/lib/filecoin";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const account = searchParams.get("account");
+  const account = searchParams.get("accountId") ?? searchParams.get("account");
 
   if (!account) {
     return NextResponse.json({ error: "account required" }, { status: 400 });

@@ -104,7 +104,10 @@ export default function RecordPage() {
           }),
         });
         if (!anchorRes.ok) throw new Error("Anchor failed");
-        const { txHash } = await anchorRes.json();
+        const { txHash, walletAddress } = await anchorRes.json();
+        if (walletAddress) {
+          localStorage.setItem("radrr_identity", JSON.stringify({ walletAddress }));
+        }
         toast.success("Proof anchored on Filecoin!");
 
         // 2. Upload to Storacha

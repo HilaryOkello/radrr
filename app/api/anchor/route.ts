@@ -32,7 +32,12 @@ export async function POST(req: NextRequest) {
       txHash:    String(txHash),
     }).catch(() => {});
 
-    return NextResponse.json({ txHash, recordingId });
+    const { privateKeyToAccount } = await import("viem/accounts");
+    const walletAddress = privateKeyToAccount(
+      (process.env.EVM_PLATFORM_PRIVATE_KEY ?? "") as `0x${string}`
+    ).address;
+
+    return NextResponse.json({ txHash, recordingId, walletAddress });
   } catch (err) {
     console.error("[anchor]", err);
     return NextResponse.json(
