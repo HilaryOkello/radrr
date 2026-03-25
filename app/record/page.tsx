@@ -212,7 +212,7 @@ export default function RecordPage() {
         setPhase("error");
       }
     },
-    [gps]
+    [gps, connectedAddress]
   );
 
   const startRecording = async () => {
