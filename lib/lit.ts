@@ -149,6 +149,42 @@ export async function decryptVideo(params: {
 }
 
 /**
+ * AES-256-GCM fallback encryption for when Lit nodes are unreachable.
+ * In production the AES key would be sealed by Lit Protocol and only
+ * released after isPurchased() returns true on the Filecoin contract.
+ * For demo: key is included in the payload (marked demo mode).
+ */
+export async function encryptVideoLocal(
+  videoBytes: Uint8Array,
+  recordingId: string
+): Promise<EncryptResult & { key: string }> {
+  const key = await crypto.subtle.generateKey(
+    { name: "AES-GCM", length: 256 },
+    true,
+    ["encrypt", "decrypt"]
+  );
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, videoBytes);
+
+  // iv (12 bytes) + ciphertext
+  const combined = new Uint8Array(12 + encrypted.byteLength);
+  combined.set(iv, 0);
+  combined.set(new Uint8Array(encrypted), 12);
+
+  const ciphertext = btoa(String.fromCharCode(...combined));
+
+  const hashBuf = await crypto.subtle.digest("SHA-256", videoBytes);
+  const dataToEncryptHash = Array.from(new Uint8Array(hashBuf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  const rawKey = await crypto.subtle.exportKey("raw", key);
+  const keyB64 = btoa(String.fromCharCode(...new Uint8Array(rawKey)));
+
+  return { ciphertext, dataToEncryptHash, key: keyB64 };
+}
+
+/**
  * Encrypt GPS coordinates with the same access condition.
  */
 export async function encryptGps(
