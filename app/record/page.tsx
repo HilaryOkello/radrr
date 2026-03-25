@@ -352,7 +352,15 @@ export default function RecordPage() {
           </div>
 
           <div className="p-6 flex flex-col gap-4 flex-1 bg-background">
-            {phase === "idle" && (
+            {phase === "idle" && !connectedAddress && (
+              <div className="flex flex-col gap-2">
+                <p className="text-sm text-muted-foreground font-base text-center">
+                  Connect your wallet to anchor footage under your identity.
+                </p>
+                <ConnectWallet />
+              </div>
+            )}
+            {phase === "idle" && connectedAddress && (
               <Button size="lg" onClick={startRecording} className="w-full text-base">
                 Start Recording
               </Button>
