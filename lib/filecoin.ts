@@ -35,27 +35,27 @@ export const filecoinCalibration = {
 // ─── ABI (minimal — only what we call from server) ──────────────────────────
 
 const RADRR_ABI = parseAbi([
-  "function anchorRecording(string recordingId, string merkleRoot, string gpsApprox, string title, uint256 priceWei) external",
-  "function updateCid(string recordingId, string cid) external",
-  "function updateEncryptedCid(string recordingId, string encryptedCid) external",
-  "function updateCorroboration(string recordingId, string[] bundleIds) external",
-  "function incrementCredibility(address account, uint256 points) external",
-  "function isPurchased(string recordingId, address buyer) external view returns (bool)",
-  "function getRecording(string recordingId) external view returns (tuple(string recordingId, string merkleRoot, string gpsApprox, uint256 timestamp, string cid, string encryptedCid, address witness, string title, uint256 priceWei, bool sold, address buyer, string[] corroborationBundle))",
-  "function getRecordings(uint256 fromIndex, uint256 limit) external view returns (tuple(string recordingId, string merkleRoot, string gpsApprox, uint256 timestamp, string cid, string encryptedCid, address witness, string title, uint256 priceWei, bool sold, address buyer, string[] corroborationBundle)[])",
-  "function getRecordingsByWitness(address witness) external view returns (tuple(string recordingId, string merkleRoot, string gpsApprox, uint256 timestamp, string cid, string encryptedCid, address witness, string title, uint256 priceWei, bool sold, address buyer, string[] corroborationBundle)[])",
-  "function getRecordingsByGps(string gpsApprox) external view returns (string[])",
-  "function getIdentity(address account) external view returns (tuple(address account, string pseudonym, uint256 credibilityScore, uint256 recordingCount, uint256 totalSales))",
+  "function anchorRecording(string, string, string, string, uint256) external",
+  "function updateCid(string, string) external",
+  "function updateEncryptedCid(string, string) external",
+  "function updateCorroboration(string, string[]) external",
+  "function incrementCredibility(address, uint256) external",
+  "function isPurchased(string, address) external view returns (bool)",
+  "function getRecording(string) external view returns (tuple(string, string, string, uint256, string, string, address, string, uint256, bool, address, string[]))",
+  "function getRecordings(uint256, uint256) external view returns (tuple(string, string, string, uint256, string, string, address, string, uint256, bool, address, string[])[])",
+  "function getRecordingsByWitness(address) external view returns (tuple(string, string, string, uint256, string, string, address, string, uint256, bool, address, string[])[])",
+  "function getRecordingsByGps(string) external view returns (string[])",
+  "function getIdentity(address) external view returns (tuple(address, string, uint256, uint256, uint256))",
   "function totalRecordings() external view returns (uint256)",
 ]);
 
 const AGENT_REGISTRY_ABI = parseAbi([
-  "function registerAgent(address agent, string did, string name, string[] capabilities, string metadataUri) external",
-  "function recordTaskSuccess(address agent, string reason) external",
-  "function recordTaskFailure(address agent, string reason) external",
-  "function issueCredential(address agent, string credentialType, string evidenceCid) external",
-  "function getAgentReputation(address agent) external view returns (tuple(uint256 score, uint256 tasksCompleted, uint256 tasksFailed, uint256 lastUpdated))",
-  "function hasCredential(address agent, string credentialType) external view returns (bool)",
+  "function registerAgent(address, string, string, string[], string) external",
+  "function recordTaskSuccess(address, string) external",
+  "function recordTaskFailure(address, string) external",
+  "function issueCredential(address, string, string) external",
+  "function getAgentReputation(address) external view returns (tuple(uint256, uint256, uint256, uint256))",
+  "function hasCredential(address, string) external view returns (bool)",
 ]);
 
 // ─── Client setup ────────────────────────────────────────────────────────────

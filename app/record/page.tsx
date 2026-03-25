@@ -27,7 +27,7 @@ interface ChunkHash {
 interface RecordingResult {
   recordingId: string;
   merkleRoot: string;
-  nearTxHash: string;
+  txHash: string;
   cid: string;
   chunkCount: number;
   gps: string;
@@ -104,8 +104,8 @@ export default function RecordPage() {
           }),
         });
         if (!anchorRes.ok) throw new Error("Anchor failed");
-        const { nearTxHash } = await anchorRes.json();
-        toast.success("Proof anchored on NEAR!");
+        const { txHash } = await anchorRes.json();
+        toast.success("Proof anchored on Filecoin!");
 
         // 2. Upload to Storacha
         setPhase("uploading");
@@ -135,7 +135,7 @@ export default function RecordPage() {
         setResult({
           recordingId: id,
           merkleRoot: root,
-          nearTxHash,
+          txHash,
           cid,
           chunkCount,
           gps: gps ?? "unknown",
@@ -382,7 +382,7 @@ export default function RecordPage() {
                 <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
                   {chunkHashes.slice(-8).map((c) => (
                     <div
-                      key={c.index}
+                      key={`${c.index}-${c.hash}`}
                       className="flex items-center gap-3 font-mono text-xs"
                     >
                       <span className="text-muted-foreground w-6">#{c.index}</span>
@@ -403,7 +403,7 @@ export default function RecordPage() {
               <CardContent className="flex flex-col gap-3 text-sm">
                 <Row label="Recording ID" value={result.recordingId} mono />
                 <Row label="Merkle Root" value={result.merkleRoot} mono truncate />
-                <Row label="NEAR Tx" value={result.nearTxHash} mono truncate />
+                <Row label="Filecoin Tx" value={result.txHash} mono truncate />
                 <Row label="Filecoin CID" value={result.cid} mono truncate />
                 <Row label="Chunks" value={String(result.chunkCount)} />
                 <Row label="GPS Approx" value={result.gps} />
