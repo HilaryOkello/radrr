@@ -5,23 +5,9 @@ import Link from "next/link";
 import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { ConnectWallet } from "@/components/ConnectWallet";
-import { Badge } from "@/components/ui/badge";
+import { FootageCard, type FootageRecording } from "@/components/FootageCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-interface Recording {
-  recording_id: string;
-  merkle_root: string;
-  gps_approx: string;
-  timestamp: number;
-  cid?: string;
-  encrypted_cid?: string;
-  title: string;
-  price_eth: string;
-  sold: boolean;
-  corroboration_bundle: string[];
-  witness: string;
-}
 
 interface Identity {
   pseudonym: string;
@@ -30,20 +16,11 @@ interface Identity {
   total_sales: number;
 }
 
-function formatEth(wei: string): string {
-  const n = BigInt(wei);
-  const eth = Number(n) / 1e18;
-  return eth.toFixed(4);
-}
-
-function formatDate(ts: number): string {
-  return new Date(ts).toLocaleString();
-}
 
 export default function DashboardPage() {
   const { address: connectedAddress } = useAccount();
   const [identity, setIdentity] = useState<Identity | null>(null);
-  const [recordings, setRecordings] = useState<Recording[]>([]);
+  const [recordings, setRecordings] = useState<FootageRecording[]>([]);
   const [loading, setLoading] = useState(true);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
@@ -198,16 +175,15 @@ export default function DashboardPage() {
               </div>
 
               <TabsContent value="all">
-                <RecordingsList recordings={recordings} />
+                <RecordingsList recordings={recordings} walletAddress={walletAddress ?? undefined} />
               </TabsContent>
               <TabsContent value="sold">
-                <RecordingsList recordings={recordings.filter((r) => r.sold)} />
+                <RecordingsList recordings={recordings.filter((r) => r.sold)} walletAddress={walletAddress ?? undefined} />
               </TabsContent>
               <TabsContent value="corroborated">
                 <RecordingsList
-                  recordings={recordings.filter(
-                    (r) => r.corroboration_bundle.length > 0
-                  )}
+                  recordings={recordings.filter((r) => r.corroboration_bundle.length > 0)}
+                  walletAddress={walletAddress ?? undefined}
                 />
               </TabsContent>
             </Tabs>
@@ -241,7 +217,13 @@ function Stat({
   );
 }
 
-function RecordingsList({ recordings }: { recordings: Recording[] }) {
+function RecordingsList({
+  recordings,
+  walletAddress,
+}: {
+  recordings: FootageRecording[];
+  walletAddress?: string;
+}) {
   if (recordings.length === 0) {
     return (
       <Card className="border-2 border-border">
@@ -257,53 +239,14 @@ function RecordingsList({ recordings }: { recordings: Recording[] }) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {recordings.map((r) => (
-        <Card key={r.recording_id} className="border-2 border-border">
-          <CardContent className="pt-4 pb-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex flex-col gap-1 flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-heading text-base">{r.title}</span>
-                  {r.sold && <Badge className="bg-chart-2 text-black text-xs">Sold</Badge>}
-                  {r.corroboration_bundle.length > 0 && (
-                    <Badge className="bg-chart-5 text-white text-xs">
-                      Corroborated ×{r.corroboration_bundle.length}
-                    </Badge>
-                  )}
-                  {r.encrypted_cid && (
-                    <Badge variant="neutral" className="text-xs">Encrypted</Badge>
-                  )}
-                  {r.cid && (
-                    <Badge variant="neutral" className="text-xs">On Filecoin</Badge>
-                  )}
-                </div>
-                <div className="text-xs text-muted-foreground font-mono mt-1 flex flex-wrap gap-3">
-                  <span>ID: {r.recording_id.slice(0, 24)}...</span>
-                  <span>📍 {r.gps_approx}</span>
-                  <span>🕐 {formatDate(r.timestamp)}</span>
-                </div>
-                <div className="text-xs font-mono text-muted-foreground truncate">
-                  Root: {r.merkle_root.slice(0, 32)}...
-                </div>
-              </div>
-              <div className="flex flex-col items-end gap-2 shrink-0">
-                <span className="font-heading text-lg">
-                  {r.price_eth ? formatEth(r.price_eth) : "—"} tFIL
-                </span>
-                {r.cid && (
-                  <a
-                    href={`https://${r.cid}.ipfs.w3s.link`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Button variant="neutral" size="sm">View on IPFS</Button>
-                  </a>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <FootageCard
+          key={r.recording_id}
+          recording={r}
+          mode="dashboard"
+          walletAddress={walletAddress}
+        />
       ))}
     </div>
   );
