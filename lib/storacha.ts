@@ -6,14 +6,24 @@
 import * as Client from "@storacha/client";
 import { StoreMemory } from "@storacha/client/stores/memory";
 import * as Delegation from "@ucanto/core/delegation";
+import * as ed25519 from "@ucanto/principal/ed25519";
 
 let storachaClient: Client.Client | null = null;
 
 async function getClient(): Promise<Client.Client> {
   if (storachaClient) return storachaClient;
 
+  // Load stable principal so the server DID is consistent across restarts
+  const principalB64 = process.env.STORACHA_PRINCIPAL;
+  let principal: Awaited<ReturnType<typeof ed25519.generate>> | undefined;
+  if (principalB64) {
+    const bytes = new Uint8Array(Buffer.from(principalB64, "base64"));
+    principal = ed25519.decode(bytes);
+  }
+
   const store = new StoreMemory();
-  storachaClient = await Client.create({ store });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  storachaClient = await Client.create({ store, principal: principal as any });
 
   const proofBase64 = process.env.STORACHA_PROOF;
   if (!proofBase64) {
