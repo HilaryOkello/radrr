@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { encryptVideo } from "@/lib/lit";
 import { uploadEncryptedVideo } from "@/lib/storacha";
-import { updateEncryptedCid } from "@/lib/near";
+import { updateEncryptedCid } from "@/lib/worldchain";
 
 export async function POST(req: NextRequest) {
   try {

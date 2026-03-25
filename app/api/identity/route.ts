@@ -1,28 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { JsonRpcProvider } from "near-api-js";
-
-const CONTRACT_ID = process.env.NEAR_CONTRACT_ID!;
-const NETWORK_ID = process.env.NEAR_NETWORK_ID || "testnet";
-const RPC_URL =
-  NETWORK_ID === "mainnet"
-    ? "https://rpc.mainnet.near.org"
-    : "https://rpc.testnet.near.org";
+import { getIdentity } from "@/lib/worldchain";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const accountId = searchParams.get("accountId");
+  const account = searchParams.get("account");
 
-  if (!accountId) {
-    return NextResponse.json({ error: "accountId required" }, { status: 400 });
+  if (!account) {
+    return NextResponse.json({ error: "account required" }, { status: 400 });
   }
 
   try {
-    const provider = new JsonRpcProvider({ url: RPC_URL });
-    const identity = await provider.callFunction({
-      contractId: CONTRACT_ID,
-      method: "get_identity",
-      args: { account_id: accountId },
-    });
+    const identity = await getIdentity(account);
     return NextResponse.json({ identity });
   } catch (err) {
     console.error("[identity]", err);

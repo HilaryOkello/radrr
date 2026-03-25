@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { anchorRecording } from "@/lib/near";
+import { anchorRecording } from "@/lib/worldchain";
 
 export async function POST(req: NextRequest) {
   try {
-    const { recordingId, merkleRoot, gpsApprox, title, priceNear } =
+    const { recordingId, merkleRoot, gpsApprox, title, priceEth } =
       await req.json();
 
     if (!recordingId || !merkleRoot) {
@@ -13,19 +13,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const nearTxHash = await anchorRecording({
+    const txHash = await anchorRecording({
       recordingId,
       merkleRoot,
       gpsApprox: gpsApprox ?? "unknown",
       title: title ?? "Untitled Recording",
-      priceNear: priceNear ?? "1.0",
+      priceEth: priceEth ?? "0.001",
     });
 
-    return NextResponse.json({ nearTxHash, recordingId });
+    return NextResponse.json({ txHash, recordingId });
   } catch (err) {
     console.error("[anchor]", err);
     return NextResponse.json(
-      { error: "Failed to anchor recording on NEAR" },
+      { error: "Failed to anchor recording on World Chain" },
       { status: 500 }
     );
   }

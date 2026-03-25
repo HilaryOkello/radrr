@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isPurchased, getRecordings } from "@/lib/near";
+import { isPurchased, getRecordings } from "@/lib/worldchain";
 import { mintSaleHypercert } from "@/lib/hypercerts";
 
 /**

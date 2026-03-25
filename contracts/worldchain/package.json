@@ -1,0 +1,13 @@
+{
+  "name": "radrr-worldchain",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy:testnet": "hardhat run deploy.ts --network worldchain_testnet"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.0"
+  }
+}

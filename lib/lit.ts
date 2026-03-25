@@ -1,9 +1,9 @@
 /**
- * Lit Protocol v6 integration.
+ * Lit Protocol V1 (Naga) integration.
  * Handles encryption at upload time and decryption on confirmed purchase.
  *
- * Access control: a Lit Action checks NEAR contract `is_purchased()` via RPC.
- * Only returns true when a confirmed purchase exists on-chain for the buyer.
+ * Access control: a Lit Action calls World Chain RPC to verify isPurchased().
+ * EVM-native: no custom JSON-RPC encoding needed — standard eth_call.
  */
 
 import * as LitJsSdk from "@lit-protocol/lit-node-client";
@@ -15,41 +15,49 @@ import {
 
 const LIT_NETWORK = LitNetwork.DatilTest;
 
-/** Lit Action JS code that runs on Lit nodes.
- *  Calls NEAR RPC to verify is_purchased(recording_id, buyer).
+const WORLDCHAIN_RPC = "https://worldchain-sepolia.g.alchemy.com/public";
+
+/**
+ * Lit Action: calls World Chain eth_call to verify isPurchased(recordingId, buyer).
+ * Runs on Lit nodes — no secrets exposed to the server.
  */
 export const RADRR_LIT_ACTION_CODE = `
 (async () => {
-  const nearRpcUrl = "https://rpc.testnet.near.org";
-  const contractId = params.contractId;
-  const recordingId = params.recordingId;
-  const buyer = params.buyer;
+  const contractAddress = params.contractAddress;
+  const recordingId     = params.recordingId;
+  const buyer           = params.buyer;
+  const rpcUrl          = "${WORLDCHAIN_RPC}";
 
-  const resp = await fetch(nearRpcUrl, {
+  // ABI-encode isPurchased(string,address)
+  // selector: keccak256("isPurchased(string,address)") -> first 4 bytes
+  const selector = "0x67c1c258";
+
+  // Encode string + address params (simplified ABI encoding for Lit Action)
+  const recordingIdHex = Array.from(new TextEncoder().encode(recordingId))
+    .map(b => b.toString(16).padStart(2, "0")).join("");
+  const buyerClean = buyer.toLowerCase().replace("0x", "").padStart(64, "0");
+  const offset     = "0000000000000000000000000000000000000000000000000000000000000040";
+  const len        = recordingId.length.toString(16).padStart(64, "0");
+  const padded     = recordingIdHex.padEnd(Math.ceil(recordingIdHex.length / 64) * 64, "0");
+  const data       = selector + offset + buyerClean + len + padded;
+
+  const resp = await fetch(rpcUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: "radrr",
-      method: "query",
-      params: {
-        request_type: "call_function",
-        finality: "final",
-        account_id: contractId,
-        method_name: "is_purchased",
-        args_base64: btoa(JSON.stringify({ recording_id: recordingId, buyer })),
-      },
+      jsonrpc: "2.0", id: 1, method: "eth_call",
+      params: [{ to: contractAddress, data }, "latest"],
     }),
   });
-  const data = await resp.json();
-  if (data.error) { LitActions.setResponse({ response: "false" }); return; }
-  const bytes = data.result?.result;
-  if (!bytes) { LitActions.setResponse({ response: "false" }); return; }
-  const decoded = JSON.parse(bytes.map((b) => String.fromCharCode(b)).join(""));
-  if (decoded) {
+  const json = await resp.json();
+  // Result is 32-byte bool: last char "1" = true
+  const purchased = json.result && json.result !== "0x" &&
+    parseInt(json.result.slice(-1), 16) === 1;
+
+  if (purchased) {
     const sigShare = await LitActions.signEcdsa({ toSign: dataToSign, publicKey, sigName: "sig1" });
   }
-  LitActions.setResponse({ response: decoded ? "true" : "false" });
+  LitActions.setResponse({ response: purchased ? "true" : "false" });
 })();
 `;
 
@@ -66,20 +74,17 @@ async function getLitClient(): Promise<LitJsSdk.LitNodeClient> {
   return litClient;
 }
 
-/** Build Lit access control conditions using a Lit Action on NEAR. */
+/** Build Lit access control conditions using a Lit Action on World Chain. */
 function buildAccessConditions(recordingId: string) {
-  // Custom Lit Action: checks NEAR contract is_purchased()
-  // For hackathon, use a simple EVM-style condition that can be replaced
-  // with the Lit Action IPFS CID after uploading the action.
   return [
     {
       contractAddress: "",
       standardContractType: "LitAction",
-      chain: "ethereum",
+      chain: "worldchain-sepolia",
       method: "isPurchased",
       parameters: [
         ":userAddress",
-        process.env.NEAR_CONTRACT_ID ?? "",
+        process.env.WORLDCHAIN_CONTRACT_ADDRESS ?? "",
         recordingId,
       ],
       returnValueTest: {

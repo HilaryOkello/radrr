@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getRecordingsByWitness, getRecordings } from "@/lib/near";
+import { getRecordingsByWitness, getRecordings } from "@/lib/worldchain";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);

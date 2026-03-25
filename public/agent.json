@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "agent_name": "Radrr Corroboration Agent",
+  "agent_description": "Autonomous agent that discovers citizen journalism recordings on World Chain, runs SigLIP similarity analysis to find corroborating footage, bundles matched recordings on-chain, and updates ERC-8004 reputation scores. Operates without human intervention after deployment.",
+  "operator_wallet": "",
+  "erc8004_identity": "",
+  "erc8004_registry": "",
+  "supported_tools": [
+    "world-chain-rpc",
+    "storacha-retrieval",
+    "siglip-embeddings",
+    "huggingface-inference-api",
+    "on-chain-write"
+  ],
+  "supported_tech_stacks": [
+    "Next.js",
+    "TypeScript",
+    "viem",
+    "World Chain (EVM)",
+    "Storacha / Filecoin",
+    "Lit Protocol V1 Naga",
+    "World ID",
+    "Hypercerts",
+    "ERC-8004"
+  ],
+  "compute_constraints": {
+    "poll_interval_ms": 30000,
+    "max_recordings_per_cycle": 50,
+    "similarity_threshold": 0.85,
+    "max_retries": 3
+  },
+  "supported_task_categories": [
+    "corroboration",
+    "similarity-analysis",
+    "on-chain-attestation",
+    "reputation-update",
+    "evidence-bundling"
+  ],
+  "decision_loop": [
+    "discover: fetch unprocessed recordings from World Chain",
+    "plan: group by GPS cluster, identify candidates with ≥2 recordings",
+    "execute: run SigLIP embeddings + cosine similarity via HuggingFace",
+    "verify: check similarity ≥ 0.85 threshold",
+    "commit: update corroboration bundle on World Chain",
+    "reputation: record task success/failure in ERC-8004 registry",
+    "log: append structured entry to agent_log.json"
+  ],
+  "safety_guardrails": [
+    "never writes to contract without similarity threshold verification",
+    "catches and logs all errors before retrying",
+    "records failures in ERC-8004 reputation registry for auditability",
+    "does not process recordings without Storacha CID (upload not complete)"
+  ],
+  "execution_log": "./agent_log.json"
+}
