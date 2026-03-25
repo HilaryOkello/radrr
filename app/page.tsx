@@ -53,7 +53,7 @@ export default function Home() {
           <Link href="/marketplace">
             <Button variant="neutral" size="sm">Browse Footage</Button>
           </Link>
-          <Link href="/verify">
+          <Link href="/record">
             <Button size="sm">Start Recording</Button>
           </Link>
         </div>
@@ -77,7 +77,7 @@ export default function Home() {
           camera required.
         </p>
         <div className="flex flex-col sm:flex-row gap-4">
-          <Link href="/verify">
+          <Link href="/record">
             <Button size="lg" className="text-base px-8">
               Start Recording →
             </Button>
@@ -128,12 +128,12 @@ export default function Home() {
           Witnessed something important?
         </h2>
         <p className="text-lg mb-8 max-w-xl mx-auto font-base text-muted-foreground">
-          Verify your identity once. Record. The blockchain handles the proof.
+          Record. The blockchain handles the proof.
           You keep the revenue.
         </p>
-        <Link href="/verify">
+        <Link href="/record">
           <Button size="lg" className="text-base px-10">
-            Verify &amp; Start Recording →
+            Start Recording →
           </Button>
         </Link>
       </section>
@@ -142,7 +142,7 @@ export default function Home() {
       <footer className="px-6 py-8 border-t-2 border-border flex flex-col md:flex-row items-center justify-between gap-4 text-sm font-base">
         <span className="font-heading text-lg">radrr</span>
         <div className="flex gap-6 text-muted-foreground">
-          <span>Built on NEAR · Filecoin · Lit Protocol · World ID · Hypercerts</span>
+          <span>Built on Filecoin · Lit Protocol · Storacha · Hypercerts · ERC-8004</span>
         </div>
         <div className="flex gap-4">
           <Link href="/marketplace" className="hover:underline">Marketplace</Link>
