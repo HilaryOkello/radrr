@@ -171,7 +171,13 @@ export async function encryptVideoLocal(
   combined.set(iv, 0);
   combined.set(new Uint8Array(encrypted), 12);
 
-  const ciphertext = btoa(String.fromCharCode(...combined));
+  // btoa via chunks — spread on large arrays overflows the call stack
+  let binaryStr = "";
+  const chunkSize = 8192;
+  for (let i = 0; i < combined.length; i += chunkSize) {
+    binaryStr += String.fromCharCode(...combined.subarray(i, i + chunkSize));
+  }
+  const ciphertext = btoa(binaryStr);
 
   const hashBuf = await crypto.subtle.digest("SHA-256", videoBytes);
   const dataToEncryptHash = Array.from(new Uint8Array(hashBuf))

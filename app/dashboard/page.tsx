@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
+import { ConnectWallet } from "@/components/ConnectWallet";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -39,26 +41,32 @@ function formatDate(ts: number): string {
 }
 
 export default function DashboardPage() {
+  const { address: connectedAddress } = useAccount();
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [recordings, setRecordings] = useState<Recording[]>([]);
   const [loading, setLoading] = useState(true);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("radrr_identity");
-    if (stored) {
+    // Prefer connected wallet; fall back to localStorage
+    const addr = connectedAddress ?? (() => {
       try {
-        const parsed = JSON.parse(stored);
-        const addr = parsed.walletAddress ?? parsed.nearAccountId;
-        setWalletAddress(addr);
-        fetchData(addr);
-      } catch {
-        setLoading(false);
-      }
+        const stored = localStorage.getItem("radrr_identity");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          return parsed.walletAddress ?? parsed.nearAccountId ?? null;
+        }
+      } catch { /* ignore */ }
+      return null;
+    })();
+
+    if (addr) {
+      setWalletAddress(addr);
+      fetchData(addr);
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [connectedAddress]);
 
   async function fetchData(accountId: string) {
     try {
@@ -94,18 +102,22 @@ export default function DashboardPage() {
       <main className="min-h-screen flex flex-col">
         <nav className="border-b-2 border-border px-6 py-4 flex items-center justify-between bg-secondary-background">
           <Link href="/" className="text-2xl font-heading tracking-tight">radrr</Link>
+          <ConnectWallet />
         </nav>
         <div className="flex-1 flex items-center justify-center p-6">
           <Card className="border-2 border-border max-w-md w-full">
             <CardContent className="py-12 text-center">
               <div className="text-5xl mb-4">👤</div>
-              <h2 className="font-heading text-xl mb-3">No identity found</h2>
+              <h2 className="font-heading text-xl mb-3">Connect your wallet</h2>
               <p className="text-muted-foreground font-base mb-6">
-                Start recording to create your on-chain identity.
+                Connect MetaMask to view your recordings, or start recording to create your on-chain identity.
               </p>
-              <Link href="/record">
-                <Button size="lg">Start Recording →</Button>
-              </Link>
+              <div className="flex flex-col gap-3">
+                <ConnectWallet />
+                <Link href="/record">
+                  <Button size="lg" variant="neutral" className="w-full">Start Recording →</Button>
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -118,9 +130,10 @@ export default function DashboardPage() {
       {/* Nav */}
       <nav className="border-b-2 border-border px-6 py-4 flex items-center justify-between bg-secondary-background">
         <Link href="/" className="text-2xl font-heading tracking-tight">radrr</Link>
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-center">
           <Link href="/record"><Button size="sm">Record</Button></Link>
           <Link href="/marketplace"><Button variant="neutral" size="sm">Marketplace</Button></Link>
+          <ConnectWallet />
         </div>
       </nav>
 

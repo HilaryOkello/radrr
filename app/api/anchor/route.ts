@@ -4,7 +4,7 @@ import { storeRecordingMetadata } from "@/lib/synapse";
 
 export async function POST(req: NextRequest) {
   try {
-    const { recordingId, merkleRoot, gpsApprox, title, priceEth } =
+    const { recordingId, merkleRoot, gpsApprox, title, priceEth, witness } =
       await req.json();
 
     if (!recordingId || !merkleRoot) {
@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
       gpsApprox: gpsApprox ?? "unknown",
       title: title ?? "Untitled Recording",
       priceEth: priceEth ?? "0.001",
+      witness: witness ?? undefined,
     });
 
     // Store recording metadata on Filecoin via Synapse SDK (fire and forget)
@@ -27,15 +28,18 @@ export async function POST(req: NextRequest) {
       recordingId,
       merkleRoot,
       gpsApprox: gpsApprox ?? "unknown",
-      witness:   "platform",
+      witness: witness ?? "platform",
       timestamp: Date.now(),
-      txHash:    String(txHash),
+      txHash: String(txHash),
     }).catch(() => {});
 
-    const { privateKeyToAccount } = await import("viem/accounts");
-    const walletAddress = privateKeyToAccount(
-      (process.env.EVM_PLATFORM_PRIVATE_KEY ?? "") as `0x${string}`
-    ).address;
+    // Return the effective witness address for localStorage identity
+    const walletAddress = witness ?? (() => {
+      const { privateKeyToAccount } = require("viem/accounts");
+      return privateKeyToAccount(
+        (process.env.EVM_PLATFORM_PRIVATE_KEY ?? "") as `0x${string}`
+      ).address;
+    })();
 
     return NextResponse.json({ txHash, recordingId, walletAddress });
   } catch (err) {

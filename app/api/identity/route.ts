@@ -10,7 +10,13 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const identity = await getIdentity(account);
+    const raw = await getIdentity(account);
+    const identity = {
+      pseudonym: raw.pseudonym,
+      credibility_score: Number(raw.credibilityScore),
+      recording_count: Number(raw.recordingCount),
+      total_sales: Number(raw.totalSales),
+    };
     return NextResponse.json({ identity });
   } catch (err) {
     console.error("[identity]", err);

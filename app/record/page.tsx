@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
+import { useAccount } from "wagmi";
+import { ConnectWallet } from "@/components/ConnectWallet";
 
 type RecordingPhase =
   | "idle"
@@ -43,6 +45,8 @@ export default function RecordPage() {
   const workerRef = useRef<Worker | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const recordingIdRef = useRef<string>("");
+
+  const { address: connectedAddress } = useAccount();
 
   const [phase, setPhase] = useState<RecordingPhase>("idle");
   const [chunkHashes, setChunkHashes] = useState<ChunkHash[]>([]);
@@ -101,6 +105,7 @@ export default function RecordPage() {
             merkleRoot: root,
             gpsApprox: gps ?? "unknown",
             timestamp: Date.now(),
+            witness: connectedAddress ?? undefined,
           }),
         });
         if (!anchorRes.ok) throw new Error("Anchor failed");
@@ -304,9 +309,10 @@ export default function RecordPage() {
       {/* Nav */}
       <nav className="border-b-2 border-border px-6 py-4 flex items-center justify-between bg-secondary-background">
         <Link href="/" className="text-2xl font-heading tracking-tight">radrr</Link>
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-center">
           <Link href="/dashboard"><Button variant="neutral" size="sm">Dashboard</Button></Link>
           <Link href="/marketplace"><Button variant="neutral" size="sm">Marketplace</Button></Link>
+          <ConnectWallet />
         </div>
       </nav>
 

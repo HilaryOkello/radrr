@@ -99,6 +99,41 @@ contract Radrr {
         uint256         priceWei
     ) external {
         require(_identities[msg.sender].account != address(0), "Register identity first");
+        _anchorFor(recordingId, merkleRoot, gpsApprox, title, priceWei, msg.sender);
+    }
+
+    /// @notice Platform anchors a recording on behalf of a user wallet.
+    /// Auto-registers the witness identity if not already registered.
+    function anchorRecordingFor(
+        string calldata recordingId,
+        string calldata merkleRoot,
+        string calldata gpsApprox,
+        string calldata title,
+        uint256         priceWei,
+        address         witness
+    ) external onlyOwner {
+        require(witness != address(0), "Invalid witness");
+        if (_identities[witness].account == address(0)) {
+            _identities[witness] = Identity({
+                account:          witness,
+                pseudonym:        "",
+                credibilityScore: 10,
+                recordingCount:   0,
+                totalSales:       0
+            });
+            emit IdentityRegistered(witness, "");
+        }
+        _anchorFor(recordingId, merkleRoot, gpsApprox, title, priceWei, witness);
+    }
+
+    function _anchorFor(
+        string calldata recordingId,
+        string calldata merkleRoot,
+        string calldata gpsApprox,
+        string calldata title,
+        uint256         priceWei,
+        address         witness
+    ) internal {
         require(bytes(_recordings[recordingId].recordingId).length == 0, "ID already exists");
 
         _recordings[recordingId] = Recording({
@@ -108,7 +143,7 @@ contract Radrr {
             timestamp:            block.timestamp,
             cid:                  "",
             encryptedCid:         "",
-            witness:              msg.sender,
+            witness:              witness,
             title:                title,
             priceWei:             priceWei,
             sold:                 false,
@@ -119,13 +154,16 @@ contract Radrr {
         _allRecordingIds.push(recordingId);
         string memory gpsKey = _gpsClusterKey(gpsApprox);
         _gpsIndex[gpsKey].push(recordingId);
-        _identities[msg.sender].recordingCount++;
+        _identities[witness].recordingCount++;
 
-        emit RecordingAnchored(recordingId, msg.sender, priceWei);
+        emit RecordingAnchored(recordingId, witness, priceWei);
     }
 
     function updateCid(string calldata recordingId, string calldata cid) external {
-        require(_recordings[recordingId].witness == msg.sender, "Only witness");
+        require(
+            _recordings[recordingId].witness == msg.sender || msg.sender == owner,
+            "Only witness or owner"
+        );
         _recordings[recordingId].cid = cid;
         emit CidUpdated(recordingId, cid);
     }

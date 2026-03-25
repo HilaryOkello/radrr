@@ -54,6 +54,7 @@ const RECORDING_TUPLE = {
 
 const RADRR_ABI = [
   { type: "function", name: "anchorRecording",    stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "uint256" }], outputs: [] },
+  { type: "function", name: "anchorRecordingFor", stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "uint256" }, { type: "address" }], outputs: [] },
   { type: "function", name: "updateCid",          stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }], outputs: [] },
   { type: "function", name: "updateEncryptedCid", stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }], outputs: [] },
   { type: "function", name: "updateCorroboration",stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string[]" }], outputs: [] },
@@ -128,10 +129,28 @@ export async function anchorRecording(params: {
   gpsApprox:   string;
   title:       string;
   priceEth?:   string;
+  witness?:    string;  // user's wallet; if provided, uses anchorRecordingFor
 }): Promise<Hash> {
   const wallet = getPlatformWalletClient();
   const priceWei = parseEther(params.priceEth ?? "0.001");
-  const hash = await wallet.writeContract({
+
+  if (params.witness) {
+    return wallet.writeContract({
+      address: CONTRACT_ADDRESS,
+      abi:     RADRR_ABI,
+      functionName: "anchorRecordingFor",
+      args: [
+        params.recordingId,
+        params.merkleRoot,
+        normalizeGps(params.gpsApprox),
+        params.title,
+        priceWei,
+        params.witness as Address,
+      ],
+    });
+  }
+
+  return wallet.writeContract({
     address: CONTRACT_ADDRESS,
     abi:     RADRR_ABI,
     functionName: "anchorRecording",
@@ -143,7 +162,6 @@ export async function anchorRecording(params: {
       priceWei,
     ],
   });
-  return hash;
 }
 
 export async function updateCid(recordingId: string, cid: string): Promise<Hash> {
