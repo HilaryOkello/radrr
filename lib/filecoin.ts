@@ -1,5 +1,5 @@
 /**
- * World Chain integration — viem client.
+ * Filecoin FVM integration — viem client.
  * Replaces lib/near.ts. All server-side contract calls go through here.
  */
 
@@ -16,17 +16,17 @@ import { privateKeyToAccount } from "viem/accounts";
 
 // ─── Chain definition ────────────────────────────────────────────────────────
 
-export const worldchainSepolia = {
-  id: 4801,
-  name: "World Chain Sepolia",
-  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+export const filecoinCalibration = {
+  id: 314159,
+  name: "Filecoin Calibration Testnet",
+  nativeCurrency: { name: "testnet FIL", symbol: "tFIL", decimals: 18 },
   rpcUrls: {
-    default: { http: ["https://worldchain-sepolia.g.alchemy.com/public"] },
+    default: { http: ["https://api.calibration.node.glif.io/rpc/v1"] },
   },
   blockExplorers: {
     default: {
-      name: "World Chain Explorer",
-      url: "https://worldchain-sepolia.explorer.alchemy.com",
+      name: "Filecoin Calibration Explorer",
+      url: "https://calibration.filfox.info/en",
     },
   },
   testnet: true,
@@ -45,7 +45,7 @@ const RADRR_ABI = parseAbi([
   "function getRecordings(uint256 fromIndex, uint256 limit) external view returns (tuple(string recordingId, string merkleRoot, string gpsApprox, uint256 timestamp, string cid, string encryptedCid, address witness, string title, uint256 priceWei, bool sold, address buyer, string[] corroborationBundle)[])",
   "function getRecordingsByWitness(address witness) external view returns (tuple(string recordingId, string merkleRoot, string gpsApprox, uint256 timestamp, string cid, string encryptedCid, address witness, string title, uint256 priceWei, bool sold, address buyer, string[] corroborationBundle)[])",
   "function getRecordingsByGps(string gpsApprox) external view returns (string[])",
-  "function getIdentity(address account) external view returns (tuple(address account, string pseudonym, string worldIdHash, bool worldIdVerified, uint256 credibilityScore, uint256 recordingCount, uint256 totalSales))",
+  "function getIdentity(address account) external view returns (tuple(address account, string pseudonym, uint256 credibilityScore, uint256 recordingCount, uint256 totalSales))",
   "function totalRecordings() external view returns (uint256)",
 ]);
 
@@ -60,15 +60,15 @@ const AGENT_REGISTRY_ABI = parseAbi([
 
 // ─── Client setup ────────────────────────────────────────────────────────────
 
-const CONTRACT_ADDRESS   = process.env.WORLDCHAIN_CONTRACT_ADDRESS   as Address;
-const AGENT_REGISTRY_ADDRESS = process.env.WORLDCHAIN_AGENT_REGISTRY_ADDRESS as Address;
+const CONTRACT_ADDRESS   = process.env.FILECOIN_CONTRACT_ADDRESS   as Address;
+const AGENT_REGISTRY_ADDRESS = process.env.FILECOIN_AGENT_REGISTRY_ADDRESS as Address;
 const PLATFORM_PRIVATE_KEY   = process.env.EVM_PLATFORM_PRIVATE_KEY  as `0x${string}`;
-const AGENT_PRIVATE_KEY      = process.env.WORLDCHAIN_AGENT_PRIVATE_KEY as `0x${string}`;
-const RPC_URL = process.env.WORLDCHAIN_RPC_URL ?? "https://worldchain-sepolia.g.alchemy.com/public";
+const AGENT_PRIVATE_KEY      = process.env.FILECOIN_AGENT_PRIVATE_KEY as `0x${string}`;
+const RPC_URL = process.env.FILECOIN_RPC_URL ?? "https://api.calibration.node.glif.io/rpc/v1";
 
 function getPublicClient() {
   return createPublicClient({
-    chain: worldchainSepolia,
+    chain: filecoinCalibration,
     transport: http(RPC_URL),
   });
 }
@@ -77,7 +77,7 @@ function getPlatformWalletClient() {
   const account = privateKeyToAccount(PLATFORM_PRIVATE_KEY);
   return createWalletClient({
     account,
-    chain: worldchainSepolia,
+    chain: filecoinCalibration,
     transport: http(RPC_URL),
   });
 }
@@ -87,7 +87,7 @@ function getAgentWalletClient() {
   const account = privateKeyToAccount(key);
   return createWalletClient({
     account,
-    chain: worldchainSepolia,
+    chain: filecoinCalibration,
     transport: http(RPC_URL),
   });
 }

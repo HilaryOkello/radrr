@@ -15,10 +15,10 @@ import {
 
 const LIT_NETWORK = LitNetwork.DatilTest;
 
-const WORLDCHAIN_RPC = "https://worldchain-sepolia.g.alchemy.com/public";
+const FILECOIN_RPC = "https://api.calibration.node.glif.io/rpc/v1";
 
 /**
- * Lit Action: calls World Chain eth_call to verify isPurchased(recordingId, buyer).
+ * Lit Action: calls Filecoin FVM eth_call to verify isPurchased(recordingId, buyer).
  * Runs on Lit nodes — no secrets exposed to the server.
  */
 export const RADRR_LIT_ACTION_CODE = `
@@ -26,7 +26,7 @@ export const RADRR_LIT_ACTION_CODE = `
   const contractAddress = params.contractAddress;
   const recordingId     = params.recordingId;
   const buyer           = params.buyer;
-  const rpcUrl          = "${WORLDCHAIN_RPC}";
+  const rpcUrl          = "${FILECOIN_RPC}";
 
   // ABI-encode isPurchased(string,address)
   // selector: keccak256("isPurchased(string,address)") -> first 4 bytes
@@ -80,11 +80,11 @@ function buildAccessConditions(recordingId: string) {
     {
       contractAddress: "",
       standardContractType: "LitAction",
-      chain: "worldchain-sepolia",
+      chain: "filecoin-calibration",
       method: "isPurchased",
       parameters: [
         ":userAddress",
-        process.env.WORLDCHAIN_CONTRACT_ADDRESS ?? "",
+        process.env.FILECOIN_CONTRACT_ADDRESS ?? "",
         recordingId,
       ],
       returnValueTest: {
