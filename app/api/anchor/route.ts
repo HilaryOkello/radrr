@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { anchorRecording } from "@/lib/worldchain";
+import { anchorRecording } from "@/lib/filecoin";
+import { storeRecordingMetadata } from "@/lib/synapse";
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,11 +22,21 @@ export async function POST(req: NextRequest) {
       priceEth: priceEth ?? "0.001",
     });
 
+    // Store recording metadata on Filecoin via Synapse SDK (fire and forget)
+    storeRecordingMetadata({
+      recordingId,
+      merkleRoot,
+      gpsApprox: gpsApprox ?? "unknown",
+      witness:   "platform",
+      timestamp: Date.now(),
+      txHash:    String(txHash),
+    }).catch(() => {});
+
     return NextResponse.json({ txHash, recordingId });
   } catch (err) {
     console.error("[anchor]", err);
     return NextResponse.json(
-      { error: "Failed to anchor recording on World Chain" },
+      { error: "Failed to anchor recording on Filecoin" },
       { status: 500 }
     );
   }

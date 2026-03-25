@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runCorroboration } from "@/lib/siglip";
-import { updateCorroboration, incrementCredibility } from "@/lib/worldchain";
+import { updateCorroboration, incrementCredibility } from "@/lib/filecoin";
 
 /**
  * Corroboration endpoint.

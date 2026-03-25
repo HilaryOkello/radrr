@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { uploadVideo } from "@/lib/storacha";
-import { updateCid } from "@/lib/worldchain";
+import { updateCid } from "@/lib/filecoin";
 
 export async function POST(req: NextRequest) {
   try {
