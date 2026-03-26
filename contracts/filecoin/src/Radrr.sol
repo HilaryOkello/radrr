@@ -15,6 +15,8 @@ contract Radrr {
         string  encryptedCid;    // Lit Protocol encrypted CID
         address witness;
         string  title;
+        string  description;     // NEW
+        string  previewCid;      // NEW - thumbnail/preview image CID
         uint256 priceWei;
         bool    sold;
         address buyer;
@@ -36,6 +38,15 @@ contract Radrr {
         uint256 timestamp;
     }
 
+    enum BidStatus { Pending, Accepted, Rejected, Withdrawn }
+
+    struct Bid {
+        address bidder;
+        uint256 amount;
+        uint256 timestamp;
+        BidStatus status;
+    }
+
     // ─── State ──────────────────────────────────────────────────────────────
 
     address public owner;
@@ -46,6 +57,7 @@ contract Radrr {
     mapping(address => Identity)  private _identities;
     mapping(string  => string[])  private _gpsIndex;     // cluster key → recording IDs
     mapping(bytes32 => Purchase)  private _purchases;    // keccak256(id,buyer) → Purchase
+    mapping(string  => Bid[])     private _bids;         // recordingId → Bid[]
     string[] private _allRecordingIds;
 
     // ─── Events ─────────────────────────────────────────────────────────────
@@ -57,6 +69,10 @@ contract Radrr {
     event RecordingPurchased(string indexed recordingId, address indexed buyer, uint256 amount);
     event CorroborationUpdated(string indexed recordingId, uint256 bundleSize);
     event CredibilityUpdated(address indexed account, uint256 newScore);
+    event BidPlaced(string indexed recordingId, address indexed bidder, uint256 amount, uint256 bidIndex);
+    event BidAccepted(string indexed recordingId, uint256 bidIndex, address indexed bidder, uint256 amount);
+    event BidRejected(string indexed recordingId, uint256 bidIndex);
+    event BidWithdrawn(string indexed recordingId, uint256 bidIndex);
 
     // ─── Constructor ────────────────────────────────────────────────────────
 
@@ -99,7 +115,7 @@ contract Radrr {
         uint256         priceWei
     ) external {
         require(_identities[msg.sender].account != address(0), "Register identity first");
-        _anchorFor(recordingId, merkleRoot, gpsApprox, title, priceWei, msg.sender);
+        _anchorFor(recordingId, merkleRoot, gpsApprox, title, "", "", priceWei, msg.sender);
     }
 
     /// @notice Platform anchors a recording on behalf of a user wallet.
@@ -109,6 +125,8 @@ contract Radrr {
         string calldata merkleRoot,
         string calldata gpsApprox,
         string calldata title,
+        string calldata description,
+        string calldata previewCid,
         uint256         priceWei,
         address         witness
     ) external onlyOwner {
@@ -123,16 +141,18 @@ contract Radrr {
             });
             emit IdentityRegistered(witness, "");
         }
-        _anchorFor(recordingId, merkleRoot, gpsApprox, title, priceWei, witness);
+        _anchorFor(recordingId, merkleRoot, gpsApprox, title, description, previewCid, priceWei, witness);
     }
 
     function _anchorFor(
-        string calldata recordingId,
-        string calldata merkleRoot,
-        string calldata gpsApprox,
-        string calldata title,
-        uint256         priceWei,
-        address         witness
+        string memory recordingId,
+        string memory merkleRoot,
+        string memory gpsApprox,
+        string memory title,
+        string memory description,
+        string memory previewCid,
+        uint256       priceWei,
+        address       witness
     ) internal {
         require(bytes(_recordings[recordingId].recordingId).length == 0, "ID already exists");
 
@@ -145,6 +165,8 @@ contract Radrr {
             encryptedCid:         "",
             witness:              witness,
             title:                title,
+            description:          description,
+            previewCid:           previewCid,
             priceWei:             priceWei,
             sold:                 false,
             buyer:                address(0),
@@ -230,6 +252,116 @@ contract Radrr {
         emit CredibilityUpdated(account, _identities[account].credibilityScore);
     }
 
+    // ─── Bidding ─────────────────────────────────────────────────────────────
+
+    /// @notice Platform places a bid on behalf of a buyer, escrowing funds in contract.
+    function placeBidFor(string calldata recordingId, address bidder) external payable onlyOwner {
+        Recording storage rec = _recordings[recordingId];
+        require(bytes(rec.recordingId).length > 0, "Not found");
+        require(!rec.sold, "Already sold");
+        require(bidder != rec.witness, "Cannot bid own recording");
+        require(msg.value > 0, "Bid must be > 0");
+
+        uint256 bidIndex = _bids[recordingId].length;
+        _bids[recordingId].push(Bid({
+            bidder:    bidder,
+            amount:    msg.value,
+            timestamp: block.timestamp,
+            status:    BidStatus.Pending
+        }));
+
+        emit BidPlaced(recordingId, bidder, msg.value, bidIndex);
+    }
+
+    /// @notice Platform accepts a bid on behalf of the witness.
+    ///         Distributes 85/10/5 split and auto-refunds all other pending bids.
+    function acceptBidFor(
+        string calldata recordingId,
+        uint256         bidIndex,
+        address         witness
+    ) external onlyOwner {
+        Recording storage rec = _recordings[recordingId];
+        require(bytes(rec.recordingId).length > 0, "Not found");
+        require(rec.witness == witness, "Not witness");
+        require(!rec.sold, "Already sold");
+        require(bidIndex < _bids[recordingId].length, "Invalid bid index");
+
+        Bid storage bid = _bids[recordingId][bidIndex];
+        require(bid.status == BidStatus.Pending, "Bid not pending");
+
+        uint256 price         = bid.amount;
+        uint256 witnessShare  = price * 85 / 100;
+        uint256 platformShare = price * 10 / 100;
+        uint256 safetyShare   = price - witnessShare - platformShare;
+
+        bid.status  = BidStatus.Accepted;
+        rec.sold    = true;
+        rec.buyer   = bid.bidder;
+
+        bytes32 key = keccak256(abi.encodePacked(recordingId, bid.bidder));
+        _purchases[key] = Purchase({
+            recordingId: recordingId,
+            buyer:       bid.bidder,
+            amountWei:   price,
+            timestamp:   block.timestamp
+        });
+
+        _identities[rec.witness].totalSales++;
+        _identities[rec.witness].credibilityScore += 5;
+
+        payable(rec.witness).transfer(witnessShare);
+        payable(platformWallet).transfer(platformShare);
+        payable(safetyFundWallet).transfer(safetyShare);
+
+        // Auto-refund all other pending bids
+        for (uint256 i = 0; i < _bids[recordingId].length; i++) {
+            if (i != bidIndex && _bids[recordingId][i].status == BidStatus.Pending) {
+                _bids[recordingId][i].status = BidStatus.Rejected;
+                payable(_bids[recordingId][i].bidder).transfer(_bids[recordingId][i].amount);
+            }
+        }
+
+        emit BidAccepted(recordingId, bidIndex, bid.bidder, price);
+        emit RecordingPurchased(recordingId, bid.bidder, price);
+    }
+
+    /// @notice Platform rejects a bid on behalf of the witness, refunding the bidder.
+    function rejectBidFor(
+        string calldata recordingId,
+        uint256         bidIndex,
+        address         witness
+    ) external onlyOwner {
+        Recording storage rec = _recordings[recordingId];
+        require(rec.witness == witness, "Not witness");
+        require(bidIndex < _bids[recordingId].length, "Invalid bid index");
+
+        Bid storage bid = _bids[recordingId][bidIndex];
+        require(bid.status == BidStatus.Pending, "Bid not pending");
+
+        bid.status = BidStatus.Rejected;
+        payable(bid.bidder).transfer(bid.amount);
+
+        emit BidRejected(recordingId, bidIndex);
+    }
+
+    /// @notice Platform withdraws a bid on behalf of the original bidder.
+    function withdrawBidFor(
+        string calldata recordingId,
+        uint256         bidIndex,
+        address         bidder
+    ) external onlyOwner {
+        require(bidIndex < _bids[recordingId].length, "Invalid bid index");
+
+        Bid storage bid = _bids[recordingId][bidIndex];
+        require(bid.bidder == bidder, "Not bidder");
+        require(bid.status == BidStatus.Pending, "Bid not pending");
+
+        bid.status = BidStatus.Withdrawn;
+        payable(bid.bidder).transfer(bid.amount);
+
+        emit BidWithdrawn(recordingId, bidIndex);
+    }
+
     // ─── Views ──────────────────────────────────────────────────────────────
 
     function getRecording(string calldata recordingId) external view returns (Recording memory) {
@@ -278,6 +410,10 @@ contract Radrr {
 
     function totalRecordings() external view returns (uint256) {
         return _allRecordingIds.length;
+    }
+
+    function getBids(string calldata recordingId) external view returns (Bid[] memory) {
+        return _bids[recordingId];
     }
 
     // ─── Helpers ────────────────────────────────────────────────────────────

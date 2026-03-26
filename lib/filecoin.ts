@@ -45,6 +45,8 @@ const RECORDING_TUPLE = {
     { name: "encryptedCid",         type: "string"   },
     { name: "witness",              type: "address"  },
     { name: "title",                type: "string"   },
+    { name: "description",          type: "string"   },
+    { name: "previewCid",           type: "string"   },
     { name: "priceWei",             type: "uint256"  },
     { name: "sold",                 type: "bool"     },
     { name: "buyer",                type: "address"  },
@@ -54,7 +56,7 @@ const RECORDING_TUPLE = {
 
 const RADRR_ABI = [
   { type: "function", name: "anchorRecording",    stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "uint256" }], outputs: [] },
-  { type: "function", name: "anchorRecordingFor", stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "uint256" }, { type: "address" }], outputs: [] },
+  { type: "function", name: "anchorRecordingFor", stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "uint256" }, { type: "address" }], outputs: [] },
   { type: "function", name: "updateCid",          stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }], outputs: [] },
   { type: "function", name: "updateEncryptedCid", stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }], outputs: [] },
   { type: "function", name: "updateCorroboration",stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string[]" }], outputs: [] },
@@ -66,6 +68,11 @@ const RADRR_ABI = [
   { type: "function", name: "getRecordingsByGps", stateMutability: "view",        inputs: [{ type: "string" }], outputs: [{ type: "string[]" }] },
   { type: "function", name: "getIdentity",        stateMutability: "view",        inputs: [{ type: "address" }], outputs: [{ type: "tuple", components: [{ name: "account", type: "address" }, { name: "pseudonym", type: "string" }, { name: "credibilityScore", type: "uint256" }, { name: "recordingCount", type: "uint256" }, { name: "totalSales", type: "uint256" }] }] },
   { type: "function", name: "totalRecordings",    stateMutability: "view",        inputs: [], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "placeBidFor",        stateMutability: "payable",     inputs: [{ type: "string" }, { type: "address" }], outputs: [] },
+  { type: "function", name: "acceptBidFor",       stateMutability: "nonpayable",  inputs: [{ type: "string" }, { type: "uint256" }, { type: "address" }], outputs: [] },
+  { type: "function", name: "rejectBidFor",       stateMutability: "nonpayable",  inputs: [{ type: "string" }, { type: "uint256" }, { type: "address" }], outputs: [] },
+  { type: "function", name: "withdrawBidFor",     stateMutability: "nonpayable",  inputs: [{ type: "string" }, { type: "uint256" }, { type: "address" }], outputs: [] },
+  { type: "function", name: "getBids",            stateMutability: "view",        inputs: [{ type: "string" }], outputs: [{ type: "tuple[]", components: [{ name: "bidder", type: "address" }, { name: "amount", type: "uint256" }, { name: "timestamp", type: "uint256" }, { name: "status", type: "uint8" }] }] },
 ] as const satisfies Abi;
 
 const AGENT_REGISTRY_ABI = [
@@ -124,12 +131,14 @@ export function normalizeGps(gpsApprox: string): string {
 // ─── Radrr contract calls ─────────────────────────────────────────────────────
 
 export async function anchorRecording(params: {
-  recordingId: string;
-  merkleRoot:  string;
-  gpsApprox:   string;
-  title:       string;
-  priceEth?:   string;
-  witness?:    string;  // user's wallet; if provided, uses anchorRecordingFor
+  recordingId:  string;
+  merkleRoot:   string;
+  gpsApprox:    string;
+  title:        string;
+  description?: string;
+  previewCid?:  string;
+  priceEth?:    string;
+  witness?:     string;  // user's wallet; if provided, uses anchorRecordingFor
 }): Promise<Hash> {
   const wallet = getPlatformWalletClient();
   const priceWei = parseEther(params.priceEth ?? "0.001");
@@ -144,6 +153,8 @@ export async function anchorRecording(params: {
         params.merkleRoot,
         normalizeGps(params.gpsApprox),
         params.title,
+        params.description ?? "",
+        params.previewCid ?? "",
         priceWei,
         params.witness as Address,
       ],
@@ -297,5 +308,58 @@ export async function getAgentReputation(agentAddress: string) {
     abi: AGENT_REGISTRY_ABI,
     functionName: "getAgentReputation",
     args: [agentAddress as Address],
+  });
+}
+
+// ─── Bid calls ───────────────────────────────────────────────────────────────
+
+export async function placeBid(recordingId: string, bidder: string, amountWei: bigint): Promise<Hash> {
+  const wallet = getPlatformWalletClient();
+  return wallet.writeContract({
+    address: CONTRACT_ADDRESS,
+    abi: RADRR_ABI,
+    functionName: "placeBidFor",
+    args: [recordingId, bidder as Address],
+    value: amountWei,
+  });
+}
+
+export async function acceptBid(recordingId: string, bidIndex: number, witness: string): Promise<Hash> {
+  const wallet = getPlatformWalletClient();
+  return wallet.writeContract({
+    address: CONTRACT_ADDRESS,
+    abi: RADRR_ABI,
+    functionName: "acceptBidFor",
+    args: [recordingId, BigInt(bidIndex), witness as Address],
+  });
+}
+
+export async function rejectBid(recordingId: string, bidIndex: number, witness: string): Promise<Hash> {
+  const wallet = getPlatformWalletClient();
+  return wallet.writeContract({
+    address: CONTRACT_ADDRESS,
+    abi: RADRR_ABI,
+    functionName: "rejectBidFor",
+    args: [recordingId, BigInt(bidIndex), witness as Address],
+  });
+}
+
+export async function withdrawBid(recordingId: string, bidIndex: number, bidder: string): Promise<Hash> {
+  const wallet = getPlatformWalletClient();
+  return wallet.writeContract({
+    address: CONTRACT_ADDRESS,
+    abi: RADRR_ABI,
+    functionName: "withdrawBidFor",
+    args: [recordingId, BigInt(bidIndex), bidder as Address],
+  });
+}
+
+export async function getBids(recordingId: string) {
+  const client = getPublicClient();
+  return client.readContract({
+    address: CONTRACT_ADDRESS,
+    abi: RADRR_ABI,
+    functionName: "getBids",
+    args: [recordingId],
   });
 }

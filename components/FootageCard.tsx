@@ -8,12 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export interface FootageRecording {
   recording_id: string;
   title: string;
+  description?: string;
   gps_approx: string;
   timestamp: number;
   price_eth: string;
   sold: boolean;
   cid?: string;
   encrypted_cid?: string;
+  preview_cid?: string;
   witness: string;
   corroboration_bundle: string[];
   merkle_root: string;
@@ -44,6 +46,9 @@ interface FootageCardProps {
   walletAddress?: string;
   onBuy?: (r: FootageRecording) => void;
   isBuying?: boolean;
+  onBid?: (r: FootageRecording) => void;
+  highestBid?: string;  // wei string
+  bidCount?: number;
 }
 
 export function FootageCard({
@@ -52,6 +57,9 @@ export function FootageCard({
   walletAddress,
   onBuy,
   isBuying = false,
+  onBid,
+  highestBid,
+  bidCount = 0,
 }: FootageCardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [thumbLoaded, setThumbLoaded] = useState(false);
@@ -88,6 +96,7 @@ export function FootageCard({
             <video
               ref={videoRef}
               src={videoSrc}
+              poster={r.preview_cid ? ipfsUrl(r.preview_cid) : undefined}
               className={`w-full h-full object-cover transition-all duration-300 ${
                 blurred && playing ? "blur-sm scale-105" : ""
               }`}
@@ -162,6 +171,9 @@ export function FootageCard({
         <CardTitle className="text-base leading-snug line-clamp-1">
           {r.title || "Untitled Recording"}
         </CardTitle>
+        {r.description && (
+          <p className="text-xs text-muted-foreground font-base line-clamp-2 mt-1">{r.description}</p>
+        )}
       </CardHeader>
 
       <CardContent className="flex flex-col gap-3 flex-1 pt-0">
@@ -189,7 +201,12 @@ export function FootageCard({
         <div className="mt-auto pt-3 border-t-2 border-border flex items-center justify-between gap-2">
           <div>
             <div className="font-heading text-lg">{formatEth(r.price_eth)} tFIL</div>
-            {mode === "marketplace" && (
+            {mode === "marketplace" && bidCount > 0 && (
+              <div className="text-xs text-muted-foreground font-base">
+                {bidCount} bid{bidCount !== 1 ? "s" : ""} · top: {formatEth(highestBid ?? "0")} tFIL
+              </div>
+            )}
+            {mode === "marketplace" && bidCount === 0 && (
               <div className="text-xs text-muted-foreground font-base">85% to witness</div>
             )}
             {mode === "dashboard" && (
@@ -200,9 +217,14 @@ export function FootageCard({
           </div>
 
           {mode === "marketplace" && !r.sold && !isOwner && (
-            <Button size="sm" onClick={() => onBuy?.(r)} disabled={isBuying}>
-              {isBuying ? "Buying…" : "Buy Now"}
-            </Button>
+            <div className="flex gap-1">
+              <Button size="sm" variant="neutral" onClick={() => onBid?.(r)}>
+                Offer
+              </Button>
+              <Button size="sm" onClick={() => onBuy?.(r)} disabled={isBuying}>
+                {isBuying ? "Buying…" : "Buy Now"}
+              </Button>
+            </div>
           )}
           {mode === "marketplace" && r.sold && (
             <Badge className="bg-chart-2 text-black">Sold</Badge>

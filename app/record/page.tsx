@@ -50,6 +50,8 @@ export default function RecordPage() {
   const { address: connectedAddress } = useAccount();
 
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [priceEth, setPriceEth] = useState("0.001");
   const [phase, setPhase] = useState<RecordingPhase>("idle");
   const [chunkHashes, setChunkHashes] = useState<ChunkHash[]>([]);
   const [merkleRoot, setMerkleRoot] = useState<string | null>(null);
@@ -98,6 +100,40 @@ export default function RecordPage() {
       const id = recordingIdRef.current;
 
       try {
+        // 0. Generate thumbnail from mid-point frame
+        let previewCid = "";
+        try {
+          const videoBlob = new Blob(chunksRef.current, { type: "video/webm" });
+          const videoUrl = URL.createObjectURL(videoBlob);
+          const tempVideo = document.createElement("video");
+          tempVideo.src = videoUrl;
+          tempVideo.muted = true;
+          await new Promise<void>((resolve, reject) => {
+            tempVideo.onloadedmetadata = () => {
+              tempVideo.currentTime = tempVideo.duration / 2;
+            };
+            tempVideo.onseeked = () => resolve();
+            tempVideo.onerror = () => reject(new Error("video load failed"));
+            setTimeout(() => reject(new Error("timeout")), 8000);
+          });
+          const canvas = document.createElement("canvas");
+          canvas.width = tempVideo.videoWidth || 640;
+          canvas.height = tempVideo.videoHeight || 360;
+          canvas.getContext("2d")!.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
+          URL.revokeObjectURL(videoUrl);
+          const thumbBlob = await new Promise<Blob>((resolve, reject) => {
+            canvas.toBlob((b) => b ? resolve(b) : reject(new Error("toBlob failed")), "image/jpeg", 0.7);
+          });
+          const thumbForm = new FormData();
+          thumbForm.append("file", thumbBlob, `${id}_thumb.jpg`);
+          const thumbRes = await fetch("/api/upload-thumbnail", { method: "POST", body: thumbForm });
+          if (thumbRes.ok) {
+            previewCid = (await thumbRes.json()).cid ?? "";
+          }
+        } catch (thumbErr) {
+          console.warn("[thumbnail]", thumbErr);
+        }
+
         // 1. Anchor on Filecoin FVM
         const anchorRes = await fetch("/api/anchor", {
           method: "POST",
@@ -107,6 +143,9 @@ export default function RecordPage() {
             merkleRoot: root,
             gpsApprox: gps ?? "unknown",
             title: title.trim() || "Untitled Recording",
+            description: description.trim(),
+            previewCid,
+            priceEth: priceEth || "0.001",
             timestamp: Date.now(),
             witness: connectedAddress ?? undefined,
           }),
@@ -376,6 +415,34 @@ export default function RecordPage() {
                     maxLength={120}
                   />
                 </div>
+                <div>
+                  <label className="text-xs font-base text-muted-foreground mb-1 block">
+                    Description (optional)
+                  </label>
+                  <textarea
+                    className="w-full rounded-base border-2 border-border bg-background px-3 py-2 text-sm font-base placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+                    placeholder="Add more context about this footage..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    maxLength={500}
+                    rows={3}
+                  />
+                  <div className="text-xs text-muted-foreground text-right">{description.length}/500</div>
+                </div>
+                <div>
+                  <label className="text-xs font-base text-muted-foreground mb-1 block">
+                    Asking price (tFIL)
+                  </label>
+                  <Input
+                    type="number"
+                    step="0.0001"
+                    min="0.0001"
+                    placeholder="0.001"
+                    value={priceEth}
+                    onChange={(e) => setPriceEth(e.target.value)}
+                  />
+                  <div className="text-xs text-muted-foreground mt-1">85% goes directly to you</div>
+                </div>
                 <Button size="lg" onClick={startRecording} className="w-full text-base">
                   Start Recording
                 </Button>
@@ -410,6 +477,9 @@ export default function RecordPage() {
                     setMerkleRoot(null);
                     setResult(null);
                     chunksRef.current = [];
+                    setTitle("");
+                    setDescription("");
+                    setPriceEth("0.001");
                   }}
                   className="flex-1"
                 >
