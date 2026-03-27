@@ -8,6 +8,7 @@ import {
   HypercertClient,
   TransferRestrictions,
   formatHypercertData,
+  getClaimStoredDataFromTxHash,
 } from "@hypercerts-org/sdk";
 import { createWalletClient, createPublicClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -102,11 +103,18 @@ export async function mintSaleHypercert(params: HypercertParams): Promise<string
     throw new Error(`Hypercert data error: ${JSON.stringify(errors)}`);
   }
 
-  const tx = await client.mintHypercert({
+  const txHash = await client.mintHypercert({
     metaData: data,
     totalUnits: BigInt(10000),
     transferRestriction: TransferRestrictions.FromCreatorOnly,
   });
 
-  return tx ?? "pending";
+  if (!txHash) throw new Error("No tx hash returned from mintHypercert");
+
+  const claimData = await getClaimStoredDataFromTxHash(publicClient, txHash);
+  if (!claimData.success || !claimData.data) {
+    throw new Error(`Could not extract claim ID from tx ${txHash}`);
+  }
+
+  return String(claimData.data.claimId);
 }

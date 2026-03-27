@@ -49,25 +49,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Recording not found" }, { status: 404 });
     }
 
-    // Mint Hypercert for this sale (fire and forget — don't block buyer)
-    mintSaleHypercert({
-      recordingId,
-      witnessAddress: recording.witness,
-      witnessCredibilityScore: 50, // would come from identity in production
-      eventDescription: recording.title,
-      gpsApprox: recording.gps_approx,
-      recordingTimestamp: recording.timestamp,
-      isCorroborated: recording.corroboration_bundle.length > 0,
-    }).catch((err) => console.error("[hypercert mint failed]", err));
+    let hypercertTokenId: string | null = null;
 
-    // Return the encrypted CID for client-side Lit decryption
+    try {
+      const txHash = await mintSaleHypercert({
+        recordingId,
+        witnessAddress: recording.witness,
+        witnessCredibilityScore: 50,
+        eventDescription: recording.title,
+        gpsApprox: recording.gps_approx,
+        recordingTimestamp: recording.timestamp,
+        isCorroborated: recording.corroboration_bundle.length > 0,
+      });
+      hypercertTokenId = txHash ?? null;
+    } catch (err) {
+      console.error("[hypercert mint failed]", err);
+    }
+
     return NextResponse.json({
       success: true,
       encryptedCid: recording.encrypted_cid,
       recordingId,
-      // Client uses these to call Lit decryptToString()
-      litAccessNote:
-        "Use encryptedCid to fetch ciphertext + dataToEncryptHash from Storacha, then call Lit Protocol decryptToString() with your wallet session.",
+      hypercertTokenId,
     });
   } catch (err) {
     console.error("[purchase]", err);
