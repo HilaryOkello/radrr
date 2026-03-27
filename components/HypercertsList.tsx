@@ -15,6 +15,7 @@ export interface HypercertEntry {
   recordingId: string | null;
   verificationLevel: string | null;
   isCorroborated: boolean | null;
+  isPublicShare: boolean | null;
   totalUnits: string;
   platform: string | null;
   createdAt: number;
@@ -29,6 +30,8 @@ function HypercertCard({ hc }: { hc: HypercertEntry }) {
       ? "bg-chart-2 text-black"
       : hc.verificationLevel === "verified"
       ? "bg-chart-3 text-black"
+      : hc.verificationLevel === "public"
+      ? "bg-blue-900/50 text-blue-300 border border-blue-700"
       : "bg-main text-black";
 
   const verificationLabel =
@@ -38,6 +41,8 @@ function HypercertCard({ hc }: { hc: HypercertEntry }) {
       ? "Verified"
       : hc.verificationLevel === "unverified"
       ? "Unverified"
+      : hc.verificationLevel === "public"
+      ? "Public"
       : "Pending";
 
   const dateStr =

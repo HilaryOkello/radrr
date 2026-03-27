@@ -43,6 +43,7 @@ export interface HypercertParams {
   gpsApprox: string;
   recordingTimestamp: number;
   isCorroborated: boolean;
+  isPublicShare?: boolean;
 }
 
 /**
@@ -57,7 +58,11 @@ export async function mintSaleHypercert(params: HypercertParams): Promise<string
     publicClient,
   });
 
-  const verificationLevel = params.isCorroborated
+  const isPublicShare = params.isPublicShare ?? false;
+
+  const verificationLevel = isPublicShare
+    ? "public"
+    : params.isCorroborated
     ? "corroborated"
     : params.witnessCredibilityScore > 50
     ? "verified"
@@ -67,9 +72,13 @@ export async function mintSaleHypercert(params: HypercertParams): Promise<string
   const workTimeframeEnd = workTimeframeStart + 3600;
 
   const { data, errors } = formatHypercertData({
-    name: `Radrr Witness Documentation — ${params.eventDescription.slice(0, 60)}`,
+    name: isPublicShare
+      ? `Radrr Public Documentation — ${params.eventDescription.slice(0, 60)}`
+      : `Radrr Witness Documentation — ${params.eventDescription.slice(0, 60)}`,
     description: [
-      `Citizen journalism footage documented by a verified Radrr witness.`,
+      isPublicShare
+        ? `Freely shared citizen journalism footage on Radrr — no purchase required.`
+        : `Citizen journalism footage documented by a verified Radrr witness.`,
       `Event: ${params.eventDescription}`,
       `Location: ${params.gpsApprox} (approximate)`,
       `Recording ID: ${params.recordingId}`,
@@ -95,6 +104,7 @@ export async function mintSaleHypercert(params: HypercertParams): Promise<string
       { trait_type: "verification_level", value: verificationLevel },
       { trait_type: "gps_approx", value: params.gpsApprox },
       { trait_type: "is_corroborated", value: String(params.isCorroborated) },
+      { trait_type: "is_public_share", value: String(isPublicShare) },
       { trait_type: "platform", value: "radrr" },
     ],
   });

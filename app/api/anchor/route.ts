@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { anchorRecording } from "@/lib/filecoin";
 import { storeRecordingMetadata } from "@/lib/synapse";
+import { mintSaleHypercert } from "@/lib/hypercerts";
+
+function getPlatformAddress(): string {
+  const { privateKeyToAccount } = require("viem/accounts");
+  return privateKeyToAccount(
+    (process.env.EVM_PLATFORM_PRIVATE_KEY ?? "") as `0x${string}`
+  ).address;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,23 +47,30 @@ export async function POST(req: NextRequest) {
       witness: witness ?? undefined,
     });
 
+    const walletAddress = witness ?? getPlatformAddress();
+
+    if (visibilityLevel === "full") {
+      mintSaleHypercert({
+        recordingId,
+        witnessAddress: walletAddress,
+        witnessCredibilityScore: 50,
+        eventDescription: title ?? "Untitled Recording",
+        gpsApprox: gpsApprox ?? "unknown",
+        recordingTimestamp: Date.now() / 1000,
+        isCorroborated: false,
+        isPublicShare: true,
+      }).catch((err) => console.error("[hypercert mint on publish failed]", err));
+    }
+
     // Store recording metadata on Filecoin via Synapse SDK (fire and forget)
     storeRecordingMetadata({
       recordingId,
       merkleRoot,
       gpsApprox: gpsApprox ?? "unknown",
-      witness: witness ?? "platform",
+      witness: walletAddress,
       timestamp: Date.now(),
       txHash: String(txHash),
     }).catch(() => {});
-
-    // Return the effective witness address for localStorage identity
-    const walletAddress = witness ?? (() => {
-      const { privateKeyToAccount } = require("viem/accounts");
-      return privateKeyToAccount(
-        (process.env.EVM_PLATFORM_PRIVATE_KEY ?? "") as `0x${string}`
-      ).address;
-    })();
 
     return NextResponse.json({ txHash, recordingId, walletAddress });
   } catch (err) {

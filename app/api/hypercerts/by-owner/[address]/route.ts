@@ -17,6 +17,7 @@ export interface HypercertEntry {
   recordingId: string | null;
   verificationLevel: string | null;
   isCorroborated: boolean | null;
+  isPublicShare: boolean | null;
   totalUnits: string;
   platform: string | null;
   createdAt: number;
@@ -114,6 +115,7 @@ async function getMintedHypercerts(
       recordingId: prop("recording_id") ?? null,
       verificationLevel: prop("verification_level") ?? null,
       isCorroborated: prop("is_corroborated") === "true",
+      isPublicShare: prop("is_public_share") === "true",
       totalUnits: String(totalUnits),
       platform: prop("platform") ?? null,
       createdAt: await blockTimestampFromLog(client, log.blockNumber),
@@ -247,6 +249,7 @@ async function getOwnedHypercerts(
       recordingId: prop("recording_id") ?? null,
       verificationLevel: prop("verification_level") ?? null,
       isCorroborated: prop("is_corroborated") === "true",
+      isPublicShare: prop("is_public_share") === "true",
       totalUnits: String(claim.totalUnits),
       platform: prop("platform") ?? null,
       createdAt: 0,
