@@ -26,7 +26,7 @@ function highestPendingBid(bids: SerializedBid[]): SerializedBid | undefined {
 }
 
 export default function MarketplacePage() {
-  const { address: connectedAddress } = useAccount();
+  const { address: connectedAddress, isConnected } = useAccount();
   const [recordings, setRecordings] = useState<FootageRecording[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -37,12 +37,13 @@ export default function MarketplacePage() {
   const [bidding, setBidding] = useState(false);
 
   useEffect(() => {
+    if (!isConnected) return;
+    
     fetch("/api/recordings")
       .then((r) => r.json())
       .then((d) => {
         const recs: FootageRecording[] = d.recordings ?? [];
         setRecordings(recs);
-        // Fetch bids for all unsold recordings
         recs
           .filter((r) => !r.sold)
           .forEach((r) => {
@@ -58,7 +59,7 @@ export default function MarketplacePage() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+  }, [isConnected]);
 
   const filtered = recordings.filter(
     (r) =>
@@ -92,7 +93,7 @@ export default function MarketplacePage() {
 
       const { encryptedCid } = await res.json();
       toast.success(
-        `Purchase confirmed! Hypercert minted. Encrypted CID: ${encryptedCid?.slice(0, 16)}...`
+        `🎉 Purchase confirmed! You now own this footage. Check your Dashboard.`
       );
       setRecordings((prev) =>
         prev.map((r) =>
@@ -156,7 +157,7 @@ export default function MarketplacePage() {
         [bidTarget.recording_id]: [...(prev[bidTarget.recording_id] ?? []), newBid],
       }));
 
-      toast.success(`Offer of ${bidAmount} tFIL placed! The witness will be notified.`);
+      toast.success(`💰 Offer of ${bidAmount} tFIL placed! The witness will be notified.`);
       setBidTarget(null);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Bid failed");
@@ -187,6 +188,22 @@ export default function MarketplacePage() {
       </div>
 
       <div className="flex-1 p-6 max-w-6xl mx-auto w-full flex flex-col gap-6">
+        {!isConnected && (
+          <Card className="border-2 border-border">
+            <CardContent className="py-16 text-center">
+              <div className="text-5xl mb-4">🔗</div>
+              <p className="font-heading text-xl mb-2">Connect Your Wallet</p>
+              <p className="text-muted-foreground font-base mb-6 max-w-md mx-auto">
+                Connect your wallet to browse the marketplace, make offers, and purchase footage.
+                The 5% journalism fund supports truth journalism worldwide.
+              </p>
+              <ConnectWallet />
+            </CardContent>
+          </Card>
+        )}
+
+        {isConnected && (
+          <>
         {/* Search */}
         <Input
           placeholder="Search by title, location..."
@@ -234,6 +251,8 @@ export default function MarketplacePage() {
               );
             })}
           </div>
+        )}
+          </>
         )}
       </div>
 

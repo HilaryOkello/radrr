@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { PublicVideos } from "@/components/PublicVideos";
 
 const features = [
   {
@@ -99,6 +100,24 @@ export default function Home() {
               <div className="text-sm font-base">{s.label}</div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Public Videos */}
+      <section className="px-6 py-16 border-b-2 border-border">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-heading mb-2">Public Footage</h2>
+              <p className="text-muted-foreground font-base">
+                Free to watch — supported by the 5% journalism fund.{" "}
+                <Link href="/marketplace" className="text-main hover:underline">
+                  Connect wallet to browse full marketplace →
+                </Link>
+              </p>
+            </div>
+          </div>
+          <PublicVideos />
         </div>
       </section>
 

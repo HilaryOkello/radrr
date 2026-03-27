@@ -1,9 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+export type VisibilityLevel = "blur" | "trailer" | "thumbnail" | "full";
+export type LicenseType = "personal" | "editorial" | "commercial" | "cc_by" | "non_exclusive";
 
 export interface FootageRecording {
   recording_id: string;
@@ -16,9 +19,22 @@ export interface FootageRecording {
   cid?: string;
   encrypted_cid?: string;
   preview_cid?: string;
+  trailer_cid?: string;
+  visibility_level?: VisibilityLevel;
+  license_type?: LicenseType;
   witness: string;
   corroboration_bundle: string[];
   merkle_root: string;
+}
+
+function getVisibilityBadge(level: VisibilityLevel): { label: string; className: string } {
+  switch (level) {
+    case "full": return { label: "Public", className: "bg-green-600 text-white" };
+    case "trailer": return { label: "Trailer", className: "bg-blue-600 text-white" };
+    case "thumbnail": return { label: "Preview", className: "bg-yellow-600 text-black" };
+    case "blur": return { label: "Blurred", className: "bg-gray-600 text-white" };
+    default: return { label: "Unknown", className: "bg-gray-400 text-black" };
+  }
 }
 
 function formatEth(wei: string): string {
@@ -40,14 +56,12 @@ function ipfsUrl(cid: string) {
 
 interface FootageCardProps {
   recording: FootageRecording;
-  /** "marketplace" shows buy button; "dashboard" shows owner actions */
   mode: "marketplace" | "dashboard";
-  /** Connected wallet — used to determine if this user is the witness */
   walletAddress?: string;
   onBuy?: (r: FootageRecording) => void;
   isBuying?: boolean;
   onBid?: (r: FootageRecording) => void;
-  highestBid?: string;  // wei string
+  highestBid?: string;
   bidCount?: number;
 }
 
@@ -61,80 +75,19 @@ export function FootageCard({
   highestBid,
   bidCount = 0,
 }: FootageCardProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [thumbLoaded, setThumbLoaded] = useState(false);
-  const [playing, setPlaying] = useState(false);
-
   const isOwner = walletAddress?.toLowerCase() === r.witness?.toLowerCase();
-  const videoSrc = r.cid ? ipfsUrl(r.cid) : null;
-  // Blur for marketplace non-owners who haven't purchased
-  const blurred = mode === "marketplace" && !isOwner;
-
-  function handleMouseEnter() {
-    if (!videoRef.current || !videoSrc) return;
-    videoRef.current.play().catch(() => {});
-    setPlaying(true);
-  }
-
-  function handleMouseLeave() {
-    if (!videoRef.current) return;
-    videoRef.current.pause();
-    videoRef.current.currentTime = 0;
-    setPlaying(false);
-  }
+  const visibilityLevel = r.visibility_level ?? "blur";
 
   return (
     <Card className="border-2 border-border flex flex-col overflow-hidden">
-      {/* Thumbnail / Video preview */}
-      <div
-        className="relative bg-black aspect-video border-b-2 border-border overflow-hidden cursor-pointer group"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        {videoSrc ? (
-          <>
-            <video
-              ref={videoRef}
-              src={videoSrc}
-              poster={r.preview_cid ? ipfsUrl(r.preview_cid) : undefined}
-              className={`w-full h-full object-cover transition-all duration-300 ${
-                blurred && playing ? "blur-sm scale-105" : ""
-              }`}
-              preload="metadata"
-              muted
-              loop
-              playsInline
-              onLoadedMetadata={() => setThumbLoaded(true)}
-            />
-            {/* PREVIEW watermark — always visible for non-owners */}
-            {blurred && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-                <span className="text-white/30 font-heading text-4xl tracking-[0.3em] rotate-[-20deg]">
-                  PREVIEW
-                </span>
-              </div>
-            )}
-            {/* Hover: play indicator or "purchase to unlock" */}
-            {!playing && thumbLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center">
-                  {blurred ? (
-                    <span className="text-white text-lg">🔒</span>
-                  ) : (
-                    <svg className="w-5 h-5 text-white ml-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.841z" />
-                    </svg>
-                  )}
-                </div>
-              </div>
-            )}
-            {/* Loading skeleton */}
-            {!thumbLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center bg-secondary-background animate-pulse">
-                <span className="text-4xl opacity-20">📹</span>
-              </div>
-            )}
-          </>
+      {/* Thumbnail - Static Image */}
+      <div className="relative bg-black aspect-video border-b-2 border-border overflow-hidden">
+        {r.preview_cid ? (
+          <img
+            src={ipfsUrl(r.preview_cid)}
+            alt={r.title || "Recording thumbnail"}
+            className="w-full h-full object-cover"
+          />
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-secondary-background">
             <span className="text-4xl opacity-30">📹</span>
@@ -155,9 +108,11 @@ export function FootageCard({
           {isOwner && mode === "marketplace" && (
             <Badge className="bg-main text-black text-xs">Yours</Badge>
           )}
+          {mode === "marketplace" && visibilityLevel === "full" && !isOwner && (
+            <Badge className={getVisibilityBadge("full").className + " text-xs"}>Public</Badge>
+          )}
         </div>
 
-        {/* Duration / recording indicator */}
         {r.encrypted_cid && (
           <div className="absolute bottom-2 right-2">
             <Badge variant="neutral" className="text-xs bg-black/70 text-white border-0">
@@ -216,23 +171,32 @@ export function FootageCard({
             )}
           </div>
 
-          {mode === "marketplace" && !r.sold && !isOwner && (
+          {mode === "marketplace" && (
             <div className="flex gap-1">
-              <Button size="sm" variant="neutral" onClick={() => onBid?.(r)}>
-                Offer
-              </Button>
-              <Button size="sm" onClick={() => onBuy?.(r)} disabled={isBuying}>
-                {isBuying ? "Buying…" : "Buy Now"}
-              </Button>
+              <Link href={`/recording/${r.recording_id}`}>
+                <Button size="sm" variant="neutral">
+                  View
+                </Button>
+              </Link>
+              {!r.sold && !isOwner && (
+                <>
+                  <Button size="sm" variant="neutral" onClick={() => onBid?.(r)}>
+                    Offer
+                  </Button>
+                  <Button size="sm" onClick={() => onBuy?.(r)} disabled={isBuying}>
+                    {isBuying ? "Buying…" : "Buy Now"}
+                  </Button>
+                </>
+              )}
+              {r.sold && (
+                <Badge className="bg-chart-2 text-black">Sold</Badge>
+              )}
             </div>
           )}
-          {mode === "marketplace" && r.sold && (
-            <Badge className="bg-chart-2 text-black">Sold</Badge>
-          )}
           {mode === "dashboard" && r.cid && (
-            <a href={ipfsUrl(r.cid)} target="_blank" rel="noopener noreferrer">
+            <Link href={`/recording/${r.recording_id}`}>
               <Button variant="neutral" size="sm">View ↗</Button>
-            </a>
+            </Link>
           )}
         </div>
       </CardContent>
