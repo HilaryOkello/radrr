@@ -22,7 +22,8 @@ async function getClient(): Promise<any> {
   const { Synapse } = await import("@filoz/synapse-sdk");
   const { calibration } = await import("@filoz/synapse-core/chains");
   const account = privateKeyToAccount(AGENT_KEY);
-  _client = Synapse.create({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  _client = (Synapse as any).create({
     chain: calibration,
     transport: http(RPC_URL),
     account,

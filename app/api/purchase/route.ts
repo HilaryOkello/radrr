@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Get recording details for Hypercert
-    const recordings = (await getRecordings(0, 50)) as Array<{
+    const recordings = (await getRecordings(0, 50)) as unknown as Array<{
       recording_id: string;
       encrypted_cid?: string;
       witness: string;

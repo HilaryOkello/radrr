@@ -85,7 +85,7 @@ async function runCycle() {
     return;
   }
 
-  const unprocessed = (recordings as Array<{
+  const unprocessed = (recordings as unknown as Array<{
     recordingId: string;
     gpsApprox: string;
     witness: string;

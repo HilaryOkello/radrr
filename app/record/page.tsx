@@ -16,6 +16,7 @@ type RecordingPhase =
   | "requesting"
   | "recording"
   | "processing"
+  | "review"       // NEW: video ready locally, fill metadata before publishing
   | "anchoring"
   | "uploading"
   | "encrypting"
@@ -40,18 +41,53 @@ function generateRecordingId(): string {
   return `rec_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
+// Generate thumbnail from video blob at midpoint — returns JPEG blob or null
+async function generateThumbnail(videoBlob: Blob): Promise<Blob | null> {
+  return new Promise((resolve) => {
+    const videoUrl = URL.createObjectURL(videoBlob);
+    const tempVideo = document.createElement("video");
+    tempVideo.src = videoUrl;
+    tempVideo.muted = true;
+
+    const cleanup = () => URL.revokeObjectURL(videoUrl);
+    const timeout = setTimeout(() => { cleanup(); resolve(null); }, 8000);
+
+    tempVideo.onloadedmetadata = () => {
+      tempVideo.currentTime = tempVideo.duration / 2;
+    };
+    tempVideo.onseeked = () => {
+      clearTimeout(timeout);
+      const canvas = document.createElement("canvas");
+      canvas.width = tempVideo.videoWidth || 640;
+      canvas.height = tempVideo.videoHeight || 360;
+      canvas.getContext("2d")!.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
+      cleanup();
+      canvas.toBlob((b) => resolve(b), "image/jpeg", 0.7);
+    };
+    tempVideo.onerror = () => { clearTimeout(timeout); cleanup(); resolve(null); };
+  });
+}
+
 export default function RecordPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const reviewVideoRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const workerRef = useRef<Worker | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const recordingIdRef = useRef<string>("");
 
+  // Stored merkle state, waiting for user to fill metadata in review phase
+  const pendingMerkleRef = useRef<{ root: string; chunkCount: number } | null>(null);
+  const localVideoBlobRef = useRef<Blob | null>(null);
+  const localVideoUrlRef = useRef<string | null>(null);
+
   const { address: connectedAddress } = useAccount();
 
+  // Metadata — filled in review phase, not before recording
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priceEth, setPriceEth] = useState("0.001");
+
   const [phase, setPhase] = useState<RecordingPhase>("idle");
   const [chunkHashes, setChunkHashes] = useState<ChunkHash[]>([]);
   const [merkleRoot, setMerkleRoot] = useState<string | null>(null);
@@ -59,6 +95,7 @@ export default function RecordPage() {
   const [gps, setGps] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null); // local preview
 
   // Init Web Worker
   useEffect(() => {
@@ -69,7 +106,9 @@ export default function RecordPage() {
         setChunkHashes((prev) => [...prev, { index, hash }]);
       } else if (type === "merkleRoot") {
         setMerkleRoot(root);
-        handleMerkleRootReady(root, hashes.length);
+        // Store merkle result and enter review phase — don't publish yet
+        pendingMerkleRef.current = { root, chunkCount: hashes.length };
+        enterReviewPhase(root);
       }
     };
     return () => workerRef.current?.terminate();
@@ -81,7 +120,6 @@ export default function RecordPage() {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          // City-level: round to 2 decimal places (~1km)
           const lat = pos.coords.latitude.toFixed(2);
           const lng = pos.coords.longitude.toFixed(2);
           setGps(`${lat},${lng}`);
@@ -94,176 +132,184 @@ export default function RecordPage() {
     }
   }, []);
 
-  const handleMerkleRootReady = useCallback(
-    async (root: string, chunkCount: number) => {
-      setPhase("anchoring");
-      const id = recordingIdRef.current;
+  // Cleanup local video URL on unmount
+  useEffect(() => {
+    return () => {
+      if (localVideoUrlRef.current) URL.revokeObjectURL(localVideoUrlRef.current);
+      if (thumbnailUrl) URL.revokeObjectURL(thumbnailUrl);
+    };
+  }, [thumbnailUrl]);
 
+  const enterReviewPhase = useCallback(async (root: string) => {
+    // Build local blob for playback
+    const videoBlob = new Blob(chunksRef.current, { type: "video/webm" });
+    localVideoBlobRef.current = videoBlob;
+    const url = URL.createObjectURL(videoBlob);
+    localVideoUrlRef.current = url;
+    setPhase("review");
+
+    // Generate thumbnail in background
+    generateThumbnail(videoBlob).then((thumbBlob) => {
+      if (thumbBlob) {
+        setThumbnailUrl(URL.createObjectURL(thumbBlob));
+      }
+    });
+  }, []);
+
+  // Called when user clicks "Publish to Marketplace" in review phase
+  const handlePublish = useCallback(async () => {
+    if (!pendingMerkleRef.current) return;
+    const { root, chunkCount } = pendingMerkleRef.current;
+    const id = recordingIdRef.current;
+    const videoBlob = localVideoBlobRef.current!;
+
+    setPhase("anchoring");
+
+    try {
+      // 0. Upload thumbnail to Storacha (no on-chain CID update)
+      let previewCid = "";
       try {
-        // 0. Generate thumbnail from mid-point frame
-        let previewCid = "";
-        try {
-          const videoBlob = new Blob(chunksRef.current, { type: "video/webm" });
-          const videoUrl = URL.createObjectURL(videoBlob);
-          const tempVideo = document.createElement("video");
-          tempVideo.src = videoUrl;
-          tempVideo.muted = true;
-          await new Promise<void>((resolve, reject) => {
-            tempVideo.onloadedmetadata = () => {
-              tempVideo.currentTime = tempVideo.duration / 2;
-            };
-            tempVideo.onseeked = () => resolve();
-            tempVideo.onerror = () => reject(new Error("video load failed"));
-            setTimeout(() => reject(new Error("timeout")), 8000);
-          });
-          const canvas = document.createElement("canvas");
-          canvas.width = tempVideo.videoWidth || 640;
-          canvas.height = tempVideo.videoHeight || 360;
-          canvas.getContext("2d")!.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
-          URL.revokeObjectURL(videoUrl);
-          const thumbBlob = await new Promise<Blob>((resolve, reject) => {
-            canvas.toBlob((b) => b ? resolve(b) : reject(new Error("toBlob failed")), "image/jpeg", 0.7);
-          });
+        const thumbBlob = await generateThumbnail(videoBlob);
+        if (thumbBlob) {
           const thumbForm = new FormData();
           thumbForm.append("file", thumbBlob, `${id}_thumb.jpg`);
           const thumbRes = await fetch("/api/upload-thumbnail", { method: "POST", body: thumbForm });
-          if (thumbRes.ok) {
-            previewCid = (await thumbRes.json()).cid ?? "";
-          }
-        } catch (thumbErr) {
-          console.warn("[thumbnail]", thumbErr);
+          if (thumbRes.ok) previewCid = (await thumbRes.json()).cid ?? "";
         }
+      } catch (thumbErr) {
+        console.warn("[thumbnail]", thumbErr);
+      }
 
-        // 1. Anchor on Filecoin FVM
-        const anchorRes = await fetch("/api/anchor", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            recordingId: id,
-            merkleRoot: root,
-            gpsApprox: gps ?? "unknown",
-            title: title.trim() || "Untitled Recording",
-            description: description.trim(),
-            previewCid,
-            priceEth: priceEth || "0.001",
-            timestamp: Date.now(),
-            witness: connectedAddress ?? undefined,
-          }),
-        });
-        if (!anchorRes.ok) throw new Error("Anchor failed");
-        const { txHash, walletAddress } = await anchorRes.json();
-        if (walletAddress) {
-          localStorage.setItem("radrr_identity", JSON.stringify({ walletAddress }));
+      // 1. Anchor on Filecoin FVM
+      const anchorRes = await fetch("/api/anchor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          recordingId: id,
+          merkleRoot: root,
+          gpsApprox: gps ?? "unknown",
+          title: title.trim() || "Untitled Recording",
+          description: description.trim(),
+          previewCid,
+          priceEth: priceEth || "0.001",
+          timestamp: Date.now(),
+          witness: connectedAddress ?? undefined,
+        }),
+      });
+      if (!anchorRes.ok) throw new Error("Anchor failed");
+      const { txHash, walletAddress } = await anchorRes.json();
+      if (walletAddress) {
+        localStorage.setItem("radrr_identity", JSON.stringify({ walletAddress }));
+      }
+      toast.success("Proof anchored on Filecoin!");
+
+      // 2. Upload video to Storacha
+      setPhase("uploading");
+      const formData = new FormData();
+      formData.append("video", videoBlob, `${id}.webm`);
+      formData.append("recordingId", id);
+
+      const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!uploadRes.ok) throw new Error("Upload failed");
+      const { cid } = await uploadRes.json();
+      toast.success("Footage stored on Filecoin!");
+
+      // 3. Encrypt (Lit Protocol → fallback AES-256-GCM)
+      setPhase("encrypting");
+      try {
+        const { encryptVideo } = await import("@/lib/lit");
+        const videoBytes = new Uint8Array(await videoBlob.arrayBuffer());
+        const { ciphertext, dataToEncryptHash } = await encryptVideo(videoBytes, id);
+
+        const ciphertextBlob = new Blob(
+          [JSON.stringify({ ciphertext, dataToEncryptHash, recordingId: id })],
+          { type: "application/json" }
+        );
+        const encFormData = new FormData();
+        encFormData.append("video", ciphertextBlob, `${id}_encrypted.json`);
+        encFormData.append("recordingId", id);
+        const encUploadRes = await fetch("/api/upload", { method: "POST", body: encFormData });
+
+        if (encUploadRes.ok) {
+          const { cid: encryptedCid } = await encUploadRes.json();
+          await fetch("/api/encrypt", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ recordingId: id, encryptedCid }),
+          });
+          toast.success("Footage encrypted with Lit Protocol!");
         }
-        toast.success("Proof anchored on Filecoin!");
-
-        // 2. Upload to Storacha
-        setPhase("uploading");
-        const videoBlob = new Blob(chunksRef.current, { type: "video/webm" });
-        const formData = new FormData();
-        formData.append("video", videoBlob, `${id}.webm`);
-        formData.append("recordingId", id);
-
-        const uploadRes = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-        if (!uploadRes.ok) throw new Error("Upload failed");
-        const { cid } = await uploadRes.json();
-        toast.success("Footage stored on Filecoin!");
-
-        // 3. Encrypt with Lit Protocol (browser-side — connects to Lit nodes directly)
-        setPhase("encrypting");
+      } catch (litErr) {
+        console.warn("[lit] falling back to AES-256-GCM:", litErr);
         try {
-          const { encryptVideo } = await import("@/lib/lit");
-          const videoBytes = new Uint8Array(await videoBlob.arrayBuffer());
-          const { ciphertext, dataToEncryptHash } = await encryptVideo(videoBytes, id);
-
-          // Upload ciphertext metadata to Storacha
-          const ciphertextBlob = new Blob(
-            [JSON.stringify({ ciphertext, dataToEncryptHash, recordingId: id })],
+          const { encryptVideoLocal } = await import("@/lib/lit");
+          const videoBytes2 = new Uint8Array(await videoBlob.arrayBuffer());
+          const { ciphertext, dataToEncryptHash, key } = await encryptVideoLocal(videoBytes2, id);
+          const aesBlob = new Blob(
+            [JSON.stringify({
+              encryptionType: "aes-gcm-demo",
+              ciphertext, dataToEncryptHash,
+              recordingId: id, keyDemo: key,
+              note: "Demo: key sealed by Lit Protocol in production",
+            })],
             { type: "application/json" }
           );
-          const encFormData = new FormData();
-          encFormData.append("video", ciphertextBlob, `${id}_encrypted.json`);
-          encFormData.append("recordingId", id);
-          const encUploadRes = await fetch("/api/upload", { method: "POST", body: encFormData });
-
-          if (encUploadRes.ok) {
-            const { cid: encryptedCid } = await encUploadRes.json();
-            // Record encrypted CID on-chain (server just calls updateEncryptedCid)
+          const aesForm = new FormData();
+          aesForm.append("video", aesBlob, `${id}_encrypted.json`);
+          aesForm.append("recordingId", id);
+          const aesUploadRes = await fetch("/api/upload", { method: "POST", body: aesForm });
+          if (aesUploadRes.ok) {
+            const { cid: encryptedCid } = await aesUploadRes.json();
             await fetch("/api/encrypt", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ recordingId: id, encryptedCid }),
             });
-            toast.success("Footage encrypted with Lit Protocol!");
-          } else {
-            toast.warning("Lit encryption upload failed — footage stored unencrypted.");
+            toast.success("Footage encrypted (AES-256-GCM)");
           }
-        } catch (litErr) {
-          // Lit nodes unreachable — fall back to AES-256-GCM (browser Web Crypto)
-          // In production the AES key would be Lit-gated by isPurchased() on Filecoin
-          console.warn("[lit] falling back to AES-256-GCM:", litErr);
-          try {
-            const { encryptVideoLocal } = await import("@/lib/lit");
-            const videoBytes2 = new Uint8Array(await videoBlob.arrayBuffer());
-            const { ciphertext, dataToEncryptHash, key } = await encryptVideoLocal(videoBytes2, id);
-            const aesBlob = new Blob(
-              [JSON.stringify({
-                encryptionType: "aes-gcm-demo",
-                ciphertext,
-                dataToEncryptHash,
-                recordingId: id,
-                keyDemo: key,
-                note: "Demo: key sealed by Lit Protocol in production",
-              })],
-              { type: "application/json" }
-            );
-            const aesForm = new FormData();
-            aesForm.append("video", aesBlob, `${id}_encrypted.json`);
-            aesForm.append("recordingId", id);
-            const aesUploadRes = await fetch("/api/upload", { method: "POST", body: aesForm });
-            if (aesUploadRes.ok) {
-              const { cid: encryptedCid } = await aesUploadRes.json();
-              await fetch("/api/encrypt", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ recordingId: id, encryptedCid }),
-              });
-              toast.success("Footage encrypted (AES-256-GCM — Lit nodes unreachable)");
-            }
-          } catch (aesErr) {
-            console.warn("[aes-fallback]", aesErr);
-            toast.warning("Encryption unavailable — footage stored unencrypted.");
-          }
+        } catch (aesErr) {
+          console.warn("[aes-fallback]", aesErr);
+          toast.warning("Encryption unavailable — footage stored unencrypted.");
         }
-
-        setResult({
-          recordingId: id,
-          merkleRoot: root,
-          txHash,
-          cid,
-          chunkCount,
-          gps: gps ?? "unknown",
-        });
-        setPhase("done");
-      } catch (err) {
-        console.error(err);
-        toast.error("Something went wrong. Check console.");
-        setPhase("error");
       }
-    },
-    [gps, connectedAddress]
-  );
 
-  const startRecording = async () => {
-    setPhase("requesting");
+      setResult({ recordingId: id, merkleRoot: root, txHash, cid, chunkCount, gps: gps ?? "unknown" });
+      setPhase("done");
+
+      // Free local video memory
+      if (localVideoUrlRef.current) URL.revokeObjectURL(localVideoUrlRef.current);
+      localVideoUrlRef.current = null;
+      localVideoBlobRef.current = null;
+
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong. Check console.");
+      setPhase("error");
+    }
+  }, [gps, connectedAddress, title, description, priceEth]);
+
+  const resetAll = useCallback(() => {
+    setPhase("idle");
     setChunkHashes([]);
     setMerkleRoot(null);
     setResult(null);
+    setTitle("");
+    setDescription("");
+    setPriceEth("0.001");
+    setThumbnailUrl(null);
     chunksRef.current = [];
+    pendingMerkleRef.current = null;
+    localVideoBlobRef.current = null;
+    if (localVideoUrlRef.current) {
+      URL.revokeObjectURL(localVideoUrlRef.current);
+      localVideoUrlRef.current = null;
+    }
     workerRef.current?.postMessage({ type: "reset" });
+  }, []);
+
+  const startRecording = async () => {
+    resetAll();
+    setPhase("requesting");
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -281,10 +327,7 @@ export default function RecordPage() {
         ? "video/webm;codecs=vp9"
         : "video/webm";
 
-      const recorder = new MediaRecorder(stream, {
-        mimeType,
-        videoBitsPerSecond: 2_500_000,
-      });
+      const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 2_500_000 });
       mediaRecorderRef.current = recorder;
 
       recorder.ondataavailable = (e) => {
@@ -304,7 +347,7 @@ export default function RecordPage() {
         if (videoRef.current) videoRef.current.srcObject = null;
       };
 
-      recorder.start(1000); // emit chunk every 1 second
+      recorder.start(1000);
       setPhase("recording");
       setElapsed(0);
       timerRef.current = setInterval(() => setElapsed((e) => e + 1), 1000);
@@ -315,9 +358,7 @@ export default function RecordPage() {
     }
   };
 
-  const stopRecording = () => {
-    mediaRecorderRef.current?.stop();
-  };
+  const stopRecording = () => mediaRecorderRef.current?.stop();
 
   const formatTime = (s: number) =>
     `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
@@ -327,10 +368,11 @@ export default function RecordPage() {
     requesting: "Requesting camera...",
     recording: "Recording",
     processing: "Computing Merkle root...",
+    review: "Review & Publish",
     anchoring: "Anchoring proof on Filecoin...",
     uploading: "Uploading to Filecoin...",
     encrypting: "Encrypting with Lit Protocol...",
-    done: "Complete",
+    done: "Published",
     error: "Error",
   };
 
@@ -338,13 +380,16 @@ export default function RecordPage() {
     idle: 0,
     requesting: 5,
     recording: 20,
-    processing: 40,
+    processing: 35,
+    review: 40,
     anchoring: 55,
     uploading: 70,
     encrypting: 85,
     done: 100,
     error: 0,
   };
+
+  const isPublishing = phase === "anchoring" || phase === "uploading" || phase === "encrypting";
 
   return (
     <main className="min-h-screen flex flex-col">
@@ -359,15 +404,34 @@ export default function RecordPage() {
       </nav>
 
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-0">
-        {/* Left: Camera */}
+        {/* Left: Camera / Review */}
         <div className="border-r-2 border-border flex flex-col">
-          <div className="relative bg-black aspect-video w-full">
+          {/* Video area */}
+          <div className="relative bg-black aspect-video w-full overflow-hidden">
+            {/* Live camera (idle/recording/processing) */}
             <video
               ref={videoRef}
-              className="w-full h-full object-cover"
+              className={`w-full h-full object-cover ${phase === "review" || phase === "done" ? "hidden" : ""}`}
               playsInline
               muted
             />
+
+            {/* Review: playback of local recording */}
+            {phase === "review" && localVideoUrlRef.current && (
+              <video
+                ref={reviewVideoRef}
+                src={localVideoUrlRef.current}
+                className="w-full h-full object-cover"
+                controls
+                playsInline
+              />
+            )}
+
+            {/* Done: show thumbnail if available */}
+            {phase === "done" && thumbnailUrl && (
+              <img src={thumbnailUrl} className="w-full h-full object-cover" alt="thumbnail" />
+            )}
+
             {phase === "idle" && (
               <div className="absolute inset-0 flex items-center justify-center text-white text-lg font-base opacity-60">
                 Camera preview will appear here
@@ -393,7 +457,10 @@ export default function RecordPage() {
             )}
           </div>
 
-          <div className="p-6 flex flex-col gap-4 flex-1 bg-background">
+          {/* Controls / Metadata form */}
+          <div className="p-6 flex flex-col gap-4 flex-1 bg-background overflow-y-auto">
+
+            {/* Idle: wallet prompt or start button */}
             {phase === "idle" && !connectedAddress && (
               <div className="flex flex-col gap-2">
                 <p className="text-sm text-muted-foreground font-base text-center">
@@ -403,25 +470,60 @@ export default function RecordPage() {
               </div>
             )}
             {phase === "idle" && connectedAddress && (
-              <div className="flex flex-col gap-3">
+              <Button size="lg" onClick={startRecording} className="w-full text-base">
+                Start Recording
+              </Button>
+            )}
+
+            {/* Recording: stop button */}
+            {phase === "recording" && (
+              <Button
+                size="lg"
+                variant="neutral"
+                onClick={stopRecording}
+                className="w-full text-base border-red-500 text-red-600"
+              >
+                Stop Recording
+              </Button>
+            )}
+
+            {/* Processing: computing merkle */}
+            {phase === "processing" && (
+              <Button size="lg" disabled className="w-full text-base">
+                Computing proof...
+              </Button>
+            )}
+
+            {/* REVIEW PHASE: metadata form + publish */}
+            {phase === "review" && (
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-2">
+                  <Badge variant="default">Recording ready</Badge>
+                  <span className="text-xs text-muted-foreground font-base">
+                    Stored locally · {chunkHashes.length} chunks · {merkleRoot?.slice(0, 12)}...
+                  </span>
+                </div>
+
                 <div>
                   <label className="text-xs font-base text-muted-foreground mb-1 block">
-                    What does this footage show?
+                    Title <span className="text-red-500">*</span>
                   </label>
                   <Input
                     placeholder="e.g. Protest at City Hall, north entrance"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     maxLength={120}
+                    autoFocus
                   />
                 </div>
+
                 <div>
                   <label className="text-xs font-base text-muted-foreground mb-1 block">
                     Description (optional)
                   </label>
                   <textarea
                     className="w-full rounded-base border-2 border-border bg-background px-3 py-2 text-sm font-base placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
-                    placeholder="Add more context about this footage..."
+                    placeholder="Add context, background, or details about this footage..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     maxLength={500}
@@ -429,6 +531,7 @@ export default function RecordPage() {
                   />
                   <div className="text-xs text-muted-foreground text-right">{description.length}/500</div>
                 </div>
+
                 <div>
                   <label className="text-xs font-base text-muted-foreground mb-1 block">
                     Asking price (tFIL)
@@ -441,48 +544,52 @@ export default function RecordPage() {
                     value={priceEth}
                     onChange={(e) => setPriceEth(e.target.value)}
                   />
-                  <div className="text-xs text-muted-foreground mt-1">85% goes directly to you</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    85% goes directly to you · buyers can also make offers
+                  </div>
                 </div>
-                <Button size="lg" onClick={startRecording} className="w-full text-base">
-                  Start Recording
-                </Button>
+
+                {thumbnailUrl && (
+                  <div>
+                    <label className="text-xs font-base text-muted-foreground mb-1 block">
+                      Auto-generated thumbnail
+                    </label>
+                    <img src={thumbnailUrl} className="rounded-base border-2 border-border w-full object-cover max-h-32" alt="thumbnail" />
+                  </div>
+                )}
+
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    size="lg"
+                    variant="neutral"
+                    onClick={resetAll}
+                    className="flex-1"
+                  >
+                    Discard
+                  </Button>
+                  <Button
+                    size="lg"
+                    onClick={handlePublish}
+                    className="flex-1"
+                    disabled={!title.trim()}
+                  >
+                    Publish to Marketplace →
+                  </Button>
+                </div>
               </div>
             )}
-            {phase === "recording" && (
-              <Button
-                size="lg"
-                variant="neutral"
-                onClick={stopRecording}
-                className="w-full text-base border-red-500 text-red-600"
-              >
-                Stop Recording
-              </Button>
-            )}
-            {(phase === "processing" ||
-              phase === "anchoring" ||
-              phase === "uploading" ||
-              phase === "encrypting") && (
+
+            {/* Publishing: in-progress states */}
+            {isPublishing && (
               <Button size="lg" disabled className="w-full text-base">
                 {phaseLabel[phase]}
               </Button>
             )}
+
+            {/* Done */}
             {phase === "done" && (
               <div className="flex gap-3">
-                <Button
-                  size="lg"
-                  variant="neutral"
-                  onClick={() => {
-                    setPhase("idle");
-                    setChunkHashes([]);
-                    setMerkleRoot(null);
-                    setResult(null);
-                    chunksRef.current = [];
-                    setTitle("");
-                    setDescription("");
-                    setPriceEth("0.001");
-                  }}
-                  className="flex-1"
-                >
+                <Button size="lg" variant="neutral" onClick={resetAll} className="flex-1">
                   Record Again
                 </Button>
                 <Link href="/dashboard" className="flex-1">
@@ -491,7 +598,7 @@ export default function RecordPage() {
               </div>
             )}
 
-            {gps && (
+            {gps && phase !== "review" && (
               <div className="text-xs font-mono text-muted-foreground">
                 📍 GPS: {gps} (city-level approx)
               </div>
@@ -506,13 +613,7 @@ export default function RecordPage() {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span>Recording Status</span>
-                <Badge
-                  variant={
-                    phase === "done" || phase === "recording"
-                      ? "default"
-                      : "neutral"
-                  }
-                >
+                <Badge variant={phase === "done" || phase === "recording" ? "default" : "neutral"}>
                   {phaseLabel[phase]}
                 </Badge>
               </CardTitle>
@@ -534,17 +635,12 @@ export default function RecordPage() {
           {chunkHashes.length > 0 && (
             <Card className="border-2 border-border">
               <CardHeader>
-                <CardTitle className="text-sm">
-                  Hash Chain (live)
-                </CardTitle>
+                <CardTitle className="text-sm">Hash Chain (live)</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
                   {chunkHashes.slice(-8).map((c) => (
-                    <div
-                      key={`${c.index}-${c.hash}`}
-                      className="flex items-center gap-3 font-mono text-xs"
-                    >
+                    <div key={`${c.index}-${c.hash}`} className="flex items-center gap-3 font-mono text-xs">
                       <span className="text-muted-foreground w-6">#{c.index}</span>
                       <span className="text-green-600 truncate">{c.hash}</span>
                     </div>
@@ -575,18 +671,31 @@ export default function RecordPage() {
           )}
 
           {/* How it works */}
-          {phase === "idle" && (
+          {(phase === "idle" || phase === "review") && (
             <Card className="border-2 border-border">
               <CardHeader>
-                <CardTitle className="text-sm">How the proof works</CardTitle>
+                <CardTitle className="text-sm">
+                  {phase === "review" ? "What happens when you publish" : "How the proof works"}
+                </CardTitle>
               </CardHeader>
               <CardContent className="text-sm font-base text-muted-foreground space-y-2">
-                <p>1. Browser records video in 1-second chunks via MediaRecorder.</p>
-                <p>2. Each chunk is SHA-256 hashed, chained to the previous hash.</p>
-                <p>3. A Merkle root across all chunk hashes is computed in a Web Worker.</p>
-                <p>4. The Merkle root + GPS + timestamp is anchored on Filecoin FVM.</p>
-                <p>5. Full footage is uploaded to Filecoin via Storacha, CID linked on-chain.</p>
-                <p>6. Footage is encrypted with Lit Protocol — only buyers can decrypt.</p>
+                {phase === "review" ? (
+                  <>
+                    <p>1. Your Merkle proof is anchored on Filecoin FVM (tamper-evident).</p>
+                    <p>2. The raw footage is uploaded to Filecoin via Storacha.</p>
+                    <p>3. The footage is encrypted — only buyers can decrypt via Lit Protocol.</p>
+                    <p>4. Your listing goes live on the marketplace at your asking price.</p>
+                    <p>5. Buyers can pay the asking price or make you a custom offer.</p>
+                  </>
+                ) : (
+                  <>
+                    <p>1. Browser records video in 1-second chunks via MediaRecorder.</p>
+                    <p>2. Each chunk is SHA-256 hashed, chained to the previous hash.</p>
+                    <p>3. A Merkle root across all chunk hashes is computed in a Web Worker.</p>
+                    <p>4. After recording, you review the footage and add metadata locally.</p>
+                    <p>5. When ready, publish — footage is anchored, stored, and encrypted.</p>
+                  </>
+                )}
               </CardContent>
             </Card>
           )}
@@ -596,25 +705,13 @@ export default function RecordPage() {
   );
 }
 
-function Row({
-  label,
-  value,
-  mono = false,
-  truncate = false,
-}: {
-  label: string;
-  value: string;
-  mono?: boolean;
-  truncate?: boolean;
+function Row({ label, value, mono = false, truncate = false }: {
+  label: string; value: string; mono?: boolean; truncate?: boolean;
 }) {
   return (
     <div className="grid grid-cols-[140px_1fr] gap-2 items-start">
       <span className="text-muted-foreground font-base">{label}</span>
-      <span
-        className={`${mono ? "font-mono text-xs" : "font-base"} ${
-          truncate ? "truncate" : "break-all"
-        }`}
-      >
+      <span className={`${mono ? "font-mono text-xs" : "font-base"} ${truncate ? "truncate" : "break-all"}`}>
         {value}
       </span>
     </div>

@@ -70,7 +70,13 @@ async function getLitClient(): Promise<LitJsSdk.LitNodeClient> {
     debug: false,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any);
-  await litClient.connect();
+  // 10s timeout — if nodes unreachable, caller falls back to AES-256-GCM
+  await Promise.race([
+    litClient.connect(),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Lit connection timeout")), 10000)
+    ),
+  ]);
   return litClient;
 }
 

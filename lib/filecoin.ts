@@ -96,6 +96,7 @@ function getPublicClient() {
   return createPublicClient({
     chain: filecoinCalibration,
     transport: http(RPC_URL),
+    batch: { multicall: false }, // Multicall3 not deployed on Filecoin Calibration
   });
 }
 
