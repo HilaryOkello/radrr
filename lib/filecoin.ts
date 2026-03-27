@@ -47,6 +47,9 @@ const RECORDING_TUPLE = {
     { name: "title",                type: "string"   },
     { name: "description",          type: "string"   },
     { name: "previewCid",           type: "string"   },
+    { name: "trailerCid",          type: "string"   },
+    { name: "visibilityLevel",      type: "string"   },
+    { name: "licenseType",          type: "string"   },
     { name: "priceWei",             type: "uint256"  },
     { name: "sold",                 type: "bool"     },
     { name: "buyer",                type: "address"  },
@@ -55,8 +58,8 @@ const RECORDING_TUPLE = {
 } as const;
 
 const RADRR_ABI = [
-  { type: "function", name: "anchorRecording",    stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "uint256" }], outputs: [] },
-  { type: "function", name: "anchorRecordingFor", stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "uint256" }, { type: "address" }], outputs: [] },
+  { type: "function", name: "anchorRecording",    stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "uint256" }], outputs: [] },
+  { type: "function", name: "anchorRecordingFor", stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "uint256" }, { type: "address" }], outputs: [] },
   { type: "function", name: "updateCid",          stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }], outputs: [] },
   { type: "function", name: "updateEncryptedCid", stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }], outputs: [] },
   { type: "function", name: "updateCorroboration",stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string[]" }], outputs: [] },
@@ -132,14 +135,17 @@ export function normalizeGps(gpsApprox: string): string {
 // ─── Radrr contract calls ─────────────────────────────────────────────────────
 
 export async function anchorRecording(params: {
-  recordingId:  string;
-  merkleRoot:   string;
-  gpsApprox:    string;
-  title:        string;
-  description?: string;
-  previewCid?:  string;
-  priceEth?:    string;
-  witness?:     string;  // user's wallet; if provided, uses anchorRecordingFor
+  recordingId:      string;
+  merkleRoot:       string;
+  gpsApprox:        string;
+  title:            string;
+  description?:     string;
+  previewCid?:      string;
+  trailerCid?:      string;
+  visibilityLevel?:  string;
+  licenseType?:     string;
+  priceEth?:        string;
+  witness?:         string;
 }): Promise<Hash> {
   const wallet = getPlatformWalletClient();
   const priceWei = parseEther(params.priceEth ?? "0.001");
@@ -156,6 +162,9 @@ export async function anchorRecording(params: {
         params.title,
         params.description ?? "",
         params.previewCid ?? "",
+        params.trailerCid ?? "",
+        params.visibilityLevel ?? "blur",
+        params.licenseType ?? "non_exclusive",
         priceWei,
         params.witness as Address,
       ],
@@ -171,6 +180,9 @@ export async function anchorRecording(params: {
       params.merkleRoot,
       normalizeGps(params.gpsApprox),
       params.title,
+      params.trailerCid ?? "",
+      params.visibilityLevel ?? "blur",
+      params.licenseType ?? "non_exclusive",
       priceWei,
     ],
   });
@@ -244,6 +256,36 @@ export async function getRecordingsByWitness(witness: string) {
     functionName: "getRecordingsByWitness",
     args: [witness as Address],
   });
+}
+
+export async function getPublicRecordings(fromIndex = 0, limit = 20) {
+  const client = getPublicClient();
+  const allRecordings = await client.readContract({
+    address: CONTRACT_ADDRESS,
+    abi: RADRR_ABI,
+    functionName: "getRecordings",
+    args: [BigInt(fromIndex), BigInt(limit)],
+  });
+  return (allRecordings as readonly Record<string, unknown>[]).filter(
+    (r) => r.visibilityLevel === "full"
+  );
+}
+
+export async function getRecordingsByBuyer(buyer: string) {
+  const client = getPublicClient();
+  const allRecordings = await client.readContract({
+    address: CONTRACT_ADDRESS,
+    abi: RADRR_ABI,
+    functionName: "getRecordings",
+    args: [BigInt(0), BigInt(100)],
+  });
+  const buyerLower = buyer.toLowerCase();
+  return (allRecordings as readonly Record<string, unknown>[]).filter(
+    (r) => {
+      const rec = r as Record<string, unknown>;
+      return typeof rec.buyer === "string" && rec.buyer.toLowerCase() === buyerLower;
+    }
+  );
 }
 
 export async function getRecordingsByGps(gpsApprox: string): Promise<readonly string[]> {
@@ -363,4 +405,47 @@ export async function getBids(recordingId: string) {
     functionName: "getBids",
     args: [recordingId],
   });
+}
+
+export async function getBidsByBidder(bidder: string) {
+  const client = getPublicClient();
+  const allRecordings = await client.readContract({
+    address: CONTRACT_ADDRESS,
+    abi: RADRR_ABI,
+    functionName: "getRecordings",
+    args: [BigInt(0), BigInt(100)],
+  });
+  
+  const bidderLower = bidder.toLowerCase();
+  const result: Array<{
+    recordingId: string;
+    title: string;
+    bidIndex: number;
+    amount: bigint;
+    timestamp: bigint;
+    status: number;
+  }> = [];
+  
+  for (const rec of allRecordings as readonly Record<string, unknown>[]) {
+    const recObj = rec as Record<string, unknown>;
+    const recordingId = recObj.recordingId as string;
+    if (!recordingId) continue;
+    
+    const bids = await getBids(recordingId) as Array<{ bidder: string; amount: bigint; timestamp: bigint; status: number }>;
+    
+    for (let i = 0; i < bids.length; i++) {
+      if (bids[i].bidder.toLowerCase() === bidderLower) {
+        result.push({
+          recordingId,
+          title: recObj.title as string || "Untitled",
+          bidIndex: i,
+          amount: bids[i].amount,
+          timestamp: bids[i].timestamp,
+          status: bids[i].status,
+        });
+      }
+    }
+  }
+  
+  return result;
 }

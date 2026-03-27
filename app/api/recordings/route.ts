@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getRecordingsByWitness, getRecordings } from "@/lib/filecoin";
+import { getRecordingsByWitness, getRecordings, getRecordingsByBuyer } from "@/lib/filecoin";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function serializeRecording(r: any) {
@@ -11,6 +11,9 @@ function serializeRecording(r: any) {
     cid: r.cid,
     encrypted_cid: r.encryptedCid,
     preview_cid: r.previewCid,
+    trailer_cid: r.trailerCid,
+    visibility_level: r.visibilityLevel,
+    license_type: r.licenseType,
     witness: r.witness,
     title: r.title,
     description: r.description,
@@ -24,13 +27,19 @@ function serializeRecording(r: any) {
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const witness = searchParams.get("witness");
+  const buyer = searchParams.get("buyer");
   const from = Number(searchParams.get("from") ?? 0);
   const limit = Number(searchParams.get("limit") ?? 20);
 
   try {
-    const raw = witness
-      ? await getRecordingsByWitness(witness)
-      : await getRecordings(from, limit);
+    let raw;
+    if (buyer) {
+      raw = await getRecordingsByBuyer(buyer);
+    } else if (witness) {
+      raw = await getRecordingsByWitness(witness);
+    } else {
+      raw = await getRecordings(from, limit);
+    }
 
     const recordings = Array.from(raw).map(serializeRecording);
     return NextResponse.json({ recordings });

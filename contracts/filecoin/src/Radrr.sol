@@ -15,8 +15,11 @@ contract Radrr {
         string  encryptedCid;    // Lit Protocol encrypted CID
         address witness;
         string  title;
-        string  description;     // NEW
-        string  previewCid;      // NEW - thumbnail/preview image CID
+        string  description;
+        string  previewCid;      // thumbnail/preview image CID
+        string  trailerCid;       // 5-second compressed preview
+        string  visibilityLevel;   // "blur" | "trailer" | "thumbnail" | "full"
+        string  licenseType;      // "personal" | "editorial" | "commercial" | "cc_by" | "non_exclusive"
         uint256 priceWei;
         bool    sold;
         address buyer;
@@ -66,6 +69,7 @@ contract Radrr {
     event RecordingAnchored(string indexed recordingId, address indexed witness, uint256 priceWei);
     event CidUpdated(string indexed recordingId, string cid);
     event EncryptedCidUpdated(string indexed recordingId);
+    event TrailerCidUpdated(string indexed recordingId);
     event RecordingPurchased(string indexed recordingId, address indexed buyer, uint256 amount);
     event CorroborationUpdated(string indexed recordingId, uint256 bundleSize);
     event CredibilityUpdated(address indexed account, uint256 newScore);
@@ -115,7 +119,7 @@ contract Radrr {
         uint256         priceWei
     ) external {
         require(_identities[msg.sender].account != address(0), "Register identity first");
-        _anchorFor(recordingId, merkleRoot, gpsApprox, title, "", "", priceWei, msg.sender);
+        _anchorFor(recordingId, merkleRoot, gpsApprox, title, "", "", "", "blur", "non_exclusive", priceWei, msg.sender);
     }
 
     /// @notice Platform anchors a recording on behalf of a user wallet.
@@ -127,6 +131,9 @@ contract Radrr {
         string calldata title,
         string calldata description,
         string calldata previewCid,
+        string calldata trailerCid,
+        string calldata visibilityLevel,
+        string calldata licenseType,
         uint256         priceWei,
         address         witness
     ) external onlyOwner {
@@ -141,7 +148,7 @@ contract Radrr {
             });
             emit IdentityRegistered(witness, "");
         }
-        _anchorFor(recordingId, merkleRoot, gpsApprox, title, description, previewCid, priceWei, witness);
+        _anchorFor(recordingId, merkleRoot, gpsApprox, title, description, previewCid, trailerCid, visibilityLevel, licenseType, priceWei, witness);
     }
 
     function _anchorFor(
@@ -151,6 +158,9 @@ contract Radrr {
         string memory title,
         string memory description,
         string memory previewCid,
+        string memory trailerCid,
+        string memory visibilityLevel,
+        string memory licenseType,
         uint256       priceWei,
         address       witness
     ) internal {
@@ -167,6 +177,9 @@ contract Radrr {
             title:                title,
             description:          description,
             previewCid:           previewCid,
+            trailerCid:           trailerCid,
+            visibilityLevel:      visibilityLevel,
+            licenseType:          licenseType,
             priceWei:             priceWei,
             sold:                 false,
             buyer:                address(0),

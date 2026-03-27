@@ -4,8 +4,19 @@ import { storeRecordingMetadata } from "@/lib/synapse";
 
 export async function POST(req: NextRequest) {
   try {
-    const { recordingId, merkleRoot, gpsApprox, title, description, previewCid, priceEth, witness } =
-      await req.json();
+    const { 
+      recordingId, 
+      merkleRoot, 
+      gpsApprox, 
+      title, 
+      description, 
+      previewCid, 
+      trailerCid,
+      visibilityLevel,
+      licenseType,
+      priceEth, 
+      witness 
+    } = await req.json();
 
     if (!recordingId || !merkleRoot) {
       return NextResponse.json(
@@ -21,6 +32,9 @@ export async function POST(req: NextRequest) {
       title: title ?? "Untitled Recording",
       description: description ?? "",
       previewCid: previewCid ?? "",
+      trailerCid: trailerCid ?? "",
+      visibilityLevel: visibilityLevel ?? "blur",
+      licenseType: licenseType ?? "non_exclusive",
       priceEth: priceEth ?? "0.001",
       witness: witness ?? undefined,
     });
