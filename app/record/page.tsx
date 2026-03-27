@@ -50,21 +50,137 @@ async function generateThumbnail(videoBlob: Blob): Promise<Blob | null> {
     tempVideo.muted = true;
 
     const cleanup = () => URL.revokeObjectURL(videoUrl);
-    const timeout = setTimeout(() => { cleanup(); resolve(null); }, 8000);
+    const timeout = setTimeout(() => { cleanup(); resolve(null); }, 10000);
 
     tempVideo.onloadedmetadata = () => {
-      tempVideo.currentTime = tempVideo.duration / 2;
+      const duration = tempVideo.duration;
+      if (!duration || !isFinite(duration) || duration <= 0) {
+        tempVideo.currentTime = 0;
+      } else {
+        tempVideo.currentTime = Math.min(duration / 2, duration - 0.1);
+      }
     };
     tempVideo.onseeked = () => {
       clearTimeout(timeout);
       const canvas = document.createElement("canvas");
-      canvas.width = tempVideo.videoWidth || 640;
-      canvas.height = tempVideo.videoHeight || 360;
-      canvas.getContext("2d")!.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
+      const width = tempVideo.videoWidth || 640;
+      const height = tempVideo.videoHeight || 360;
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        cleanup();
+        resolve(null);
+        return;
+      }
+      ctx.drawImage(tempVideo, 0, 0, width, height);
       cleanup();
       canvas.toBlob((b) => resolve(b), "image/jpeg", 0.7);
     };
     tempVideo.onerror = () => { clearTimeout(timeout); cleanup(); resolve(null); };
+  });
+}
+
+type VisibilityLevel = "blur" | "trailer" | "thumbnail" | "full";
+type LicenseType = "personal" | "editorial" | "commercial" | "cc_by" | "non_exclusive";
+
+const VISIBILITY_OPTIONS: { value: VisibilityLevel; label: string; description: string }[] = [
+  { value: "blur", label: "Blurred", description: "Buyers see blurred preview until purchase" },
+  { value: "trailer", label: "Trailer Only", description: "Show 5s trailer, purchase for full video" },
+  { value: "thumbnail", label: "Thumbnail Only", description: "Only thumbnail visible, purchase to view" },
+  { value: "full", label: "Public", description: "Free viewing, purchase for ownership & 5% journalism fund" },
+];
+
+const LICENSE_OPTIONS: { value: LicenseType; label: string; description: string }[] = [
+  { value: "non_exclusive", label: "Non-Exclusive", description: "You keep rights, can sell to multiple buyers" },
+  { value: "personal", label: "Personal Use", description: "Buyer cannot redistribute" },
+  { value: "editorial", label: "Editorial Use", description: "News/media can use with attribution" },
+  { value: "commercial", label: "Commercial License", description: "Full commercial usage rights" },
+  { value: "cc_by", label: "CC BY", description: "Creative Commons, attribution required" },
+];
+
+async function createTrailerFromVideo(videoBlob: Blob, onProgress?: (p: number) => void): Promise<Blob | null> {
+  return new Promise((resolve) => {
+    const videoUrl = URL.createObjectURL(videoBlob);
+    const video = document.createElement("video");
+    video.src = videoUrl;
+    video.muted = true;
+    video.preload = "auto";
+
+    const timeout = setTimeout(() => {
+      URL.revokeObjectURL(videoUrl);
+      resolve(null);
+    }, 30000);
+
+    video.onloadedmetadata = async () => {
+      clearTimeout(timeout);
+      const duration = video.duration;
+      if (!duration || !isFinite(duration) || duration <= 0) {
+        URL.revokeObjectURL(videoUrl);
+        resolve(null);
+        return;
+      }
+
+      const startTime = 0;
+      const endTime = Math.min(5, duration);
+      const width = 640;
+      const height = Math.round((video.videoHeight / video.videoWidth) * width) || 360;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        URL.revokeObjectURL(videoUrl);
+        resolve(null);
+        return;
+      }
+
+      const stream = canvas.captureStream(30);
+      const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
+        ? "video/webm;codecs=vp9"
+        : "video/webm";
+
+      const chunks: Blob[] = [];
+      const recorder = new MediaRecorder(stream, {
+        mimeType,
+        videoBitsPerSecond: 500000,
+      });
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        URL.revokeObjectURL(videoUrl);
+        const blob = new Blob(chunks, { type: mimeType });
+        resolve(blob);
+      };
+
+      recorder.start(100);
+
+      video.currentTime = startTime;
+      const drawFrame = () => {
+        if (video.currentTime >= endTime) {
+          recorder.stop();
+          return;
+        }
+        ctx.drawImage(video, 0, 0, width, height);
+        onProgress?.(Math.round(((video.currentTime - startTime) / (endTime - startTime)) * 100));
+        video.currentTime += 1 / 30;
+        requestAnimationFrame(drawFrame);
+      };
+
+      video.onseeked = () => {
+        requestAnimationFrame(drawFrame);
+      };
+    };
+
+    video.onerror = () => {
+      clearTimeout(timeout);
+      URL.revokeObjectURL(videoUrl);
+      resolve(null);
+    };
   });
 }
 
@@ -95,7 +211,16 @@ export default function RecordPage() {
   const [gps, setGps] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null); // local preview
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+
+  const [generateTrailer, setGenerateTrailer] = useState(false);
+  const [trailerBlob, setTrailerBlob] = useState<Blob | null>(null);
+  const [trailerUrl, setTrailerUrl] = useState<string | null>(null);
+  const [isGeneratingTrailer, setIsGeneratingTrailer] = useState(false);
+  const [trailerProgress, setTrailerProgress] = useState(0);
+
+  const [visibilityLevel, setVisibilityLevel] = useState<VisibilityLevel>("blur");
+  const [licenseType, setLicenseType] = useState<LicenseType>("non_exclusive");
 
   // Init Web Worker
   useEffect(() => {
@@ -137,8 +262,9 @@ export default function RecordPage() {
     return () => {
       if (localVideoUrlRef.current) URL.revokeObjectURL(localVideoUrlRef.current);
       if (thumbnailUrl) URL.revokeObjectURL(thumbnailUrl);
+      if (trailerUrl) URL.revokeObjectURL(trailerUrl);
     };
-  }, [thumbnailUrl]);
+  }, [thumbnailUrl, trailerUrl]);
 
   const enterReviewPhase = useCallback(async (root: string) => {
     // Build local blob for playback
@@ -180,7 +306,23 @@ export default function RecordPage() {
         console.warn("[thumbnail]", thumbErr);
       }
 
-      // 1. Anchor on Filecoin FVM
+      // 1. Upload trailer if selected
+      let trailerCid = "";
+      if (generateTrailer && trailerBlob) {
+        try {
+          const trailerForm = new FormData();
+          trailerForm.append("file", trailerBlob, `${id}_trailer.webm`);
+          const trailerRes = await fetch("/api/upload-trailer", { method: "POST", body: trailerForm });
+          if (trailerRes.ok) {
+            trailerCid = (await trailerRes.json()).cid ?? "";
+            toast.success("Trailer uploaded!");
+          }
+        } catch (trailerErr) {
+          console.warn("[trailer-upload]", trailerErr);
+        }
+      }
+
+      // 2. Anchor on Filecoin FVM
       const anchorRes = await fetch("/api/anchor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -191,6 +333,9 @@ export default function RecordPage() {
           title: title.trim() || "Untitled Recording",
           description: description.trim(),
           previewCid,
+          trailerCid,
+          visibilityLevel,
+          licenseType,
           priceEth: priceEth || "0.001",
           timestamp: Date.now(),
           witness: connectedAddress ?? undefined,
@@ -203,7 +348,7 @@ export default function RecordPage() {
       }
       toast.success("Proof anchored on Filecoin!");
 
-      // 2. Upload video to Storacha
+      // 3. Upload video to Storacha
       setPhase("uploading");
       const formData = new FormData();
       formData.append("video", videoBlob, `${id}.webm`);
@@ -214,7 +359,7 @@ export default function RecordPage() {
       const { cid } = await uploadRes.json();
       toast.success("Footage stored on Filecoin!");
 
-      // 3. Encrypt (Lit Protocol → fallback AES-256-GCM)
+      // 4. Encrypt (Lit Protocol → fallback AES-256-GCM)
       setPhase("encrypting");
       try {
         const { encryptVideo } = await import("@/lib/lit");
@@ -286,7 +431,7 @@ export default function RecordPage() {
       toast.error("Something went wrong. Check console.");
       setPhase("error");
     }
-  }, [gps, connectedAddress, title, description, priceEth]);
+  }, [gps, connectedAddress, title, description, priceEth, generateTrailer, trailerBlob, visibilityLevel, licenseType]);
 
   const resetAll = useCallback(() => {
     setPhase("idle");
@@ -297,6 +442,14 @@ export default function RecordPage() {
     setDescription("");
     setPriceEth("0.001");
     setThumbnailUrl(null);
+    setGenerateTrailer(false);
+    setTrailerBlob(null);
+    if (trailerUrl) URL.revokeObjectURL(trailerUrl);
+    setTrailerUrl(null);
+    setIsGeneratingTrailer(false);
+    setTrailerProgress(0);
+    setVisibilityLevel("blur");
+    setLicenseType("non_exclusive");
     chunksRef.current = [];
     pendingMerkleRef.current = null;
     localVideoBlobRef.current = null;
@@ -305,7 +458,7 @@ export default function RecordPage() {
       localVideoUrlRef.current = null;
     }
     workerRef.current?.postMessage({ type: "reset" });
-  }, []);
+  }, [trailerUrl]);
 
   const startRecording = async () => {
     resetAll();
@@ -551,12 +704,140 @@ export default function RecordPage() {
 
                 {thumbnailUrl && (
                   <div>
-                    <label className="text-xs font-base text-muted-foreground mb-1 block">
-                      Auto-generated thumbnail
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-base text-muted-foreground">
+                        Auto-generated thumbnail
+                      </label>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (!localVideoBlobRef.current) return;
+                          const blob = await generateThumbnail(localVideoBlobRef.current);
+                          if (blob) {
+                            if (thumbnailUrl) URL.revokeObjectURL(thumbnailUrl);
+                            setThumbnailUrl(URL.createObjectURL(blob));
+                          }
+                        }}
+                        className="text-xs text-main hover:underline"
+                      >
+                        Regenerate
+                      </button>
+                    </div>
                     <img src={thumbnailUrl} className="rounded-base border-2 border-border w-full object-cover max-h-32" alt="thumbnail" />
                   </div>
                 )}
+
+                <div className="border-t-2 border-border pt-4">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="generate-trailer"
+                      checked={generateTrailer}
+                      onChange={async (e) => {
+                        setGenerateTrailer(e.target.checked);
+                        if (e.target.checked && !trailerBlob && localVideoBlobRef.current) {
+                          setIsGeneratingTrailer(true);
+                          setTrailerProgress(0);
+                          const blob = await createTrailerFromVideo(localVideoBlobRef.current, setTrailerProgress);
+                          if (blob) {
+                            setTrailerBlob(blob);
+                            setTrailerUrl(URL.createObjectURL(blob));
+                          }
+                          setIsGeneratingTrailer(false);
+                        }
+                      }}
+                      disabled={isGeneratingTrailer}
+                      className="w-4 h-4 rounded"
+                    />
+                    <div className="flex-1">
+                      <label htmlFor="generate-trailer" className="text-sm font-base cursor-pointer">
+                        Generate 5-second trailer
+                        <span className="text-xs text-muted-foreground ml-2">(recommended for sales)</span>
+                      </label>
+                      {isGeneratingTrailer && (
+                        <div className="mt-2">
+                          <Progress value={trailerProgress} className="h-2" />
+                          <span className="text-xs text-muted-foreground">Generating trailer... {trailerProgress}%</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {trailerUrl && (
+                    <div className="mt-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-xs font-base text-muted-foreground">
+                          Trailer preview (5s)
+                        </label>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (!localVideoBlobRef.current) return;
+                            setIsGeneratingTrailer(true);
+                            setTrailerProgress(0);
+                            const blob = await createTrailerFromVideo(localVideoBlobRef.current, setTrailerProgress);
+                            if (blob) {
+                              if (trailerUrl) URL.revokeObjectURL(trailerUrl);
+                              setTrailerUrl(URL.createObjectURL(blob));
+                              setTrailerBlob(blob);
+                            }
+                            setIsGeneratingTrailer(false);
+                          }}
+                          disabled={isGeneratingTrailer}
+                          className="text-xs text-main hover:underline disabled:opacity-50"
+                        >
+                          Regenerate
+                        </button>
+                      </div>
+                      <video src={trailerUrl} className="rounded-base border-2 border-border w-full" controls muted />
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-t-2 border-border pt-4">
+                  <label className="text-xs font-base text-muted-foreground mb-2 block">
+                    Who can see your footage?
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {VISIBILITY_OPTIONS.map((opt) => (
+                      <label
+                        key={opt.value}
+                        className={`flex items-start gap-2 p-2 rounded-base border-2 cursor-pointer transition-colors ${
+                          visibilityLevel === opt.value ? "border-ring bg-ring/10" : "border-border hover:border-muted-foreground"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="visibility"
+                          value={opt.value}
+                          checked={visibilityLevel === opt.value}
+                          onChange={() => setVisibilityLevel(opt.value)}
+                          className="mt-1"
+                        />
+                        <div>
+                          <div className="text-sm font-base">{opt.label}</div>
+                          <div className="text-xs text-muted-foreground">{opt.description}</div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-base text-muted-foreground mb-1 block">
+                    License type
+                  </label>
+                  <select
+                    value={licenseType}
+                    onChange={(e) => setLicenseType(e.target.value as LicenseType)}
+                    className="w-full rounded-base border-2 border-border bg-background px-3 py-2 text-sm font-base"
+                  >
+                    {LICENSE_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label} — {opt.description}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
                 <div className="flex gap-2 pt-2">
                   <Button
