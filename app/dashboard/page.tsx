@@ -6,6 +6,7 @@ import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { ConnectWallet } from "@/components/ConnectWallet";
 import { FootageCard, type FootageRecording } from "@/components/FootageCard";
+import { HypercertsList, type HypercertEntry } from "@/components/HypercertsList";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -31,13 +32,26 @@ interface RecordingBids {
   bids: SerializedBid[];
 }
 
+interface BuyerBid {
+  index: number;
+  recording_id: string;
+  title: string;
+  amount: string;
+  timestamp: number;
+  status: string;
+}
+
 export default function DashboardPage() {
   const { address: connectedAddress } = useAccount();
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [recordings, setRecordings] = useState<FootageRecording[]>([]);
+  const [purchasedRecordings, setPurchasedRecordings] = useState<FootageRecording[]>([]);
   const [loading, setLoading] = useState(true);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [recordingBids, setRecordingBids] = useState<RecordingBids[]>([]);
+  const [buyerBids, setBuyerBids] = useState<BuyerBid[]>([]);
+  const [mintedHypercerts, setMintedHypercerts] = useState<HypercertEntry[]>([]);
+  const [ownedHypercerts, setOwnedHypercerts] = useState<HypercertEntry[]>([]);
   const [actioning, setActioning] = useState<string | null>(null); // "recordingId-bidIndex"
 
   useEffect(() => {
@@ -62,9 +76,11 @@ export default function DashboardPage() {
 
   async function fetchData(accountId: string) {
     try {
-      const [identityRes, recordingsRes] = await Promise.all([
+      const [identityRes, recordingsRes, purchasedRes, buyerBidsRes] = await Promise.all([
         fetch(`/api/identity?accountId=${accountId}`),
         fetch(`/api/recordings?witness=${accountId}`),
+        fetch(`/api/recordings?buyer=${accountId}`),
+        fetch(`/api/bids/by-bidder?bidder=${accountId}`),
       ]);
 
       if (identityRes.ok) {
@@ -89,6 +105,28 @@ export default function DashboardPage() {
         );
         setRecordingBids(bidsResults.filter((rb) => rb.bids.length > 0));
       }
+      if (purchasedRes.ok) {
+        const data = await purchasedRes.json();
+        const purchased: FootageRecording[] = data.recordings ?? [];
+        setPurchasedRecordings(purchased);
+      }
+      if (buyerBidsRes.ok) {
+        const data = await buyerBidsRes.json();
+        setBuyerBids(data.bids ?? []);
+      }
+
+      const [mintedRes, ownedRes] = await Promise.all([
+        fetch(`/api/hypercerts/by-owner/${accountId}?role=minted`),
+        fetch(`/api/hypercerts/by-owner/${accountId}?role=owned`),
+      ]);
+      if (mintedRes.ok) {
+        const data = await mintedRes.json();
+        setMintedHypercerts(data.hypercerts ?? []);
+      }
+      if (ownedRes.ok) {
+        const data = await ownedRes.json();
+        setOwnedHypercerts(data.hypercerts ?? []);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -110,7 +148,7 @@ export default function DashboardPage() {
         const err = await res.json();
         throw new Error(err.error);
       }
-      toast.success("Bid accepted! Funds distributed 85/10/5. Recording marked sold.");
+      toast.success("🎉 Sale complete! 85% transferred to you, 5% to journalism fund.");
       // Update local state
       setRecordingBids((prev) =>
         prev.map((rb) =>
@@ -154,7 +192,7 @@ export default function DashboardPage() {
         const err = await res.json();
         throw new Error(err.error);
       }
-      toast.success("Bid rejected. Funds returned to bidder.");
+      toast.info("Bid rejected. Bidder has been refunded.");
       setRecordingBids((prev) =>
         prev.map((rb) =>
           rb.recording.recording_id === recordingId
@@ -274,12 +312,21 @@ export default function DashboardPage() {
                     Corroborated ({recordings.filter((r) => r.corroboration_bundle.length > 0).length})
                   </TabsTrigger>
                   <TabsTrigger value="bids" className="relative">
-                    Bids
+                    Offers
                     {totalPendingBids > 0 && (
                       <Badge className="ml-1 bg-main text-black text-xs px-1 py-0 h-4 min-w-4">
                         {totalPendingBids}
                       </Badge>
                     )}
+                  </TabsTrigger>
+                  <TabsTrigger value="my-bids">
+                    My Bids ({buyerBids.filter(b => b.status === "Pending").length})
+                  </TabsTrigger>
+                  <TabsTrigger value="purchased">
+                    Purchased ({purchasedRecordings.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="hypercerts">
+                    Hypercerts
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -303,6 +350,30 @@ export default function DashboardPage() {
                   onAccept={handleAcceptBid}
                   onReject={handleRejectBid}
                 />
+              </TabsContent>
+              <TabsContent value="my-bids">
+                <BuyerBidsList bids={buyerBids} />
+              </TabsContent>
+              <TabsContent value="purchased">
+                <PurchasedList recordings={purchasedRecordings} walletAddress={walletAddress ?? undefined} />
+              </TabsContent>
+              <TabsContent value="hypercerts">
+                <div className="flex flex-col gap-6">
+                  <div>
+                    <h3 className="font-heading text-lg mb-3">Minted by you</h3>
+                    <HypercertsList
+                      hypercerts={mintedHypercerts}
+                      emptyMessage="No hypercerts minted yet. When your footage sells, a hypercert is minted to record the impact."
+                    />
+                  </div>
+                  <div>
+                    <h3 className="font-heading text-lg mb-3">Owned</h3>
+                    <HypercertsList
+                      hypercerts={ownedHypercerts}
+                      emptyMessage="No hypercerts owned. When you buy footage, you receive a hypercert as proof of your impact contribution."
+                    />
+                  </div>
+                </div>
               </TabsContent>
             </Tabs>
           </div>
@@ -335,7 +406,21 @@ function RecordingsList({ recordings, walletAddress }: { recordings: FootageReco
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {recordings.map((r) => (
-        <FootageCard key={r.recording_id} recording={r} mode="dashboard" walletAddress={walletAddress} />
+        <div key={r.recording_id} className="flex flex-col gap-2">
+          <FootageCard recording={r} mode="dashboard" walletAddress={walletAddress} />
+          <div className="flex flex-wrap gap-2 text-xs">
+            <Badge variant="neutral" className="bg-secondary-background">
+              {r.visibility_level === "full" ? "Public" : r.visibility_level === "trailer" ? "Trailer" : r.visibility_level === "thumbnail" ? "Thumbnail" : "Blurred"}
+            </Badge>
+            <Badge variant="neutral" className="bg-secondary-background">
+              {r.license_type === "non_exclusive" ? "Non-Exclusive" : r.license_type === "personal" ? "Personal" : r.license_type === "editorial" ? "Editorial" : r.license_type === "commercial" ? "Commercial" : "CC BY"}
+            </Badge>
+            {r.trailer_cid && <Badge variant="neutral" className="bg-green-900/30 text-green-400">Trailer ✓</Badge>}
+            {!r.trailer_cid && r.visibility_level !== "full" && r.visibility_level !== "thumbnail" && (
+              <Badge variant="neutral" className="bg-yellow-900/30 text-yellow-400">No trailer</Badge>
+            )}
+          </div>
+        </div>
       ))}
     </div>
   );
@@ -422,6 +507,105 @@ function BidsList({
                       {isActioning ? "…" : "Accept"}
                     </Button>
                   </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
+  );
+}
+
+function PurchasedList({ recordings, walletAddress }: { recordings: FootageRecording[]; walletAddress?: string }) {
+  if (recordings.length === 0) {
+    return (
+      <Card className="border-2 border-border">
+        <CardContent className="py-12 text-center text-muted-foreground font-base">
+          No purchases yet.{" "}
+          <Link href="/marketplace" className="underline">Browse the marketplace</Link> to find footage.
+        </CardContent>
+      </Card>
+    );
+  }
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      {recordings.map((r) => (
+        <div key={r.recording_id} className="flex flex-col gap-2">
+          <FootageCard recording={r} mode="dashboard" walletAddress={walletAddress} />
+          <div className="flex flex-wrap gap-2 text-xs">
+            <Badge variant="neutral" className="bg-chart-2/20 text-chart-2 border-chart-2">
+              Purchased
+            </Badge>
+            <Badge variant="neutral" className="bg-secondary-background">
+              {r.license_type === "non_exclusive" ? "Non-Exclusive" : r.license_type === "personal" ? "Personal" : r.license_type === "editorial" ? "Editorial" : r.license_type === "commercial" ? "Commercial" : "CC BY"}
+            </Badge>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function BuyerBidsList({ bids }: { bids: BuyerBid[] }) {
+  if (bids.length === 0) {
+    return (
+      <Card className="border-2 border-border">
+        <CardContent className="py-12 text-center text-muted-foreground font-base">
+          No bids placed yet.{" "}
+          <Link href="/marketplace" className="underline">Browse the marketplace</Link> to find footage.
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const statusColor: Record<string, string> = {
+    Pending: "bg-main text-black",
+    Accepted: "bg-chart-2 text-black",
+    Rejected: "bg-red-900/30 text-red-400",
+    Withdrawn: "bg-muted text-muted-foreground",
+  };
+
+  return (
+    <div className="flex flex-col gap-3">
+      {bids.map((bid) => {
+        const key = `${bid.recording_id}-${bid.index}`;
+        const amountTFIL = (Number(bid.amount) / 1e18).toFixed(4);
+        const date = new Date(bid.timestamp * 1000).toLocaleString(undefined, {
+          month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
+        });
+
+        return (
+          <Card key={key} className="border-2 border-border">
+            <CardContent className="py-4 flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex flex-col gap-1 min-w-0">
+                <div className="font-heading text-sm line-clamp-1">
+                  {bid.title || "Untitled Recording"}
+                </div>
+                <div className="text-xs text-muted-foreground font-base">{date}</div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <div className="font-heading text-lg">{amountTFIL} tFIL</div>
+                  <Badge className={`text-xs ${statusColor[bid.status] ?? ""}`}>
+                    {bid.status}
+                  </Badge>
+                </div>
+
+                {bid.status === "Pending" && (
+                  <Link href={`/recording/${bid.recording_id}`}>
+                    <Button size="sm" variant="neutral">
+                      View
+                    </Button>
+                  </Link>
+                )}
+                {bid.status === "Accepted" && (
+                  <Link href={`/recording/${bid.recording_id}`}>
+                    <Button size="sm">
+                      Watch 🎉
+                    </Button>
+                  </Link>
                 )}
               </div>
             </CardContent>
