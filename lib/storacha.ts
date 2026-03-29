@@ -58,6 +58,21 @@ export async function uploadVideo(
 }
 
 /**
+ * Upload a JSON object to Storacha/Filecoin.
+ * Returns the root CID string.
+ */
+export async function uploadJson(
+  data: object,
+  filename: string
+): Promise<string> {
+  const client = await getClient();
+  const json = JSON.stringify(data, null, 2);
+  const file = new File([json], filename, { type: "application/json" });
+  const cid = await client.uploadFile(file);
+  return cid.toString();
+}
+
+/**
  * Upload encrypted video bytes to Storacha.
  */
 export async function uploadEncryptedVideo(
