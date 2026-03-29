@@ -13,7 +13,7 @@ import {
   LitActionResource,
 } from "@lit-protocol/auth-helpers";
 
-const LIT_NETWORK = LitNetwork.DatilTest;
+const LIT_NETWORK = LitNetwork.DatilDev;
 
 const FILECOIN_RPC = "https://api.calibration.node.glif.io/rpc/v1";
 
@@ -74,7 +74,7 @@ async function getLitClient(): Promise<LitJsSdk.LitNodeClient> {
   await Promise.race([
     litClient.connect(),
     new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error("Lit connection timeout")), 10000)
+      setTimeout(() => reject(new Error("Lit connection timeout")), 20000)
     ),
   ]);
   return litClient;
