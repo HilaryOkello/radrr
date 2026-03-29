@@ -1,19 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createPublicClient, http } from "viem";
-import { sepolia } from "viem/chains";
-import { HypercertMinterAbi } from "@hypercerts-org/contracts";
-import { getFromIPFS } from "@hypercerts-org/sdk";
+import { AtpAgent } from "@atproto/api";
 
-const HYPERCERT_CONTRACT = "0xa16DFb32Eb140a6f3F2AC68f41dAd8c7e83C4941";
-const SEPOLIA_RPC = process.env.SEPOLIA_RPC_URL ?? "https://rpc.sepolia.org";
+const PDS_URL = process.env.CERTIFIED_APP_PDS ?? "https://certified.one";
 
 export interface HypercertEntry {
-  tokenId: string;
-  uri: string;
+  tokenId: string;       // AT-URI of the record
+  uri: string;           // AT-URI
   name: string;
   description: string;
   image: string;
-  contributor: string;
+  contributor: string;   // witness EVM address
   recordingId: string | null;
   verificationLevel: string | null;
   isCorroborated: boolean | null;
@@ -23,268 +19,102 @@ export interface HypercertEntry {
   createdAt: number;
 }
 
-interface Metadata {
-  name?: string;
-  description?: string;
-  image?: string;
-  hypercert?: {
-    contributors?: { value?: string[] };
-  };
-  properties?: Array<{ trait_type: string; value: string }>;
-}
-
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ address: string }> }
 ) {
   try {
     const { address } = await params;
-    const role = req.nextUrl.searchParams.get("role") ?? "owned";
 
     if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
       return NextResponse.json({ error: "Invalid address" }, { status: 400 });
     }
 
-    const client = createPublicClient({
-      chain: sepolia,
-      transport: http(SEPOLIA_RPC),
-    });
+    // Accept DID only if it looks like a real resolved DID (not placeholder)
+    const rawDid = process.env.CERTIFIED_APP_DID ?? "";
+    const platformDid = rawDid.startsWith("did:plc:") && rawDid.length > 12 ? rawDid : null;
+
+    const repo = platformDid ?? await resolveDid(process.env.CERTIFIED_APP_HANDLE ?? "");
+    if (!repo) {
+      return NextResponse.json({ hypercerts: [] });
+    }
+
+    // Read records from the PDS — public, no auth needed
+    const agent = new AtpAgent({ service: PDS_URL });
+
+    let cursor: string | undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const allRecords: any[] = [];
+
+    do {
+      const res = await agent.com.atproto.repo.listRecords({
+        repo,
+        collection: "org.hypercerts.claim.activity",
+        limit: 100,
+        cursor,
+      });
+      allRecords.push(...res.data.records);
+      cursor = res.data.cursor;
+    } while (cursor);
 
     const addressLower = address.toLowerCase();
 
-    if (role === "minted") {
-      return await getMintedHypercerts(client, addressLower);
-    } else {
-      return await getOwnedHypercerts(client, addressLower);
-    }
+    const hypercerts: HypercertEntry[] = allRecords
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .filter((r: any) => {
+        const rec = r.value;
+        // Match by witnessAddress field or contributors identity
+        if (typeof rec.witnessAddress === "string") {
+          return rec.witnessAddress.toLowerCase() === addressLower;
+        }
+        if (Array.isArray(rec.contributors)) {
+          return rec.contributors.some(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (c: any) => c?.contributorIdentity?.identity?.toLowerCase() === addressLower
+          );
+        }
+        return false;
+      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((r: any) => {
+        const rec = r.value;
+        const createdAt = rec.createdAt ? new Date(rec.createdAt).getTime() : 0;
+        return {
+          tokenId: r.uri,
+          uri: r.uri,
+          name: rec.title ?? "Untitled Hypercert",
+          description: rec.description ?? "",
+          image: "",
+          contributor: rec.witnessAddress ?? address,
+          recordingId: rec.recordingId ?? null,
+          verificationLevel: rec.verificationLevel ?? null,
+          isCorroborated: rec.isCorroborated ?? null,
+          isPublicShare: rec.isPublicShare ?? null,
+          totalUnits: "1",
+          platform: rec.platform ?? "radrr",
+          createdAt,
+        } satisfies HypercertEntry;
+      });
+
+    hypercerts.sort((a, b) => b.createdAt - a.createdAt);
+
+    return NextResponse.json({ hypercerts });
   } catch (err) {
     console.error("[hypercerts/by-owner]", err);
-    return NextResponse.json(
-      { error: "Failed to fetch hypercerts" },
-      { status: 500 }
-    );
-  }
-}
-
-async function getMintedHypercerts(
-  client: ReturnType<typeof createPublicClient>,
-  address: string
-) {
-  const logs = await client.getLogs({
-    address: HYPERCERT_CONTRACT as `0x${string}`,
-    event: {
-      type: "event",
-      name: "ClaimStored",
-      inputs: [
-        { indexed: true, name: "claimID", type: "uint256" },
-        { indexed: false, name: "uri", type: "string" },
-        { indexed: false, name: "totalUnits", type: "uint256" },
-      ],
-    },
-    fromBlock: BigInt(0),
-    toBlock: "latest",
-  });
-
-  const results: HypercertEntry[] = [];
-
-  for (const log of logs) {
-    const args = log.args;
-    if (!args) continue;
-
-    const uri = args.uri as string;
-    const tokenId = args.claimID as bigint;
-    const totalUnits = args.totalUnits as bigint;
-
-    const metadata = await fetchMetadata(uri);
-    const contributors = metadata?.hypercert?.contributors?.value ?? [];
-
-    if (!Array.isArray(contributors) || !contributors.map(String).map(s => s.toLowerCase()).includes(address)) {
-      continue;
-    }
-
-    const properties = metadata?.properties ?? [];
-    const prop = (trait: string) => (properties as Array<{ trait_type: string; value: string }>).find(p => p.trait_type === trait)?.value;
-
-    results.push({
-      tokenId: String(tokenId),
-      uri,
-      name: metadata?.name ?? "Untitled Hypercert",
-      description: metadata?.description ?? "",
-      image: metadata?.image ?? "",
-      contributor: String(contributors[0] ?? ""),
-      recordingId: prop("recording_id") ?? null,
-      verificationLevel: prop("verification_level") ?? null,
-      isCorroborated: prop("is_corroborated") === "true",
-      isPublicShare: prop("is_public_share") === "true",
-      totalUnits: String(totalUnits),
-      platform: prop("platform") ?? null,
-      createdAt: await blockTimestampFromLog(client, log.blockNumber),
-    });
-  }
-
-  results.sort((a, b) => b.createdAt - a.createdAt);
-
-  return NextResponse.json({ hypercerts: results });
-}
-
-async function getOwnedHypercerts(
-  client: ReturnType<typeof createPublicClient>,
-  address: string
-) {
-  const toLogs = await client.getLogs({
-    address: HYPERCERT_CONTRACT as `0x${string}`,
-    event: {
-      type: "event",
-      name: "TransferSingle",
-      inputs: [
-        { indexed: true, name: "operator", type: "address" },
-        { indexed: true, name: "from", type: "address" },
-        { indexed: true, name: "to", type: "address" },
-        { indexed: false, name: "id", type: "uint256" },
-        { indexed: false, name: "value", type: "uint256" },
-      ],
-    },
-    fromBlock: BigInt(0),
-    toBlock: "latest",
-    args: {
-      to: address as `0x${string}`,
-    },
-  });
-
-  const tokenBlocks = new Map<string, { from: string; block: bigint }>();
-
-  for (const log of toLogs) {
-    const args = log.args;
-    if (!args) continue;
-    const tokenId = String(args.id);
-    const current = tokenBlocks.get(tokenId);
-    if (!current || log.blockNumber > current.block) {
-      tokenBlocks.set(tokenId, {
-        from: (args.from as string).toLowerCase(),
-        block: log.blockNumber,
-      });
-    }
-  }
-
-  const fromLogs = await client.getLogs({
-    address: HYPERCERT_CONTRACT as `0x${string}`,
-    event: {
-      type: "event",
-      name: "TransferSingle",
-      inputs: [
-        { indexed: true, name: "operator", type: "address" },
-        { indexed: true, name: "from", type: "address" },
-        { indexed: true, name: "to", type: "address" },
-        { indexed: false, name: "id", type: "uint256" },
-        { indexed: false, name: "value", type: "uint256" },
-      ],
-    },
-    fromBlock: BigInt(0),
-    toBlock: "latest",
-    args: {
-      from: address as `0x${string}`,
-    },
-  });
-
-  for (const log of fromLogs) {
-    const args = log.args;
-    if (!args) continue;
-    const tokenId = String(args.id);
-    const block = log.blockNumber;
-    const current = tokenBlocks.get(tokenId);
-    if (current && block >= current.block) {
-      tokenBlocks.delete(tokenId);
-    }
-  }
-
-  const ownedTokenIds = Array.from(tokenBlocks.keys());
-
-  if (ownedTokenIds.length === 0) {
     return NextResponse.json({ hypercerts: [] });
   }
-
-  const claimLogs = await client.getLogs({
-    address: HYPERCERT_CONTRACT as `0x${string}`,
-    event: {
-      type: "event",
-      name: "ClaimStored",
-      inputs: [
-        { indexed: true, name: "claimID", type: "uint256" },
-        { indexed: false, name: "uri", type: "string" },
-        { indexed: false, name: "totalUnits", type: "uint256" },
-      ],
-    },
-    fromBlock: BigInt(0),
-    toBlock: "latest",
-  });
-
-  const claimMap = new Map<string, { uri: string; totalUnits: bigint }>();
-  for (const log of claimLogs) {
-    const args = log.args;
-    if (!args) continue;
-    claimMap.set(String(args.claimID), {
-      uri: args.uri as string,
-      totalUnits: args.totalUnits as bigint,
-    });
-  }
-
-  const results: HypercertEntry[] = [];
-
-  for (const tokenId of ownedTokenIds) {
-    const claim = claimMap.get(tokenId);
-    if (!claim) continue;
-
-    const metadata = await fetchMetadata(claim.uri);
-    const contributors = metadata?.hypercert?.contributors?.value ?? [];
-    const properties = metadata?.properties ?? [];
-    const prop = (trait: string) => (properties as Array<{ trait_type: string; value: string }>).find(p => p.trait_type === trait)?.value;
-
-    results.push({
-      tokenId,
-      uri: claim.uri,
-      name: metadata?.name ?? "Untitled Hypercert",
-      description: metadata?.description ?? "",
-      image: metadata?.image ?? "",
-      contributor: String(contributors[0] ?? ""),
-      recordingId: prop("recording_id") ?? null,
-      verificationLevel: prop("verification_level") ?? null,
-      isCorroborated: prop("is_corroborated") === "true",
-      isPublicShare: prop("is_public_share") === "true",
-      totalUnits: String(claim.totalUnits),
-      platform: prop("platform") ?? null,
-      createdAt: 0,
-    });
-  }
-
-  return NextResponse.json({ hypercerts: results });
 }
 
-async function fetchMetadata(uri: string): Promise<Metadata | null> {
+async function resolveDid(handle: string): Promise<string | null> {
   try {
-    let cid = uri;
-    if (uri.startsWith("ipfs://")) {
-      cid = uri.slice(7);
-    } else if (uri.startsWith("ipfs/")) {
-      cid = uri.slice(5);
-    }
-    const data = await getFromIPFS(cid);
-    if (data && typeof data === "object") {
-      return data as Metadata;
-    }
-    return null;
+    const res = await fetch(
+      `${PDS_URL}/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`,
+      { signal: AbortSignal.timeout(5000) }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.did ?? null;
   } catch {
     return null;
-  }
-}
-
-async function blockTimestampFromLog(
-  client: ReturnType<typeof createPublicClient>,
-  blockNumber: bigint
-): Promise<number> {
-  try {
-    const block = await client.getBlock({ blockNumber });
-    return Number(block.timestamp * BigInt(1000));
-  } catch {
-    return 0;
   }
 }

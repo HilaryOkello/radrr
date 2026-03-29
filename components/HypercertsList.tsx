@@ -22,8 +22,10 @@ export interface HypercertEntry {
 }
 
 function HypercertCard({ hc }: { hc: HypercertEntry }) {
-  const contract = process.env.NEXT_PUBLIC_HYPERCERT_CONTRACT_ADDRESS ?? "0xa16DFb32Eb140a6f3F2AC68f41dAd8c7e83C4941";
-  const openseaUrl = `https://testnets.opensea.io/assets/sepolia/${contract}/${hc.tokenId}`;
+  // AT-URI format: at://did:plc:.../org.hypercerts.claim.activity/rkey
+  const certifiedUrl = hc.uri.startsWith("at://")
+    ? `https://hyperscan.dev/repo/${hc.uri.slice(5).split("/")[0]}`
+    : null;
 
   const verificationColor =
     hc.isCorroborated
@@ -98,11 +100,13 @@ function HypercertCard({ hc }: { hc: HypercertEntry }) {
         )}
 
         <div className="flex gap-2 pt-1">
-          <Link href={openseaUrl} target="_blank" rel="noopener noreferrer">
-            <Button size="sm" variant="neutral" className="text-xs h-7">
-              OpenSea
-            </Button>
-          </Link>
+          {certifiedUrl && (
+            <Link href={certifiedUrl} target="_blank" rel="noopener noreferrer">
+              <Button size="sm" variant="neutral" className="text-xs h-7">
+                View Record
+              </Button>
+            </Link>
+          )}
           {hc.recordingId && (
             <Link href={`/recording/${hc.recordingId}`}>
               <Button size="sm" className="text-xs h-7">
