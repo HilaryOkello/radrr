@@ -100,88 +100,66 @@ const LICENSE_OPTIONS: { value: LicenseType; label: string; description: string 
 ];
 
 async function createTrailerFromVideo(videoBlob: Blob, onProgress?: (p: number) => void): Promise<Blob | null> {
-  return new Promise((resolve) => {
-    const videoUrl = URL.createObjectURL(videoBlob);
-    const video = document.createElement("video");
-    video.src = videoUrl;
-    video.muted = true;
-    video.preload = "auto";
+  const videoUrl = URL.createObjectURL(videoBlob);
+  const video = document.createElement("video");
+  video.src = videoUrl;
+  video.muted = true;
+  video.preload = "auto";
 
-    const timeout = setTimeout(() => {
-      URL.revokeObjectURL(videoUrl);
-      resolve(null);
-    }, 30000);
+  try {
+    await new Promise<void>((res, rej) => {
+      video.onloadedmetadata = () => res();
+      video.onerror = () => rej(new Error("video load failed"));
+      setTimeout(() => rej(new Error("metadata timeout")), 30000);
+    });
 
-    video.onloadedmetadata = async () => {
-      clearTimeout(timeout);
-      const duration = video.duration;
-      if (!duration || !isFinite(duration) || duration <= 0) {
-        URL.revokeObjectURL(videoUrl);
-        resolve(null);
-        return;
-      }
+    const duration = video.duration;
+    if (!duration || !isFinite(duration) || duration <= 0) return null;
 
-      const startTime = 0;
-      const endTime = Math.min(5, duration);
-      const width = 640;
-      const height = Math.round((video.videoHeight / video.videoWidth) * width) || 360;
+    const endTime = Math.min(5, duration);
+    const fps = 30;
+    const frameInterval = 1 / fps;
+    const width = 640;
+    const height = Math.round((video.videoHeight / video.videoWidth) * width) || 360;
 
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        URL.revokeObjectURL(videoUrl);
-        resolve(null);
-        return;
-      }
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
 
-      const stream = canvas.captureStream(30);
-      const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
-        ? "video/webm;codecs=vp9"
-        : "video/webm";
+    const stream = canvas.captureStream(fps);
+    const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
+      ? "video/webm;codecs=vp9"
+      : "video/webm";
 
-      const chunks: Blob[] = [];
-      const recorder = new MediaRecorder(stream, {
-        mimeType,
-        videoBitsPerSecond: 500000,
-      });
+    const chunks: Blob[] = [];
+    const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 500000 });
+    recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
 
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunks.push(e.data);
-      };
+    const done = new Promise<Blob>((res) => {
+      recorder.onstop = () => res(new Blob(chunks, { type: mimeType }));
+    });
 
-      recorder.onstop = () => {
-        URL.revokeObjectURL(videoUrl);
-        const blob = new Blob(chunks, { type: mimeType });
-        resolve(blob);
-      };
+    recorder.start(100);
 
-      recorder.start(100);
+    // Seek frame-by-frame waiting for each seek to complete
+    for (let t = 0; t < endTime; t += frameInterval) {
+      video.currentTime = t;
+      await new Promise<void>((res) => { video.onseeked = () => res(); });
+      ctx.drawImage(video, 0, 0, width, height);
+      onProgress?.(Math.round((t / endTime) * 100));
+    }
 
-      video.currentTime = startTime;
-      const drawFrame = () => {
-        if (video.currentTime >= endTime) {
-          recorder.stop();
-          return;
-        }
-        ctx.drawImage(video, 0, 0, width, height);
-        onProgress?.(Math.round(((video.currentTime - startTime) / (endTime - startTime)) * 100));
-        video.currentTime += 1 / 30;
-        requestAnimationFrame(drawFrame);
-      };
-
-      video.onseeked = () => {
-        requestAnimationFrame(drawFrame);
-      };
-    };
-
-    video.onerror = () => {
-      clearTimeout(timeout);
-      URL.revokeObjectURL(videoUrl);
-      resolve(null);
-    };
-  });
+    recorder.stop();
+    onProgress?.(100);
+    return await done;
+  } catch (err) {
+    console.warn("[trailer-gen]", err);
+    return null;
+  } finally {
+    URL.revokeObjectURL(videoUrl);
+  }
 }
 
 export default function RecordPage() {
@@ -373,15 +351,9 @@ export default function RecordPage() {
         const encFormData = new FormData();
         encFormData.append("video", ciphertextBlob, `${id}_encrypted.json`);
         encFormData.append("recordingId", id);
-        const encUploadRes = await fetch("/api/upload", { method: "POST", body: encFormData });
+        const encUploadRes = await fetch("/api/upload-encrypted", { method: "POST", body: encFormData });
 
         if (encUploadRes.ok) {
-          const { cid: encryptedCid } = await encUploadRes.json();
-          await fetch("/api/encrypt", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ recordingId: id, encryptedCid }),
-          });
           toast.success("Footage encrypted with Lit Protocol!");
         }
       } catch (litErr) {
@@ -402,14 +374,8 @@ export default function RecordPage() {
           const aesForm = new FormData();
           aesForm.append("video", aesBlob, `${id}_encrypted.json`);
           aesForm.append("recordingId", id);
-          const aesUploadRes = await fetch("/api/upload", { method: "POST", body: aesForm });
+          const aesUploadRes = await fetch("/api/upload-encrypted", { method: "POST", body: aesForm });
           if (aesUploadRes.ok) {
-            const { cid: encryptedCid } = await aesUploadRes.json();
-            await fetch("/api/encrypt", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ recordingId: id, encryptedCid }),
-            });
             toast.success("Footage encrypted (AES-256-GCM)");
           }
         } catch (aesErr) {
@@ -852,9 +818,9 @@ export default function RecordPage() {
                     size="lg"
                     onClick={handlePublish}
                     className="flex-1"
-                    disabled={!title.trim()}
+                    disabled={!title.trim() || isGeneratingTrailer}
                   >
-                    Publish to Marketplace →
+                    {isGeneratingTrailer ? "Generating trailer…" : "Publish to Marketplace →"}
                   </Button>
                 </div>
               </div>

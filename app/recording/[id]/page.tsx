@@ -46,6 +46,7 @@ export default function RecordingDetailPage() {
   const [loading, setLoading] = useState(true);
   const [buying, setBuying] = useState(false);
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
+  const [videoError, setVideoError] = useState(false);
 
   useEffect(() => {
     fetch(`/api/recordings`)
@@ -65,6 +66,7 @@ export default function RecordingDetailPage() {
     const visibility = recording.visibility_level ?? "blur";
     const isOwner = connectedAddress?.toLowerCase() === recording.witness?.toLowerCase();
 
+    setVideoError(false);
     if (isOwner) {
       setVideoSrc(recording.cid ? ipfsUrl(recording.cid) : null);
     } else if (visibility === "full") {
@@ -167,16 +169,22 @@ export default function RecordingDetailPage() {
       <div className="flex-1 p-6 max-w-4xl mx-auto w-full">
         {/* Video Player */}
         <div className="relative bg-black aspect-video rounded-base overflow-hidden mb-6 border-2 border-border">
-          {canWatch && videoSrc ? (
+          {canWatch && videoSrc && !videoError ? (
             <video
               src={videoSrc}
               poster={recording.preview_cid ? ipfsUrl(recording.preview_cid) : undefined}
               className="w-full h-full object-contain"
               controls
-              autoPlay={visibility === "full" || visibility === "trailer"}
               muted={visibility === "trailer"}
               loop={visibility === "trailer"}
+              onError={() => setVideoError(true)}
             />
+          ) : videoError ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-secondary-background">
+              <span className="text-5xl opacity-30">⚠️</span>
+              <p className="text-muted-foreground font-base mt-4">Video could not be loaded</p>
+              <p className="text-muted-foreground font-base text-sm mt-1">The file may be corrupted or still propagating on IPFS</p>
+            </div>
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-secondary-background">
               {recording.preview_cid ? (
