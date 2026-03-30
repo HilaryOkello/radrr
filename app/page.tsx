@@ -1,24 +1,24 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { PublicVideos } from "@/components/PublicVideos";
+import { Navbar } from "@/components/Navbar";
 
 const features = [
   {
     icon: "🔒",
     title: "Cryptographic Proof",
-    body: "Every recording is SHA-256 hashed chunk-by-chunk. A Merkle root is anchored on Filecoin FVM — tamper-evident, forever.",
+    body: "Merkle root anchored on Filecoin FVM at the moment of capture — tamper-evident, forever.",
   },
   {
     icon: "🌍",
     title: "Decentralised Storage",
-    body: "Footage lives on Filecoin via Storacha. Content-addressed CIDs link directly to your on-chain proof. No one can delete it.",
+    body: "Footage lives on Filecoin via Storacha. Content-addressed CIDs link to your on-chain proof. No one can delete it.",
   },
   {
     icon: "🔑",
     title: "You Control Access",
-    body: "Lit Protocol encrypts your footage. Only a confirmed buyer can decrypt. Exact GPS is hidden until you authorise disclosure.",
+    body: "Lit Protocol encrypts your footage. Only a confirmed buyer can decrypt. GPS hidden until you authorise.",
   },
   {
     icon: "🤖",
@@ -26,147 +26,171 @@ const features = [
     body: "SigLIP 2 matches your clip against other recordings of the same event. Corroborated bundles command higher prices.",
   },
   {
-    icon: "👤",
-    title: "Verified Human",
-    body: "ERC-8004 agent identity on Filecoin FVM. Your pseudonymous wallet address is your on-chain identity — no biometrics.",
-  },
-  {
     icon: "💸",
     title: "85% Goes To You",
-    body: "Smart contracts split every sale instantly: 85% to you, 10% platform, 5% journalist safety fund. No invoices. No 90-day waits.",
+    body: "Smart contracts split every sale instantly. No invoices. No 90-day waits. No platform taking the majority.",
   },
-];
-
-const stats = [
-  { value: "$0.01", label: "Max tFIL tx fee" },
-  { value: "85%", label: "Witness revenue share" },
-  { value: "~30s", label: "Filecoin finality" },
-  { value: "0", label: "Middlemen" },
+  {
+    icon: "📜",
+    title: "Hypercerts on Purchase",
+    body: "Every buyer receives a permanent on-chain Hypercert — proof they funded verified public-interest journalism.",
+  },
 ];
 
 export default function Home() {
   return (
     <main className="flex flex-col min-h-screen">
-      {/* Nav */}
-      <nav className="border-b-2 border-border px-6 py-4 flex items-center justify-between bg-secondary-background">
-        <span className="text-2xl font-heading tracking-tight">radrr</span>
-        <div className="flex gap-3">
-          <Link href="/marketplace">
-            <Button variant="neutral" size="sm">Browse Footage</Button>
-          </Link>
-          <Link href="/record">
-            <Button size="sm">Start Recording</Button>
-          </Link>
-        </div>
-      </nav>
+      <Navbar />
 
-      {/* Hero */}
-      <section className="flex-1 flex flex-col items-center justify-center px-6 py-20 text-center border-b-2 border-border">
-        <Badge className="mb-6 text-sm px-4 py-1">
-          Community Truth Network
-        </Badge>
-        <h1 className="text-5xl md:text-7xl font-heading leading-tight max-w-4xl mb-6">
-          Your footage.
-          <br />
-          <span className="bg-main px-2">Your proof.</span>
-          <br />
-          Your price.
-        </h1>
-        <p className="text-lg md:text-xl max-w-2xl mb-10 text-muted-foreground font-base">
-          Eyewitnesses capture cryptographically verified footage directly from
-          their browser and share or sell it on their own terms. No professional
-          camera required.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Link href="/record">
-            <Button size="lg" className="text-base px-8">
-              Start Recording →
-            </Button>
-          </Link>
-          <Link href="/marketplace">
-            <Button variant="neutral" size="lg" className="text-base px-8">
-              Browse Marketplace
-            </Button>
-          </Link>
+      {/* ── Hero — compact, lets the feed breathe ─────────── */}
+      <section className="border-b-2 border-border bg-secondary-background">
+        {/* Mobile: stacked minimal */}
+        <div className="flex flex-col sm:hidden px-4 py-6 gap-4">
+          <div>
+            <Badge className="mb-3 text-xs px-3 py-0.5">Community Truth Network</Badge>
+            <h1 className="text-3xl font-heading leading-tight">
+              Your footage.{" "}
+              <span className="bg-main px-1">Your proof.</span>{" "}
+              Your price.
+            </h1>
+            <p className="text-sm text-muted-foreground font-base mt-2">
+              Record. Verify. Sell — directly from your browser.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Link href="/record" className="flex-1">
+              <Button className="w-full animate-pulse-ring">
+                Record now →
+              </Button>
+            </Link>
+            <Link href="/marketplace">
+              <Button variant="neutral">Browse</Button>
+            </Link>
+          </div>
         </div>
-      </section>
 
-      {/* Stats */}
-      <section className="border-b-2 border-border bg-main">
-        <div className="grid grid-cols-2 md:grid-cols-4 divide-x-2 divide-border">
-          {stats.map((s) => (
-            <div key={s.label} className="px-8 py-10 text-center">
-              <div className="text-4xl font-heading mb-1">{s.value}</div>
-              <div className="text-sm font-base">{s.label}</div>
+        {/* Desktop: split layout */}
+        <div className="hidden sm:grid grid-cols-2 divide-x-2 divide-border min-h-[260px]">
+          <div className="flex flex-col justify-center px-10 py-10 gap-5">
+            <Badge className="self-start text-sm px-4 py-1">Community Truth Network</Badge>
+            <h1 className="text-5xl lg:text-6xl font-heading leading-tight">
+              Your footage.
+              <br />
+              <span className="bg-main px-2">Your proof.</span>
+              <br />
+              Your price.
+            </h1>
+            <p className="text-base text-muted-foreground font-base max-w-md">
+              Eyewitnesses capture cryptographically verified footage and sell it on their own terms.
+              No professional camera. No middlemen. 85% direct to you.
+            </p>
+            <div className="flex gap-3">
+              <Link href="/record">
+                <Button size="lg" className="text-base px-8 animate-pulse-ring">
+                  Start Recording →
+                </Button>
+              </Link>
+              <Link href="/marketplace">
+                <Button variant="neutral" size="lg" className="text-base px-8">
+                  Browse Marketplace
+                </Button>
+              </Link>
             </div>
-          ))}
+          </div>
+
+          {/* Right: stats */}
+          <div className="grid grid-cols-2 divide-x-2 divide-y-2 divide-border">
+            {[
+              { value: "85%", label: "Witness revenue" },
+              { value: "$0.01", label: "Max tx fee" },
+              { value: "0", label: "Middlemen" },
+              { value: "∞", label: "Storage life" },
+            ].map((s) => (
+              <div key={s.label} className="flex flex-col items-center justify-center py-8 px-4 text-center">
+                <span className="text-4xl font-heading">{s.value}</span>
+                <span className="text-sm text-muted-foreground font-base mt-1">{s.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Public Videos */}
-      <section className="px-6 py-16 border-b-2 border-border">
+      {/* ── Feed — the main event ───────────────────────────── */}
+      <section className="flex-1 px-4 sm:px-6 py-6 sm:py-10">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="text-3xl font-heading mb-2">Public Footage</h2>
-              <p className="text-muted-foreground font-base">
-                Free to watch — supported by the 5% journalism fund.{" "}
-                <Link href="/marketplace" className="text-main hover:underline">
-                  Connect wallet to browse full marketplace →
+              <h2 className="text-xl sm:text-2xl font-heading">Live Feed</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground font-base">
+                Verified footage · free to watch ·{" "}
+                <Link href="/marketplace" className="underline underline-offset-2 hover:text-foreground transition-colors">
+                  full marketplace →
                 </Link>
               </p>
             </div>
+            <Link href="/record">
+              <Button size="sm" className="animate-pulse-ring hidden sm:inline-flex">
+                + Record
+              </Button>
+            </Link>
           </div>
           <PublicVideos />
         </div>
       </section>
 
-      {/* Features */}
-      <section className="px-6 py-20 border-b-2 border-border">
-        <h2 className="text-3xl font-heading text-center mb-12">
-          Every component is load-bearing
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {features.map((f) => (
-            <Card key={f.title} className="border-2 border-border">
-              <CardContent className="pt-6">
+      {/* ── Features ────────────────────────────────────────── */}
+      <section className="border-t-2 border-border px-4 sm:px-6 py-12 sm:py-16 bg-secondary-background">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-heading text-center mb-2">
+            Every component is load-bearing
+          </h2>
+          <p className="text-center text-muted-foreground font-base text-sm mb-10">
+            Decentralisation isn't decoration here. Remove any piece and you're back to trusting a company.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {features.map((f, i) => (
+              <div
+                key={f.title}
+                className={`border-2 border-border rounded-base p-5 bg-background hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_var(--border)] transition-all duration-200 animate-slide-up stagger-${Math.min(i, 5)}`}
+              >
                 <div className="text-3xl mb-3">{f.icon}</div>
-                <h3 className="font-heading text-lg mb-2">{f.title}</h3>
-                <p className="text-sm font-base text-muted-foreground leading-relaxed">
-                  {f.body}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
+                <h3 className="font-heading text-base mb-1.5">{f.title}</h3>
+                <p className="text-sm font-base text-muted-foreground leading-relaxed">{f.body}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="px-6 py-20 text-center bg-secondary-background border-b-2 border-border">
-        <h2 className="text-4xl font-heading mb-4">
+      {/* ── CTA ─────────────────────────────────────────────── */}
+      <section className="border-t-2 border-b-2 border-border px-4 sm:px-6 py-12 sm:py-16 text-center bg-main">
+        <h2 className="text-3xl sm:text-4xl font-heading mb-3">
           Witnessed something important?
         </h2>
-        <p className="text-lg mb-8 max-w-xl mx-auto font-base text-muted-foreground">
-          Record. The blockchain handles the proof.
-          You keep the revenue.
+        <p className="text-base mb-8 max-w-md mx-auto font-base opacity-80">
+          Record from your browser. The blockchain handles the proof. You keep 85% of the revenue.
         </p>
         <Link href="/record">
-          <Button size="lg" className="text-base px-10">
+          <Button
+            size="lg"
+            variant="neutral"
+            className="text-base px-10 shadow-[4px_4px_0px_0px_var(--border)] hover:shadow-[6px_6px_0px_0px_var(--border)] hover:-translate-y-0.5 transition-all"
+          >
             Start Recording →
           </Button>
         </Link>
       </section>
 
-      {/* Footer */}
-      <footer className="px-6 py-8 border-t-2 border-border flex flex-col md:flex-row items-center justify-between gap-4 text-sm font-base">
+      {/* ── Footer ──────────────────────────────────────────── */}
+      <footer className="px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm font-base">
         <span className="font-heading text-lg">radrr</span>
-        <div className="flex gap-6 text-muted-foreground">
-          <span>Built on Filecoin · Lit Protocol · Storacha · Hypercerts · ERC-8004</span>
-        </div>
-        <div className="flex gap-4">
-          <Link href="/marketplace" className="hover:underline">Marketplace</Link>
-          <Link href="/record" className="hover:underline">Record</Link>
-          <Link href="/dashboard" className="hover:underline">Dashboard</Link>
+        <span className="text-muted-foreground text-xs text-center">
+          Built on Filecoin · Lit Protocol · Storacha · Hypercerts · ERC-8004
+        </span>
+        <div className="flex gap-4 text-muted-foreground">
+          <Link href="/marketplace" className="hover:text-foreground transition-colors">Marketplace</Link>
+          <Link href="/record" className="hover:text-foreground transition-colors">Record</Link>
+          <Link href="/dashboard" className="hover:text-foreground transition-colors">Dashboard</Link>
         </div>
       </footer>
     </main>
