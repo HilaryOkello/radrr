@@ -12,7 +12,8 @@ contract Radrr {
         string  gpsApprox;       // city-level, e.g. "-1.28,36.82"
         uint256 timestamp;
         string  cid;             // Storacha/Filecoin CID
-        string  encryptedCid;    // Lit Protocol encrypted CID
+        string  encryptedCid;    // AES-256-GCM encrypted video JSON CID
+        string  keyCid;          // Encrypted encryption key CID (IPFS)
         address witness;
         string  title;
         string  description;
@@ -69,6 +70,7 @@ contract Radrr {
     event RecordingAnchored(string indexed recordingId, address indexed witness, uint256 priceWei);
     event CidUpdated(string indexed recordingId, string cid);
     event EncryptedCidUpdated(string indexed recordingId);
+    event KeyCidUpdated(string indexed recordingId);
     event TrailerCidUpdated(string indexed recordingId);
     event RecordingPurchased(string indexed recordingId, address indexed buyer, uint256 amount);
     event CorroborationUpdated(string indexed recordingId, uint256 bundleSize);
@@ -173,6 +175,7 @@ contract Radrr {
             timestamp:            block.timestamp,
             cid:                  "",
             encryptedCid:         "",
+            keyCid:               "",
             witness:              witness,
             title:                title,
             description:          description,
@@ -207,6 +210,12 @@ contract Radrr {
         require(bytes(_recordings[recordingId].recordingId).length > 0, "Not found");
         _recordings[recordingId].encryptedCid = encryptedCid;
         emit EncryptedCidUpdated(recordingId);
+    }
+
+    function updateKeyCid(string calldata recordingId, string calldata keyCid) external onlyOwner {
+        require(bytes(_recordings[recordingId].recordingId).length > 0, "Not found");
+        _recordings[recordingId].keyCid = keyCid;
+        emit KeyCidUpdated(recordingId);
     }
 
     // ─── Purchase — 85% witness / 10% platform / 5% safety fund ────────────

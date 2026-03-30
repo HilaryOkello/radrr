@@ -43,6 +43,7 @@ const RECORDING_TUPLE = {
     { name: "timestamp",            type: "uint256"  },
     { name: "cid",                  type: "string"   },
     { name: "encryptedCid",         type: "string"   },
+    { name: "keyCid",               type: "string"   },
     { name: "witness",              type: "address"  },
     { name: "title",                type: "string"   },
     { name: "description",          type: "string"   },
@@ -62,6 +63,7 @@ const RADRR_ABI = [
   { type: "function", name: "anchorRecordingFor", stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "string" }, { type: "uint256" }, { type: "address" }], outputs: [] },
   { type: "function", name: "updateCid",          stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }], outputs: [] },
   { type: "function", name: "updateEncryptedCid", stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }], outputs: [] },
+  { type: "function", name: "updateKeyCid", stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string" }], outputs: [] },
   { type: "function", name: "updateCorroboration",stateMutability: "nonpayable", inputs: [{ type: "string" }, { type: "string[]" }], outputs: [] },
   { type: "function", name: "incrementCredibility",stateMutability: "nonpayable", inputs: [{ type: "address" }, { type: "uint256" }], outputs: [] },
   { type: "function", name: "isPurchased",        stateMutability: "view",        inputs: [{ type: "string" }, { type: "address" }], outputs: [{ type: "bool" }] },
@@ -205,6 +207,16 @@ export async function updateEncryptedCid(recordingId: string, encryptedCid: stri
     abi: RADRR_ABI,
     functionName: "updateEncryptedCid",
     args: [recordingId, encryptedCid],
+  });
+}
+
+export async function updateKeyCid(recordingId: string, keyCid: string): Promise<Hash> {
+  const wallet = getPlatformWalletClient();
+  return wallet.writeContract({
+    address: CONTRACT_ADDRESS,
+    abi: RADRR_ABI,
+    functionName: "updateKeyCid",
+    args: [recordingId, keyCid],
   });
 }
 
