@@ -72,3 +72,51 @@
     @apply font-heading;
   }
 }
+
+@keyframes pop {
+  0%   { transform: scale(0.7); opacity: 0; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes float-up {
+  0%   { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-48px) scale(1.4); opacity: 0; }
+}
+
+@keyframes slide-up-fade {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25%       { transform: rotate(-8deg); }
+  75%       { transform: rotate(8deg); }
+}
+
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 color-mix(in oklch, var(--main) 60%, transparent); }
+  70%  { box-shadow: 0 0 0 8px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+@keyframes confetti-pop {
+  0%   { transform: scale(0) rotate(0deg);   opacity: 1; }
+  80%  { transform: scale(1.5) rotate(180deg); opacity: 1; }
+  100% { transform: scale(0) rotate(360deg); opacity: 0; }
+}
+
+
+.animate-pop          { animation: pop 0.3s cubic-bezier(0.34,1.56,0.64,1) both; }
+.animate-float-up     { animation: float-up 0.7s ease-out forwards; }
+.animate-slide-up     { animation: slide-up-fade 0.4s ease-out both; }
+.animate-wiggle       { animation: wiggle 0.4s ease-in-out; }
+.animate-pulse-ring   { animation: pulse-ring 1.5s ease-out infinite; }
+
+.stagger-1 { animation-delay: 60ms; }
+.stagger-2 { animation-delay: 120ms; }
+.stagger-3 { animation-delay: 180ms; }
+.stagger-4 { animation-delay: 240ms; }
+.stagger-5 { animation-delay: 300ms; }
+.stagger-6 { animation-delay: 360ms; }
