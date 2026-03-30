@@ -10,6 +10,7 @@ function serializeRecording(r: any) {
     timestamp: Number(r.timestamp),
     cid: r.cid,
     encrypted_cid: r.encryptedCid,
+    key_cid: r.keyCid,
     preview_cid: r.previewCid,
     trailer_cid: r.trailerCid,
     visibility_level: r.visibilityLevel,
