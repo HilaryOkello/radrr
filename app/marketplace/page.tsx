@@ -1,25 +1,35 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Navbar } from "@/components/Navbar";
+import { ConnectWallet } from "@/components/ConnectWallet";
+import { MarketplaceCard } from "@/components/MarketplaceCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { FootageCard, type FootageRecording } from "@/components/FootageCard";
-import { ConnectWallet } from "@/components/ConnectWallet";
+import type { FootageRecording } from "@/components/FootageCard";
 
-interface SerializedBid {
+interface Bid {
   index: number;
   bidder: string;
-  amount: string; // wei
+  amount: string;
   timestamp: number;
   status: string;
 }
 
-function highestPendingBid(bids: SerializedBid[]): SerializedBid | undefined {
+type Filter = "all" | "verified" | "forsale" | "public";
+
+const FILTERS: { key: Filter; label: string }[] = [
+  { key: "all",      label: "All"      },
+  { key: "verified", label: "✓ Verified" },
+  { key: "forsale",  label: "For Sale"  },
+  { key: "public",   label: "Public"    },
+];
+
+function highestPending(bids: Bid[]) {
   return bids
     .filter((b) => b.status === "Pending")
     .sort((a, b) => Number(BigInt(b.amount) - BigInt(a.amount)))[0];
@@ -27,78 +37,80 @@ function highestPendingBid(bids: SerializedBid[]): SerializedBid | undefined {
 
 export default function MarketplacePage() {
   const { address: connectedAddress, isConnected } = useAccount();
-  const [recordings, setRecordings] = useState<FootageRecording[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [buying, setBuying] = useState<string | null>(null);
-  const [bidsMap, setBidsMap] = useState<Record<string, SerializedBid[]>>({});
-  const [bidTarget, setBidTarget] = useState<FootageRecording | null>(null);
-  const [bidAmount, setBidAmount] = useState("0.0005");
-  const [bidding, setBidding] = useState(false);
+  const [recordings, setRecordings]   = useState<FootageRecording[]>([]);
+  const [bidsMap, setBidsMap]         = useState<Record<string, Bid[]>>({});
+  const [loading, setLoading]         = useState(true);
+  const [search, setSearch]           = useState("");
+  const [filter, setFilter]           = useState<Filter>("all");
+  const [buying, setBuying]           = useState<string | null>(null);
+  const [bidTarget, setBidTarget]     = useState<FootageRecording | null>(null);
+  const [bidAmount, setBidAmount]     = useState("0.0005");
+  const [bidding, setBidding]         = useState(false);
 
   useEffect(() => {
     if (!isConnected) return;
-    
     fetch("/api/recordings")
       .then((r) => r.json())
       .then((d) => {
         const recs: FootageRecording[] = d.recordings ?? [];
         setRecordings(recs);
-        recs
-          .filter((r) => !r.sold)
-          .forEach((r) => {
-            fetch(`/api/bids?recordingId=${r.recording_id}`)
-              .then((res) => res.json())
-              .then((data) => {
-                if (data.bids?.length > 0) {
-                  setBidsMap((prev) => ({ ...prev, [r.recording_id]: data.bids }));
-                }
-              })
-              .catch(() => {});
-          });
+        // Fetch bids for unsold recordings in parallel
+        Promise.all(
+          recs
+            .filter((r) => !r.sold)
+            .map((r) =>
+              fetch(`/api/bids?recordingId=${r.recording_id}`)
+                .then((res) => res.json())
+                .then((data) => ({ id: r.recording_id, bids: data.bids ?? [] }))
+                .catch(() => ({ id: r.recording_id, bids: [] }))
+            )
+        ).then((results) => {
+          const map: Record<string, Bid[]> = {};
+          for (const { id, bids } of results) {
+            if (bids.length > 0) map[id] = bids;
+          }
+          setBidsMap(map);
+        });
       })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [isConnected]);
 
-  const filtered = recordings.filter(
-    (r) =>
-      r.title.toLowerCase().includes(search.toLowerCase()) ||
-      r.gps_approx.includes(search)
-  );
+  const filtered = useMemo(() => {
+    let list = recordings;
+    if (filter === "verified") list = list.filter((r) => r.corroboration_bundle.length > 0);
+    if (filter === "forsale")  list = list.filter((r) => !r.sold);
+    if (filter === "public")   list = list.filter((r) => r.visibility_level === "full");
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter(
+        (r) => r.title.toLowerCase().includes(q) || r.gps_approx.toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [recordings, filter, search]);
+
+  const stats = useMemo(() => ({
+    total:    recordings.length,
+    verified: recordings.filter((r) => r.corroboration_bundle.length > 0).length,
+    forSale:  recordings.filter((r) => !r.sold).length,
+  }), [recordings]);
 
   async function handleBuy(recording: FootageRecording) {
-    if (!connectedAddress) {
-      toast.error("Connect your wallet to purchase.");
-      return;
-    }
+    if (!connectedAddress) { toast.error("Connect your wallet to purchase."); return; }
     setBuying(recording.recording_id);
     try {
-      toast.info("Processing payment on Filecoin FVM...");
+      toast.info("Processing payment on Filecoin FVM…");
       await new Promise((r) => setTimeout(r, 1500));
-
       const res = await fetch("/api/purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          recordingId: recording.recording_id,
-          buyerAddress: connectedAddress,
-        }),
+        body: JSON.stringify({ recordingId: recording.recording_id, buyerAddress: connectedAddress }),
       });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error);
-      }
-
-      const { encryptedCid } = await res.json();
-      toast.success(
-        `🎉 Purchase confirmed! You now own this footage. Check your Dashboard.`
-      );
+      if (!res.ok) throw new Error((await res.json()).error);
+      toast.success("🎉 Footage purchased", { position: "top-center" });
       setRecordings((prev) =>
-        prev.map((r) =>
-          r.recording_id === recording.recording_id ? { ...r, sold: true } : r
-        )
+        prev.map((r) => r.recording_id === recording.recording_id ? { ...r, sold: true } : r)
       );
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Purchase failed");
@@ -107,46 +119,27 @@ export default function MarketplacePage() {
     }
   }
 
-  const handleOpenBid = useCallback(
-    (recording: FootageRecording) => {
-      if (!connectedAddress) {
-        toast.error("Connect your wallet to make an offer.");
-        return;
-      }
-      setBidTarget(recording);
-      setBidAmount("0.0005");
-    },
-    [connectedAddress]
-  );
+  const handleOpenBid = useCallback((recording: FootageRecording) => {
+    if (!connectedAddress) { toast.error("Connect your wallet to make an offer."); return; }
+    setBidTarget(recording);
+    setBidAmount("0.0005");
+  }, [connectedAddress]);
 
   async function handleSubmitBid() {
     if (!bidTarget || !connectedAddress) return;
     const amount = parseFloat(bidAmount);
-    if (!amount || amount <= 0) {
-      toast.error("Enter a valid bid amount.");
-      return;
-    }
-
+    if (!amount || amount <= 0) { toast.error("Enter a valid bid amount."); return; }
     setBidding(true);
     try {
-      toast.info("Placing bid on Filecoin FVM...");
+      toast.info("Placing offer on Filecoin FVM…");
       const res = await fetch("/api/bids", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          recordingId: bidTarget.recording_id,
-          bidder: connectedAddress,
-          amountEth: bidAmount,
-        }),
+        body: JSON.stringify({ recordingId: bidTarget.recording_id, bidder: connectedAddress, amountEth: bidAmount }),
       });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error);
-      }
-
-      const newBid: SerializedBid = {
-        index: (bidsMap[bidTarget.recording_id]?.length ?? 0),
+      if (!res.ok) throw new Error((await res.json()).error);
+      const newBid: Bid = {
+        index: bidsMap[bidTarget.recording_id]?.length ?? 0,
         bidder: connectedAddress,
         amount: String(BigInt(Math.round(amount * 1e18))),
         timestamp: Date.now() / 1000,
@@ -156,8 +149,7 @@ export default function MarketplacePage() {
         ...prev,
         [bidTarget.recording_id]: [...(prev[bidTarget.recording_id] ?? []), newBid],
       }));
-
-      toast.success(`💰 Offer of ${bidAmount} tFIL placed! The witness will be notified.`);
+      toast.success(`💸 Offer of ${bidAmount} tFIL placed`, { position: "top-center" });
       setBidTarget(null);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Bid failed");
@@ -168,115 +160,208 @@ export default function MarketplacePage() {
 
   return (
     <main className="min-h-screen flex flex-col">
-      {/* Nav */}
-      <nav className="border-b-2 border-border px-6 py-4 flex items-center justify-between bg-secondary-background">
-        <Link href="/" className="text-2xl font-heading tracking-tight">radrr</Link>
-        <div className="flex gap-3 items-center">
-          <Link href="/dashboard"><Button variant="neutral" size="sm">Dashboard</Button></Link>
-          <Link href="/record"><Button size="sm">Record</Button></Link>
-          <ConnectWallet />
+      <Navbar />
+
+      {/* ── Hero banner ── */}
+      <div className="border-b-2 border-border bg-main px-4 sm:px-8 py-8 sm:py-10">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+          <div>
+            <h1 className="text-3xl sm:text-5xl font-heading leading-tight mb-2">
+              Footage Marketplace
+            </h1>
+            <p className="text-sm sm:text-base font-base max-w-xl opacity-80">
+              Every clip cryptographically verified, stored on Filecoin, encrypted with Lit Protocol.
+              85% of every sale goes direct to the witness.
+            </p>
+          </div>
+          {isConnected && !loading && (
+            <div className="flex gap-4 sm:gap-8 shrink-0">
+              {[
+                { value: stats.total,    label: "Clips"    },
+                { value: stats.verified, label: "Verified" },
+                { value: stats.forSale,  label: "For Sale" },
+              ].map((s) => (
+                <div key={s.label} className="text-center">
+                  <div className="text-2xl sm:text-3xl font-heading">{s.value}</div>
+                  <div className="text-xs font-base opacity-70">{s.label}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      </nav>
-
-      {/* Header */}
-      <div className="border-b-2 border-border px-6 py-8 bg-secondary-background">
-        <h1 className="text-4xl font-heading mb-2">Footage Marketplace</h1>
-        <p className="text-muted-foreground font-base max-w-xl">
-          Every clip is cryptographically verified, stored on Filecoin, and encrypted
-          with Lit Protocol. Buy at asking price or make an offer — 85% goes direct to the witness.
-        </p>
       </div>
 
-      <div className="flex-1 p-6 max-w-6xl mx-auto w-full flex flex-col gap-6">
-        {!isConnected && (
-          <Card className="border-2 border-border">
-            <CardContent className="py-16 text-center">
-              <div className="text-5xl mb-4">🔗</div>
-              <p className="font-heading text-xl mb-2">Connect Your Wallet</p>
-              <p className="text-muted-foreground font-base mb-6 max-w-md mx-auto">
-                Connect your wallet to browse the marketplace, make offers, and purchase footage.
-                The 5% journalism fund supports truth journalism worldwide.
-              </p>
-              <ConnectWallet />
-            </CardContent>
-          </Card>
-        )}
-
-        {isConnected && (
-          <>
-        {/* Search */}
-        <Input
-          placeholder="Search by title, location..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="max-w-md"
-        />
-
-        {/* Grid */}
-        {loading ? (
-          <div className="flex items-center justify-center h-48">
-            <div className="text-muted-foreground font-base animate-pulse">Loading footage...</div>
+      {/* ── Not connected ── */}
+      {!isConnected && (
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="border-2 border-border rounded-base bg-secondary-background p-10 max-w-md w-full text-center shadow-[4px_4px_0px_0px_var(--border)]">
+            <div className="text-5xl mb-5">🔗</div>
+            <h2 className="font-heading text-2xl mb-2">Connect to browse</h2>
+            <p className="text-muted-foreground font-base text-sm mb-8 max-w-xs mx-auto">
+              Connect your wallet to browse, make offers, and purchase verified footage.
+              The 5% journalism fund supports truth reporting worldwide.
+            </p>
+            <ConnectWallet />
+            <div className="mt-6 pt-6 border-t-2 border-border flex justify-center gap-6 text-xs text-muted-foreground font-base">
+              <span>🔒 Lit Protocol</span>
+              <span>📡 Filecoin</span>
+              <span>✓ On-chain proof</span>
+            </div>
           </div>
-        ) : filtered.length === 0 ? (
-          <Card className="border-2 border-border">
-            <CardContent className="py-16 text-center">
-              <div className="text-5xl mb-4">📹</div>
-              <p className="font-heading text-xl mb-2">No footage yet</p>
-              <p className="text-muted-foreground font-base mb-6">
-                Be the first to capture and verify footage.
-              </p>
-              <Link href="/record">
-                <Button size="lg">Start Recording →</Button>
-              </Link>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filtered.map((r) => {
-              const bids = bidsMap[r.recording_id] ?? [];
-              const pendingBids = bids.filter((b) => b.status === "Pending");
-              const top = highestPendingBid(bids);
-              return (
-                <FootageCard
-                  key={r.recording_id}
-                  recording={r}
-                  mode="marketplace"
-                  walletAddress={connectedAddress}
-                  onBuy={handleBuy}
-                  isBuying={buying === r.recording_id}
-                  onBid={handleOpenBid}
-                  bidCount={pendingBids.length}
-                  highestBid={top?.amount}
-                />
-              );
-            })}
-          </div>
-        )}
-          </>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* Make Offer Dialog */}
+      {/* ── Connected: filters + grid ── */}
+      {isConnected && (
+        <div className="flex-1 flex flex-col">
+          {/* Sticky filter bar */}
+          <div className="sticky top-0 z-10 border-b-2 border-border bg-background px-4 sm:px-6 py-3 flex flex-col sm:flex-row gap-3">
+            <Input
+              placeholder="Search by title or location…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="sm:max-w-xs h-9 text-sm"
+            />
+            <div className="flex gap-2 overflow-x-auto pb-0.5 sm:pb-0 shrink-0">
+              {FILTERS.map((f) => (
+                <button
+                  key={f.key}
+                  onClick={() => setFilter(f.key)}
+                  className={`shrink-0 px-3 py-1.5 rounded-base border-2 border-border text-xs font-base font-medium transition-all duration-150
+                    ${filter === f.key
+                      ? "bg-main shadow-[2px_2px_0px_0px_var(--border)] -translate-y-px"
+                      : "bg-secondary-background hover:bg-main/40"
+                    }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+              {(search || filter !== "all") && (
+                <button
+                  onClick={() => { setSearch(""); setFilter("all"); }}
+                  className="shrink-0 px-3 py-1.5 rounded-base border-2 border-border text-xs font-base text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="flex-1 px-4 sm:px-6 py-6 max-w-6xl mx-auto w-full">
+            {/* Loading skeletons */}
+            {loading && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="border-2 border-border rounded-base bg-secondary-background overflow-hidden animate-pulse"
+                    style={{ animationDelay: `${i * 60}ms` }}
+                  >
+                    <div className="aspect-video bg-border/20" />
+                    <div className="p-3 space-y-2">
+                      <div className="h-4 bg-border/20 rounded w-3/4" />
+                      <div className="h-3 bg-border/20 rounded w-1/2" />
+                      <div className="h-3 bg-border/20 rounded w-2/3" />
+                    </div>
+                    <div className="px-3 pb-3 pt-2 border-t-2 border-border flex gap-2">
+                      <div className="h-8 bg-border/20 rounded flex-1" />
+                      <div className="h-8 bg-border/20 rounded flex-1" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Result count */}
+            {!loading && (
+              <p className="text-xs text-muted-foreground font-base mb-4">
+                {filtered.length} clip{filtered.length !== 1 ? "s" : ""}
+                {search && ` matching "${search}"`}
+                {filter !== "all" && ` · ${FILTERS.find((f) => f.key === filter)?.label}`}
+              </p>
+            )}
+
+            {/* Empty state */}
+            {!loading && filtered.length === 0 && (
+              <div className="border-2 border-dashed border-border rounded-base py-20 text-center">
+                <span className="text-5xl block mb-4">📹</span>
+                <p className="font-heading text-xl mb-2">
+                  {search || filter !== "all" ? "No matching footage" : "No footage yet"}
+                </p>
+                <p className="text-muted-foreground font-base text-sm mb-6">
+                  {search || filter !== "all"
+                    ? "Try a different search or filter."
+                    : "Be the first to publish verified footage."}
+                </p>
+                {filter === "all" && !search && (
+                  <Link href="/record">
+                    <Button>Start Recording →</Button>
+                  </Link>
+                )}
+              </div>
+            )}
+
+            {/* Grid */}
+            {!loading && filtered.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filtered.map((r, i) => (
+                  <MarketplaceCard
+                    key={r.recording_id}
+                    recording={r}
+                    walletAddress={connectedAddress}
+                    bids={bidsMap[r.recording_id] ?? []}
+                    isBuying={buying === r.recording_id}
+                    onBuy={handleBuy}
+                    onBid={handleOpenBid}
+                    stagger={Math.min(i % 6, 5) as 0 | 1 | 2 | 3 | 4 | 5}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Offer dialog ── */}
       <Dialog open={!!bidTarget} onOpenChange={(open) => !open && setBidTarget(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-sm mx-4">
           <DialogHeader>
-            <DialogTitle>Make an Offer</DialogTitle>
-            <DialogDescription>
-              Offer a price for &ldquo;{bidTarget?.title || "Untitled Recording"}&rdquo;. Your tFIL will be
-              escrowed on-chain — the witness can accept or reject.
+            <DialogTitle className="font-heading text-xl">Make an Offer</DialogTitle>
+            <DialogDescription className="font-base text-sm">
+              Offer a price for &ldquo;{bidTarget?.title || "Untitled"}&rdquo;.
+              Your tFIL is held in escrow — the witness accepts or rejects.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex flex-col gap-4 pt-2">
-            <div className="flex flex-col gap-1 text-xs text-muted-foreground font-mono bg-secondary-background rounded-base p-3 border-2 border-border">
-              <div>Asking price: <span className="font-heading text-foreground">{((Number(bidTarget?.price_eth ?? "0")) / 1e18).toFixed(4)} tFIL</span></div>
-              {bidTarget && (bidsMap[bidTarget.recording_id]?.filter(b => b.status === "Pending").length ?? 0) > 0 && (
-                <div>Active offers: <span className="font-heading text-foreground">{bidsMap[bidTarget.recording_id].filter(b => b.status === "Pending").length}</span></div>
+          <div className="flex flex-col gap-4 pt-1">
+            {/* Price info */}
+            <div className="bg-secondary-background border-2 border-border rounded-base px-4 py-3 flex flex-col gap-1 text-sm font-mono">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Asking price</span>
+                <span className="font-heading">
+                  {((Number(bidTarget?.price_eth ?? "0")) / 1e18).toFixed(4)} tFIL
+                </span>
+              </div>
+              {bidTarget && (bidsMap[bidTarget.recording_id]?.filter((b) => b.status === "Pending").length ?? 0) > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Active offers</span>
+                  <span className="font-heading">
+                    {bidsMap[bidTarget.recording_id].filter((b) => b.status === "Pending").length}
+                  </span>
+                </div>
+              )}
+              {bidTarget && highestPending(bidsMap[bidTarget.recording_id] ?? []) && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Top offer</span>
+                  <span className="font-heading text-[#0099FF]">
+                    {(Number(highestPending(bidsMap[bidTarget.recording_id] ?? [])?.amount ?? "0") / 1e18).toFixed(4)} tFIL
+                  </span>
+                </div>
               )}
             </div>
 
             <div>
-              <label className="text-xs font-base text-muted-foreground mb-1 block">
+              <label className="text-xs font-base text-muted-foreground mb-1.5 block">
                 Your offer (tFIL)
               </label>
               <Input
@@ -286,13 +371,14 @@ export default function MarketplacePage() {
                 value={bidAmount}
                 onChange={(e) => setBidAmount(e.target.value)}
                 placeholder="0.0005"
+                className="text-base"
               />
-              <div className="text-xs text-muted-foreground mt-1">
-                Funds held in escrow · refunded if rejected
-              </div>
+              <p className="text-xs text-muted-foreground font-base mt-1.5">
+                Refunded automatically if rejected
+              </p>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 pt-1">
               <Button
                 variant="neutral"
                 className="flex-1"
