@@ -3,16 +3,23 @@ import { readFileSync } from "fs";
 import path from "path";
 import { getAgentReputation, hasAgentCredential } from "@/lib/filecoin";
 
-const AGENT_ADDRESS = "0x3B5FA5297f158cBB1c375372594858BB3B150463";
-const AGENT_REGISTRY = "0x7Fe730B43d6A799c74573C3d24da7081Ef1EecDc";
-const RADRR_CONTRACT = "0x7558AF2375276Aa735B3766dd57F57b567A86cA2";
+// Read from environment variables
+const AGENT_ADDRESS = process.env.FILECOIN_AGENT_ADDRESS || "";
+const AGENT_REGISTRY = process.env.FILECOIN_AGENT_REGISTRY_ADDRESS || "";
+const RADRR_CONTRACT = process.env.FILECOIN_CONTRACT_ADDRESS || "";
 
 export async function GET() {
   try {
-    // Load agent log from public dir
-    const logPath = path.join(process.cwd(), "public", "agent_log.json");
-    const rawLog = readFileSync(logPath, "utf-8");
-    const logEntries = JSON.parse(rawLog) as Array<Record<string, unknown>>;
+    // Load agent log from project root (where the agent writes it)
+    let logEntries: Array<Record<string, unknown>> = [];
+    try {
+      const logPath = path.join(process.cwd(), "agent_log.json");
+      const rawLog = readFileSync(logPath, "utf-8");
+      logEntries = JSON.parse(rawLog) as Array<Record<string, unknown>>;
+    } catch {
+      // Log file doesn't exist yet or is corrupted
+      logEntries = [];
+    }
 
     // Fetch on-chain reputation (BigInts must be serialized to strings)
     let reputation: {

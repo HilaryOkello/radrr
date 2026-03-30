@@ -134,33 +134,33 @@ export function MarketplaceCard({
         )}
 
         {/* Badges */}
-        <div className="absolute top-2 left-2 flex flex-wrap gap-1 max-w-[70%]">
+        <div className="absolute top-3 left-3 flex flex-wrap gap-2 max-w-[75%]">
           {r.corroboration_bundle.length > 0 && (
-            <Badge className="bg-[#0099FF] text-white text-[10px] px-1.5 py-0 leading-5">
+            <Badge className="bg-[#0099FF] text-white text-xs px-2.5 py-1 font-medium shadow-sm">
               ✓ Verified
             </Badge>
           )}
           {r.sold && (
-            <Badge className="bg-[#00D696] text-black text-[10px] px-1.5 py-0 leading-5">
+            <Badge className="bg-[#00D696] text-black text-xs px-2.5 py-1 font-medium shadow-sm">
               Sold
             </Badge>
           )}
           {isOwner && (
-            <Badge className="bg-main text-black text-[10px] px-1.5 py-0 leading-5">
+            <Badge className="bg-main text-black text-xs px-2.5 py-1 font-medium shadow-sm">
               Yours
             </Badge>
           )}
           {userHasBid && !r.sold && (
-            <Badge className="bg-[#FF6B00] text-white text-[10px] px-1.5 py-0 leading-5">
+            <Badge className="bg-[#FF6B00] text-white text-xs px-2.5 py-1 font-medium shadow-sm">
               Bid Placed ✓
             </Badge>
           )}
         </div>
 
         {r.encrypted_cid && (
-          <div className="absolute top-2 right-2">
-            <Badge className="bg-black/60 text-white border-0 text-[10px] px-1.5 py-0 leading-5">
-              🔐
+          <div className="absolute top-3 right-3">
+            <Badge className="bg-black/70 text-white border-0 text-xs px-2.5 py-1 font-medium shadow-sm">
+              🔐 Encrypted
             </Badge>
           </div>
         )}

@@ -142,10 +142,10 @@ export function FootageCard({
             <span>🕐 {formatDate(r.timestamp)}</span>
           </div>
           <span className="truncate opacity-70">
-            Witness: {r.witness.slice(0, 10)}…{r.witness.slice(-6)}
+            Witness: {r.witness ? `${r.witness.slice(0, 10)}…${r.witness.slice(-6)}` : "Unknown"}
           </span>
           <span className="truncate opacity-50">
-            Root: {r.merkle_root.slice(0, 24)}…
+            Root: {r.merkle_root ? `${r.merkle_root.slice(0, 24)}…` : "N/A"}
           </span>
         </div>
 

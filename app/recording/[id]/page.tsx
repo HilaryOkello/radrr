@@ -52,6 +52,24 @@ export default function RecordingDetailPage() {
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const [videoError, setVideoError] = useState(false);
 
+  // Similarity data for verification section - must be before any early returns
+  const [similarityData, setSimilarityData] = useState<{
+    totalMatches: number;
+    matches: Array<{
+      recordingId: string;
+      similarityScore: number;
+      metadataMatch: boolean;
+      method: string;
+    }>;
+    metadataThresholds: {
+      timeWindow: string;
+      gpsPrecision: string;
+      visualThreshold: string;
+    };
+  } | null>(null);
+
+  const locationName = useLocationName(recording?.gps_approx);
+
   const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_FILECOIN_CONTRACT_ADDRESS as `0x${string}`;
   // price_eth is stored as wei, so use directly
   const PRICE_WEI = recording?.price_eth ? BigInt(recording.price_eth) : BigInt(0);
@@ -93,6 +111,15 @@ export default function RecordingDetailPage() {
       setVideoSrc(null);
     }
   }, [recording, connectedAddress]);
+
+  // Fetch similarity data for verification section
+  useEffect(() => {
+    if (!recording) return;
+    fetch(`/api/recordings/${recording.recording_id}/similarity`)
+      .then((r) => r.json())
+      .then((data) => setSimilarityData(data))
+      .catch(console.error);
+  }, [recording]);
 
   async function handleBuy() {
     if (!connectedAddress) {
@@ -248,7 +275,6 @@ export default function RecordingDetailPage() {
 
   const visibility = recording.visibility_level ?? "blur";
   const isOwner = connectedAddress?.toLowerCase() === recording.witness?.toLowerCase();
-  const locationName = useLocationName(recording.gps_approx);
   const canWatch = isOwner || visibility === "full" || (visibility === "trailer" && recording.trailer_cid);
 
   return (
@@ -353,6 +379,57 @@ export default function RecordingDetailPage() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Verification Section */}
+            {similarityData && similarityData.totalMatches > 0 && (
+              <Card className="border-2 border-border">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Badge className="bg-chart-5 text-white">✓ Verified</Badge>
+                    <span>Corroboration Details</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Matched with {similarityData.totalMatches} video{similarityData.totalMatches > 1 ? 's' : ''} using location, time, and visual similarity.
+                  </p>
+
+                  <div className="space-y-3">
+                    {similarityData.matches.slice(0, 5).map((match) => (
+                      <div key={match.recordingId} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <p className="font-medium text-sm">{match.recordingId.slice(0, 20)}...</p>
+                          <p className="text-xs text-muted-foreground">
+                            {match.metadataMatch ? "GPS+Time matched" : "Visual match"}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-chart-5">
+                            {Math.round(match.similarityScore * 100)}%
+                          </div>
+                          <div className="text-xs text-muted-foreground">similarity</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {similarityData.totalMatches > 5 && (
+                    <p className="text-xs text-muted-foreground text-center mt-3">
+                      +{similarityData.totalMatches - 5} more matches
+                    </p>
+                  )}
+
+                  <div className="mt-4 pt-4 border-t text-xs text-muted-foreground">
+                    <p className="font-medium mb-1">Verification method:</p>
+                    <ul className="space-y-1">
+                      <li>• GPS proximity: {similarityData.metadataThresholds.gpsPrecision}</li>
+                      <li>• Time window: {similarityData.metadataThresholds.timeWindow}</li>
+                      <li>• Visual similarity: ≥{similarityData.metadataThresholds.visualThreshold}</li>
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* License */}
             <Card className="border-2 border-border">

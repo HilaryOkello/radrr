@@ -24,12 +24,19 @@ function formatEth(wei: string): string {
   return val === 0 ? "Free" : `${val.toFixed(3)} tFIL`;
 }
 
+interface SimilarityInfo {
+  totalMatches: number;
+  averageScore: number;
+  method: string;
+}
+
 interface Props {
   recording: FootageRecording;
+  similarity?: SimilarityInfo;
   stagger?: number; // 0-5
 }
 
-export function VideoFeedCard({ recording: r, stagger = 0 }: Props) {
+export function VideoFeedCard({ recording: r, similarity, stagger = 0 }: Props) {
   const [playing, setPlaying] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -126,14 +133,20 @@ export function VideoFeedCard({ recording: r, stagger = 0 }: Props) {
         )}
 
         {/* Top-left badges */}
-        <div className="absolute top-2 left-2 flex flex-wrap gap-1 max-w-[65%]">
-          {r.corroboration_bundle.length > 0 && (
-            <Badge className="bg-[#0099FF] text-white text-[10px] px-1.5 py-0 leading-5">
+        <div className="absolute top-3 left-3 flex flex-wrap gap-2 max-w-[75%]">
+          {similarity && similarity.totalMatches > 0 && (
+            <Badge className="bg-chart-5 text-white text-xs px-2.5 py-1 leading-tight font-medium shadow-sm">
+              ✓ {similarity.totalMatches} match{similarity.totalMatches > 1 ? 'es' : ''}
+              {similarity.averageScore > 0.9 && " • High confidence"}
+            </Badge>
+          )}
+          {!similarity && r.corroboration_bundle.length > 0 && (
+            <Badge className="bg-[#0099FF] text-white text-xs px-2.5 py-1 leading-tight font-medium shadow-sm">
               ✓ Verified
             </Badge>
           )}
           {r.encrypted_cid && (
-            <Badge className="bg-black/60 text-white border-0 text-[10px] px-1.5 py-0 leading-5">
+            <Badge className="bg-black/70 text-white border-0 text-xs px-2.5 py-1 leading-tight font-medium shadow-sm">
               🔐 Encrypted
             </Badge>
           )}
