@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { PublicVideos } from "@/components/PublicVideos";
 import { Navbar } from "@/components/Navbar";
 
@@ -18,7 +17,7 @@ const features = [
   {
     icon: "🔑",
     title: "You Control Access",
-    body: "Lit Protocol encrypts your footage. Only a confirmed buyer can decrypt. GPS hidden until you authorise.",
+    body: "Your footage is encrypted end-to-end. Only a confirmed buyer can decrypt. GPS hidden until you authorise.",
   },
   {
     icon: "🤖",
@@ -42,81 +41,53 @@ export default function Home() {
     <main className="flex flex-col min-h-screen">
       <Navbar />
 
-      {/* ── Hero — compact, lets the feed breathe ─────────── */}
-      <section className="border-b-2 border-border bg-secondary-background">
-        {/* Mobile: stacked minimal */}
-        <div className="flex flex-col sm:hidden px-4 py-6 gap-4">
-          <div>
-            <Badge className="mb-3 text-xs px-3 py-0.5">Community Truth Network</Badge>
-            <h1 className="text-3xl font-heading leading-tight">
-              Your footage.{" "}
-              <span className="bg-main px-1">Your proof.</span>{" "}
-              Your price.
-            </h1>
-            <p className="text-sm text-muted-foreground font-base mt-2">
-              Record. Verify. Sell — directly from your browser.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Link href="/record" className="flex-1">
-              <Button className="w-full animate-pulse-ring">
-                Record now →
+      {/* ── Hero ─────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden border-b-2 border-border flex flex-col min-h-[280px] sm:min-h-[340px]">
+        {/* Video background */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          style={{ filter: "grayscale(1) brightness(0.45)" }}
+        >
+          <source src="/hero-footage.mp4" type="video/mp4" />
+        </video>
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-black/35 z-10 pointer-events-none" />
+
+        {/* Centered content */}
+        <div className="relative z-20 flex-1 flex flex-col items-center justify-center px-4 py-8 sm:py-12 text-center">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-heading leading-tight text-white max-w-3xl">
+            Your footage.{" "}
+            <span className="bg-main px-2 whitespace-nowrap">Your proof.</span>{" "}
+            Your price.
+          </h1>
+          <p className="text-sm text-white/65 font-base mt-4 max-w-lg leading-relaxed text-pretty">
+            Eyewitnesses capture cryptographically verified footage and sell it on their own terms. No professional camera. No middlemen. 85% direct to you.
+          </p>
+          <div className="flex flex-row gap-3 mt-6">
+            <Link href="/record">
+              <Button size="lg" className="text-sm px-6 animate-pulse-ring">
+                Start Recording →
               </Button>
             </Link>
             <Link href="/marketplace">
-              <Button variant="neutral">Browse</Button>
+              <Button variant="neutral" size="lg" className="text-sm px-6">
+                Browse
+              </Button>
             </Link>
-          </div>
-        </div>
-
-        {/* Desktop: split layout */}
-        <div className="hidden sm:grid grid-cols-2 divide-x-2 divide-border min-h-[260px]">
-          <div className="flex flex-col justify-center px-10 py-10 gap-5">
-            <Badge className="self-start text-sm px-4 py-1">Community Truth Network</Badge>
-            <h1 className="text-5xl lg:text-6xl font-heading leading-tight">
-              Your footage.
-              <br />
-              <span className="bg-main px-2">Your proof.</span>
-              <br />
-              Your price.
-            </h1>
-            <p className="text-base text-muted-foreground font-base max-w-md">
-              Eyewitnesses capture cryptographically verified footage and sell it on their own terms.
-              No professional camera. No middlemen. 85% direct to you.
-            </p>
-            <div className="flex gap-3">
-              <Link href="/record">
-                <Button size="lg" className="text-base px-8 animate-pulse-ring">
-                  Start Recording →
-                </Button>
-              </Link>
-              <Link href="/marketplace">
-                <Button variant="neutral" size="lg" className="text-base px-8">
-                  Browse Marketplace
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          {/* Right: stats */}
-          <div className="grid grid-cols-2 divide-x-2 divide-y-2 divide-border">
-            {[
-              { value: "85%", label: "Witness revenue" },
-              { value: "$0.01", label: "Max tx fee" },
-              { value: "0", label: "Middlemen" },
-              { value: "∞", label: "Storage life" },
-            ].map((s) => (
-              <div key={s.label} className="flex flex-col items-center justify-center py-8 px-4 text-center">
-                <span className="text-4xl font-heading">{s.value}</span>
-                <span className="text-sm text-muted-foreground font-base mt-1">{s.label}</span>
-              </div>
-            ))}
           </div>
         </div>
       </section>
 
       {/* ── Feed — the main event ───────────────────────────── */}
-      <section className="flex-1 px-4 sm:px-6 py-6 sm:py-10">
+      <section className="relative overflow-hidden flex-1 px-4 sm:px-6 py-6 sm:py-10">
+        {/* Animated blobs */}
+        <div aria-hidden className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-chart-1 opacity-[0.12] blur-[100px] pointer-events-none animate-blob" />
+        <div aria-hidden className="absolute top-1/3 -right-16 w-64 h-64 rounded-full bg-chart-2 opacity-[0.10] blur-[100px] pointer-events-none animate-blob blob-delay-2" />
+        <div aria-hidden className="absolute bottom-0 left-1/2 w-56 h-56 rounded-full bg-chart-5 opacity-[0.10] blur-[100px] pointer-events-none animate-blob blob-delay-3" />
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-5">
             <div>
@@ -139,7 +110,9 @@ export default function Home() {
       </section>
 
       {/* ── Features ────────────────────────────────────────── */}
-      <section className="border-t-2 border-border px-4 sm:px-6 py-12 sm:py-16 bg-secondary-background">
+      <section className="relative overflow-hidden border-t-2 border-border px-4 sm:px-6 py-12 sm:py-16 bg-secondary-background">
+        {/* Dot-grid background pattern */}
+        <div aria-hidden className="absolute inset-0 bg-dot-pattern opacity-[0.06] pointer-events-none" />
         <div className="max-w-6xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-heading text-center mb-2">
             Every component is load-bearing
@@ -163,7 +136,11 @@ export default function Home() {
       </section>
 
       {/* ── CTA ─────────────────────────────────────────────── */}
-      <section className="border-t-2 border-b-2 border-border px-4 sm:px-6 py-12 sm:py-16 text-center bg-main">
+      <section className="relative overflow-hidden border-t-2 border-b-2 border-border px-4 sm:px-6 py-12 sm:py-16 text-center bg-main">
+        {/* Radial glow */}
+        <div aria-hidden className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,white_0%,transparent_65%)] opacity-[0.15] pointer-events-none" />
+        {/* Diagonal stripes */}
+        <div aria-hidden className="absolute inset-0 bg-diagonal-stripes pointer-events-none" />
         <h2 className="text-3xl sm:text-4xl font-heading mb-3">
           Witnessed something important?
         </h2>
@@ -183,9 +160,17 @@ export default function Home() {
 
       {/* ── Footer ──────────────────────────────────────────── */}
       <footer className="px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm font-base">
-        <span className="font-heading text-lg">radrr</span>
+        <span className="flex items-center gap-1.5 font-heading text-lg">
+          <svg viewBox="0 0 20 20" width="24" height="24" fill="none" aria-hidden="true">
+            <circle cx="2.5" cy="17.5" r="2" fill="oklch(28% 0.22 295)" />
+            <path d="M2.5 12.5 A5 5 0 0 1 7.5 17.5" stroke="oklch(40% 0.24 295)" strokeWidth="2.4" strokeLinecap="round"/>
+            <path d="M2.5 8 A9.5 9.5 0 0 1 12 17.5" stroke="oklch(52% 0.22 295)" strokeWidth="2.4" strokeLinecap="round"/>
+            <path d="M2.5 3.5 A14 14 0 0 1 16.5 17.5" stroke="oklch(58% 0.22 160)" strokeWidth="2.4" strokeLinecap="round"/>
+          </svg>
+          Radrr
+        </span>
         <span className="text-muted-foreground text-xs text-center">
-          Built on Filecoin · Lit Protocol · Storacha · Hypercerts · ERC-8004
+          Built on Filecoin · Storacha · Hypercerts · ERC-8004
         </span>
         <div className="flex gap-4 text-muted-foreground">
           <Link href="/marketplace" className="hover:text-foreground transition-colors">Marketplace</Link>
