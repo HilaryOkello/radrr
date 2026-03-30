@@ -338,15 +338,17 @@ export default function RecordPage() {
       const { cid } = await uploadRes.json();
       toast.success("Footage stored on Filecoin!");
 
-      // 4. Encrypt (Lit Protocol → fallback AES-256-GCM)
+      // 4. Encrypt (AES-256-GCM with IPFS-backed key storage)
       setPhase("encrypting");
+      let keyCid: string | null = null;
       try {
-        const { encryptVideo } = await import("@/lib/lit");
+        const { encryptVideoClient } = await import("@/lib/encryption-client");
         const videoBytes = new Uint8Array(await videoBlob.arrayBuffer());
-        const { ciphertext, dataToEncryptHash } = await encryptVideo(videoBytes, id);
+        const { ciphertext, iv, keyHash, encryptedKey } = await encryptVideoClient(videoBytes, id);
 
+        // Upload encrypted video to IPFS
         const ciphertextBlob = new Blob(
-          [JSON.stringify({ ciphertext, dataToEncryptHash, recordingId: id })],
+          [JSON.stringify({ ciphertext, iv, keyHash, recordingId: id, encryptionType: "aes-256-gcm" })],
           { type: "application/json" }
         );
         const encFormData = new FormData();
@@ -354,35 +356,30 @@ export default function RecordPage() {
         encFormData.append("recordingId", id);
         const encUploadRes = await fetch("/api/upload-encrypted", { method: "POST", body: encFormData });
 
+        if (!encUploadRes.ok) {
+          throw new Error("Failed to upload encrypted video");
+        }
+
+        // Upload encryption key to IPFS via server API
+        const keyUploadRes = await fetch("/api/upload-key", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ recordingId: id, encryptedKey, keyHash }),
+        });
+
+        if (!keyUploadRes.ok) {
+          throw new Error("Failed to upload encryption key");
+        }
+
+        const { keyCid: uploadedKeyCid } = await keyUploadRes.json();
+        keyCid = uploadedKeyCid;
+
         if (encUploadRes.ok) {
-          toast.success("Footage encrypted with Lit Protocol!");
+          toast.success("Footage encrypted with AES-256-GCM!");
         }
-      } catch (litErr) {
-        console.warn("[lit] falling back to AES-256-GCM:", litErr);
-        try {
-          const { encryptVideoLocal } = await import("@/lib/lit");
-          const videoBytes2 = new Uint8Array(await videoBlob.arrayBuffer());
-          const { ciphertext, dataToEncryptHash, key } = await encryptVideoLocal(videoBytes2, id);
-          const aesBlob = new Blob(
-            [JSON.stringify({
-              encryptionType: "aes-gcm-demo",
-              ciphertext, dataToEncryptHash,
-              recordingId: id, keyDemo: key,
-              note: "Demo: key sealed by Lit Protocol in production",
-            })],
-            { type: "application/json" }
-          );
-          const aesForm = new FormData();
-          aesForm.append("video", aesBlob, `${id}_encrypted.json`);
-          aesForm.append("recordingId", id);
-          const aesUploadRes = await fetch("/api/upload-encrypted", { method: "POST", body: aesForm });
-          if (aesUploadRes.ok) {
-            toast.success("Footage encrypted (AES-256-GCM)");
-          }
-        } catch (aesErr) {
-          console.warn("[aes-fallback]", aesErr);
-          toast.warning("Encryption unavailable — footage stored unencrypted.");
-        }
+      } catch (encErr) {
+        console.warn("[encryption] failed:", encErr);
+        toast.warning("Encryption unavailable — footage stored unencrypted.");
       }
 
       setResult({ recordingId: id, merkleRoot: root, txHash, cid, chunkCount, gps: gps ?? "unknown" });
