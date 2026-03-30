@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Navbar } from "@/components/Navbar";
 import type { FootageRecording } from "@/components/FootageCard";
+import { useLocationName } from "@/hooks/useLocationName";
 import { toast } from "sonner";
 import { filecoinCalibration } from "viem/chains";
 
@@ -247,13 +248,17 @@ export default function RecordingDetailPage() {
 
   const visibility = recording.visibility_level ?? "blur";
   const isOwner = connectedAddress?.toLowerCase() === recording.witness?.toLowerCase();
+  const locationName = useLocationName(recording.gps_approx);
   const canWatch = isOwner || visibility === "full" || (visibility === "trailer" && recording.trailer_cid);
 
   return (
     <main className="min-h-screen flex flex-col">
       <Navbar />
 
-      <div className="flex-1 p-6 max-w-4xl mx-auto w-full">
+      <div className="relative flex-1 p-6 max-w-4xl mx-auto w-full">
+        <div aria-hidden className="absolute inset-0 bg-dot-pattern opacity-[0.04] pointer-events-none" />
+        <div aria-hidden className="absolute -top-10 -right-10 w-72 h-72 rounded-full bg-chart-1 opacity-[0.09] blur-[120px] pointer-events-none animate-blob" />
+        <div aria-hidden className="absolute bottom-10 -left-10 w-64 h-64 rounded-full bg-chart-5 opacity-[0.08] blur-[100px] pointer-events-none animate-blob blob-delay-2" />
         {/* Video Player */}
         <div className="relative bg-black aspect-video rounded-base overflow-hidden mb-6 border-2 border-border">
           {canWatch && videoSrc && !videoError ? (
@@ -311,7 +316,8 @@ export default function RecordingDetailPage() {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-muted-foreground">Location</span>
-                    <p className="font-mono">{recording.gps_approx}</p>
+                    {locationName && <p>{locationName}</p>}
+                    <p className="font-mono text-xs text-muted-foreground">{recording.gps_approx}</p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Recorded</span>

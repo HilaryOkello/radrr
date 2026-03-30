@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useLocationName } from "@/hooks/useLocationName";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -77,6 +78,7 @@ export function FootageCard({
   bidCount = 0,
 }: FootageCardProps) {
   const isOwner = walletAddress?.toLowerCase() === r.witness?.toLowerCase();
+  const locationName = useLocationName(r.gps_approx);
   const visibilityLevel = r.visibility_level ?? "blur";
 
   return (
@@ -136,7 +138,7 @@ export function FootageCard({
         {/* Metadata */}
         <div className="flex flex-col gap-1 text-xs text-muted-foreground font-mono">
           <div className="flex gap-3 flex-wrap">
-            <span>📍 {r.gps_approx}</span>
+            <span>📍 {locationName ? `${locationName} (${r.gps_approx})` : r.gps_approx}</span>
             <span>🕐 {formatDate(r.timestamp)}</span>
           </div>
           <span className="truncate opacity-70">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useLocationName } from "@/hooks/useLocationName";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,7 @@ export function MarketplaceCard({
   const [playing, setPlaying] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const locationName = useLocationName(r.gps_approx);
 
   const isOwner = walletAddress?.toLowerCase() === r.witness?.toLowerCase();
   const pendingBids = bids.filter((b) => b.status === "Pending");
@@ -177,7 +179,7 @@ export function MarketplaceCard({
           {r.title || "Untitled Recording"}
         </h3>
         <p className="text-[11px] text-muted-foreground font-mono line-clamp-1">
-          📍 {r.gps_approx} · {timeAgo(r.timestamp)}
+          📍 {locationName ? `${locationName} (${r.gps_approx})` : r.gps_approx} · {timeAgo(r.timestamp)}
         </p>
         {pendingBids.length > 0 ? (
           <p className="text-[11px] text-muted-foreground font-base">

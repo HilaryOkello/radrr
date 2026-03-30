@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useAccount } from "wagmi";
 import { ConnectWallet } from "@/components/ConnectWallet";
 import { Navbar } from "@/components/Navbar";
+import { useLocationName } from "@/hooks/useLocationName";
 
 type RecordingPhase =
   | "idle"
@@ -188,6 +189,7 @@ export default function RecordPage() {
   const [merkleRoot, setMerkleRoot] = useState<string | null>(null);
   const [result, setResult] = useState<RecordingResult | null>(null);
   const [gps, setGps] = useState<string | null>(null);
+  const locationName = useLocationName(gps ?? undefined);
   const [elapsed, setElapsed] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
@@ -489,7 +491,7 @@ export default function RecordPage() {
     review: "Review & Publish",
     anchoring: "Anchoring proof on Filecoin...",
     uploading: "Uploading to Filecoin...",
-    encrypting: "Encrypting with Lit Protocol...",
+    encrypting: "Encrypting footage...",
     done: "Published",
     error: "Error",
   };
@@ -568,7 +570,8 @@ export default function RecordPage() {
           </div>
 
           {/* Controls / Metadata form */}
-          <div className="p-6 flex flex-col gap-4 flex-1 bg-background overflow-y-auto">
+          <div className="relative p-6 flex flex-col gap-4 flex-1 bg-background overflow-y-auto">
+            <div aria-hidden className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-chart-2 opacity-[0.07] blur-[100px] pointer-events-none animate-blob blob-delay-2" />
 
             {/* Idle: wallet prompt or start button */}
             {phase === "idle" && !connectedAddress && (
@@ -838,14 +841,17 @@ export default function RecordPage() {
 
             {gps && phase !== "review" && (
               <div className="text-xs font-mono text-muted-foreground">
-                📍 GPS: {gps} (city-level approx)
+                📍 {locationName ? `${locationName} · ${gps}` : gps} (city-level approx)
               </div>
             )}
           </div>
         </div>
 
         {/* Right: Proof chain */}
-        <div className="flex flex-col p-6 gap-6 overflow-y-auto">
+        <div className="relative flex flex-col p-6 gap-6 overflow-y-auto">
+          <div aria-hidden className="absolute inset-0 bg-dot-pattern opacity-[0.05] pointer-events-none" />
+          <div aria-hidden className="absolute -top-10 -right-10 w-72 h-72 rounded-full bg-chart-1 opacity-[0.08] blur-[100px] pointer-events-none animate-blob" />
+          <div aria-hidden className="absolute bottom-20 -left-10 w-56 h-56 rounded-full bg-chart-5 opacity-[0.07] blur-[100px] pointer-events-none animate-blob blob-delay-3" />
           {/* Status */}
           <Card className="border-2 border-border">
             <CardHeader>
@@ -900,9 +906,9 @@ export default function RecordPage() {
                 <Row label="Filecoin Tx" value={result.txHash} mono truncate />
                 <Row label="Filecoin CID" value={result.cid} mono truncate />
                 <Row label="Chunks" value={String(result.chunkCount)} />
-                <Row label="GPS Approx" value={result.gps} />
+                <Row label="Location" value={locationName ? `${locationName} · ${result.gps}` : result.gps} />
                 <div className="pt-2 border-t-2 border-border text-xs text-muted-foreground font-base">
-                  Encrypted with Lit Protocol · Stored on Filecoin · Anchored on Filecoin FVM
+                  Encrypted · Stored on Filecoin · Anchored on Filecoin FVM
                 </div>
               </CardContent>
             </Card>
@@ -921,7 +927,7 @@ export default function RecordPage() {
                   <>
                     <p>1. Your Merkle proof is anchored on Filecoin FVM (tamper-evident).</p>
                     <p>2. The raw footage is uploaded to Filecoin via Storacha.</p>
-                    <p>3. The footage is encrypted — only buyers can decrypt via Lit Protocol.</p>
+                    <p>3. The footage is encrypted — only confirmed buyers can decrypt.</p>
                     <p>4. Your listing goes live on the marketplace at your asking price.</p>
                     <p>5. Buyers can pay the asking price or make you a custom offer.</p>
                   </>
