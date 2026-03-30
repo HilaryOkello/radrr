@@ -18,6 +18,7 @@ export interface FootageRecording {
   sold: boolean;
   cid?: string;
   encrypted_cid?: string;
+  key_cid?: string;
   preview_cid?: string;
   trailer_cid?: string;
   visibility_level?: VisibilityLevel;
