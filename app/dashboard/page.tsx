@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { ConnectWallet } from "@/components/ConnectWallet";
+import { Navbar } from "@/components/Navbar";
 import { FootageCard, type FootageRecording } from "@/components/FootageCard";
 import { HypercertsList, type HypercertEntry } from "@/components/HypercertsList";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -148,7 +149,7 @@ export default function DashboardPage() {
         const err = await res.json();
         throw new Error(err.error);
       }
-      toast.success("🎉 Sale complete! 85% transferred to you, 5% to journalism fund.");
+      toast.success("💸 Sale complete — 85% is yours", { position: "top-center" });
       // Update local state
       setRecordingBids((prev) =>
         prev.map((rb) =>
@@ -227,10 +228,7 @@ export default function DashboardPage() {
   if (!walletAddress && !loading) {
     return (
       <main className="min-h-screen flex flex-col">
-        <nav className="border-b-2 border-border px-6 py-4 flex items-center justify-between bg-secondary-background">
-          <Link href="/" className="text-2xl font-heading tracking-tight">radrr</Link>
-          <ConnectWallet />
-        </nav>
+        <Navbar />
         <div className="flex-1 flex items-center justify-center p-6">
           <Card className="border-2 border-border max-w-md w-full">
             <CardContent className="py-12 text-center">
@@ -254,15 +252,7 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen flex flex-col">
-      {/* Nav */}
-      <nav className="border-b-2 border-border px-6 py-4 flex items-center justify-between bg-secondary-background">
-        <Link href="/" className="text-2xl font-heading tracking-tight">radrr</Link>
-        <div className="flex gap-3 items-center">
-          <Link href="/record"><Button size="sm">Record</Button></Link>
-          <Link href="/marketplace"><Button variant="neutral" size="sm">Marketplace</Button></Link>
-          <ConnectWallet />
-        </div>
-      </nav>
+      <Navbar />
 
       <div className="flex-1 p-6 max-w-6xl mx-auto w-full">
         {loading ? (
@@ -301,34 +291,36 @@ export default function DashboardPage() {
 
             {/* Tabs */}
             <Tabs defaultValue="all">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-heading">Your Footage</h2>
-                <TabsList>
-                  <TabsTrigger value="all">All ({recordings.length})</TabsTrigger>
-                  <TabsTrigger value="sold">
-                    Sold ({recordings.filter((r) => r.sold).length})
-                  </TabsTrigger>
-                  <TabsTrigger value="corroborated">
-                    Corroborated ({recordings.filter((r) => r.corroboration_bundle.length > 0).length})
-                  </TabsTrigger>
-                  <TabsTrigger value="bids" className="relative">
-                    Offers
-                    {totalPendingBids > 0 && (
-                      <Badge className="ml-1 bg-main text-black text-xs px-1 py-0 h-4 min-w-4">
-                        {totalPendingBids}
-                      </Badge>
-                    )}
-                  </TabsTrigger>
-                  <TabsTrigger value="my-bids">
-                    My Bids ({buyerBids.filter(b => b.status === "Pending").length})
-                  </TabsTrigger>
-                  <TabsTrigger value="purchased">
-                    Purchased ({purchasedRecordings.length})
-                  </TabsTrigger>
-                  <TabsTrigger value="hypercerts">
-                    Hypercerts
-                  </TabsTrigger>
-                </TabsList>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <h2 className="text-2xl font-heading shrink-0">Your Footage</h2>
+                <div className="overflow-x-auto pb-1">
+                  <TabsList className="flex w-max">
+                    <TabsTrigger value="all">All ({recordings.length})</TabsTrigger>
+                    <TabsTrigger value="sold">
+                      Sold ({recordings.filter((r) => r.sold).length})
+                    </TabsTrigger>
+                    <TabsTrigger value="corroborated">
+                      Verified ({recordings.filter((r) => r.corroboration_bundle.length > 0).length})
+                    </TabsTrigger>
+                    <TabsTrigger value="bids" className="relative">
+                      Offers
+                      {totalPendingBids > 0 && (
+                        <Badge className="ml-1 bg-main text-black text-xs px-1 py-0 h-4 min-w-4">
+                          {totalPendingBids}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
+                    <TabsTrigger value="my-bids">
+                      My Bids ({buyerBids.filter(b => b.status === "Pending").length})
+                    </TabsTrigger>
+                    <TabsTrigger value="purchased">
+                      Purchased ({purchasedRecordings.length})
+                    </TabsTrigger>
+                    <TabsTrigger value="hypercerts">
+                      Hypercerts
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
               </div>
 
               <TabsContent value="all">

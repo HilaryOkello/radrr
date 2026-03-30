@@ -7,7 +7,7 @@ import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ConnectWallet } from "@/components/ConnectWallet";
+import { Navbar } from "@/components/Navbar";
 import type { FootageRecording } from "@/components/FootageCard";
 import { toast } from "sonner";
 
@@ -104,7 +104,7 @@ export default function RecordingDetailPage() {
         throw new Error(err.error);
       }
 
-      toast.success("Purchase confirmed! You now own this footage.");
+      toast.success("🎉 Footage purchased — you own this", { position: "top-center" });
       setRecording((prev) => prev ? { ...prev, sold: true } : null);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Purchase failed");
@@ -116,10 +116,7 @@ export default function RecordingDetailPage() {
   if (loading) {
     return (
       <main className="min-h-screen flex flex-col">
-        <nav className="border-b-2 border-border px-6 py-4 flex items-center justify-between bg-secondary-background">
-          <Link href="/dashboard" className="text-2xl font-heading tracking-tight">radrr</Link>
-          <ConnectWallet />
-        </nav>
+        <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-muted-foreground font-base animate-pulse">Loading...</div>
         </div>
@@ -130,10 +127,7 @@ export default function RecordingDetailPage() {
   if (!recording) {
     return (
       <main className="min-h-screen flex flex-col">
-        <nav className="border-b-2 border-border px-6 py-4 flex items-center justify-between bg-secondary-background">
-          <Link href="/dashboard" className="text-2xl font-heading tracking-tight">radrr</Link>
-          <ConnectWallet />
-        </nav>
+        <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <Card className="border-2 border-border max-w-md">
             <CardContent className="py-12 text-center">
@@ -155,16 +149,7 @@ export default function RecordingDetailPage() {
 
   return (
     <main className="min-h-screen flex flex-col">
-      {/* Nav */}
-      <nav className="border-b-2 border-border px-6 py-4 flex items-center justify-between bg-secondary-background">
-        <div className="flex items-center gap-4">
-          <Link href="/dashboard" className="text-2xl font-heading tracking-tight">radrr</Link>
-          <Badge variant="neutral" className="text-xs">
-            {VISIBILITY_LABELS[visibility] ?? visibility}
-          </Badge>
-        </div>
-        <ConnectWallet />
-      </nav>
+      <Navbar />
 
       <div className="flex-1 p-6 max-w-4xl mx-auto w-full">
         {/* Video Player */}

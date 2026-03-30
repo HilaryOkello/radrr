@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useAccount } from "wagmi";
 import { ConnectWallet } from "@/components/ConnectWallet";
+import { Navbar } from "@/components/Navbar";
 
 type RecordingPhase =
   | "idle"
@@ -386,6 +387,7 @@ export default function RecordPage() {
 
       setResult({ recordingId: id, merkleRoot: root, txHash, cid, chunkCount, gps: gps ?? "unknown" });
       setPhase("done");
+      toast.success("🚀 Published on Filecoin", { position: "top-center" });
 
       // Free local video memory
       if (localVideoUrlRef.current) URL.revokeObjectURL(localVideoUrlRef.current);
@@ -512,15 +514,7 @@ export default function RecordPage() {
 
   return (
     <main className="min-h-screen flex flex-col">
-      {/* Nav */}
-      <nav className="border-b-2 border-border px-6 py-4 flex items-center justify-between bg-secondary-background">
-        <Link href="/" className="text-2xl font-heading tracking-tight">radrr</Link>
-        <div className="flex gap-3 items-center">
-          <Link href="/dashboard"><Button variant="neutral" size="sm">Dashboard</Button></Link>
-          <Link href="/marketplace"><Button variant="neutral" size="sm">Marketplace</Button></Link>
-          <ConnectWallet />
-        </div>
-      </nav>
+      <Navbar />
 
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-0">
         {/* Left: Camera / Review */}
