@@ -266,7 +266,8 @@ export default function MarketplacePage() {
           <div aria-hidden className="absolute bottom-10 -left-10 w-72 h-72 rounded-full bg-chart-2 opacity-[0.07] blur-[100px] pointer-events-none animate-blob blob-delay-2" />
           <div aria-hidden className="absolute top-1/2 left-1/2 w-64 h-64 rounded-full bg-chart-5 opacity-[0.07] blur-[100px] pointer-events-none animate-blob blob-delay-3" />
           {/* Sticky filter bar */}
-          <div className="sticky top-0 z-10 border-b-2 border-border bg-background px-4 sm:px-6 py-3 flex flex-col sm:flex-row gap-3">
+          <div className="sticky top-0 z-10 border-b-2 border-border bg-background py-3">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row gap-3">
             <Input
               placeholder="Search by title or location…"
               value={search}
@@ -295,6 +296,7 @@ export default function MarketplacePage() {
                   Clear
                 </button>
               )}
+            </div>
             </div>
           </div>
 
