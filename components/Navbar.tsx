@@ -19,6 +19,7 @@ const NAV_LINKS = [
   { href: "/marketplace", label: "Browse" },
   { href: "/record", label: "Record" },
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/agent", label: "Agent" },
 ];
 
 export function Navbar() {

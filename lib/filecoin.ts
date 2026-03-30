@@ -366,6 +366,16 @@ export async function getAgentReputation(agentAddress: string) {
   });
 }
 
+export async function hasAgentCredential(agentAddress: string, credentialType: string): Promise<boolean> {
+  const client = getPublicClient();
+  return client.readContract({
+    address: AGENT_REGISTRY_ADDRESS,
+    abi: AGENT_REGISTRY_ABI,
+    functionName: "hasCredential",
+    args: [agentAddress as Address, credentialType],
+  });
+}
+
 // ─── Bid calls ───────────────────────────────────────────────────────────────
 
 export async function placeBid(recordingId: string, bidder: string, amountWei: bigint): Promise<Hash> {

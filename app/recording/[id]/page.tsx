@@ -334,6 +334,23 @@ export default function RecordingDetailPage() {
                   <Badge variant="neutral">FVM Anchored</Badge>
                   <Badge variant="neutral">Filecoin</Badge>
                 </div>
+
+                {recording.corroboration_bundle.length > 0 && (
+                  <div className="mt-3 space-y-1">
+                    <p className="text-xs text-muted-foreground font-base">Corroborating recordings:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {recording.corroboration_bundle.map((id) => (
+                        <Link
+                          key={id}
+                          href={`/recording/${id}`}
+                          className="font-mono text-xs text-[#0099FF] hover:underline border border-border rounded px-2 py-0.5 bg-background"
+                        >
+                          {id}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 

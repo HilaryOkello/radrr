@@ -9,6 +9,12 @@
   "radrr_contract": "0x7558AF2375276Aa735B3766dd57F57b567A86cA2",
   "network": "Filecoin Calibration Testnet",
   "chain_id": 314159,
+  "trust_agent": {
+    "description": "Second ERC-8004 agent that monitors the Corroboration Agent's reputation score. Endorses attestations only if score ≥ 700/1000. Located at agents/trust-agent.ts.",
+    "min_reputation_threshold": 700,
+    "credential_issued": "trust-endorsed",
+    "poll_interval_ms": 60000
+  },
   "supported_tools": [
     "filecoin-fvm-rpc",
     "storacha-retrieval",
@@ -24,7 +30,6 @@
     "Filecoin FVM (EVM)",
     "Storacha / Filecoin",
     "Synapse SDK (@filoz/synapse-sdk)",
-    "Lit Protocol V1 Naga",
     "Hypercerts",
     "ERC-8004"
   ],
@@ -54,7 +59,8 @@
     "never writes to contract without similarity threshold verification",
     "catches and logs all errors before retrying",
     "records failures in ERC-8004 reputation registry for auditability",
-    "does not process recordings without Storacha CID (upload not complete)"
+    "does not process recordings without Storacha CID (upload not complete)",
+    "trust agent verifies corroboration agent reputation before endorsing attestations"
   ],
   "execution_log": "./agent_log.json"
 }

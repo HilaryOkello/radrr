@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isPurchased, getRecordings } from "@/lib/filecoin";
+import { isPurchased, getRecordings, recordAgentTaskSuccess } from "@/lib/filecoin";
 import { mintSaleHypercert } from "@/lib/hypercerts";
+
+const AGENT_ADDRESS = "0x3B5FA5297f158cBB1c375372594858BB3B150463";
 
 /**
  * Purchase confirmation endpoint.
@@ -71,6 +73,13 @@ export async function POST(req: NextRequest) {
       hypercertTokenId = txHash ?? null;
     } catch (err) {
       console.error("[hypercert mint failed]", err);
+    }
+
+    // Wire purchase to ERC-8004 agent reputation
+    try {
+      await recordAgentTaskSuccess(AGENT_ADDRESS, `purchase verified: ${recordingId}`);
+    } catch {
+      // best-effort — don't fail the purchase if reputation update fails
     }
 
     return NextResponse.json({
