@@ -28,6 +28,7 @@ interface Props {
   recording: FootageRecording;
   walletAddress?: string;
   bids: { amount: string; status: string }[];
+  userHasBid?: boolean;
   isBuying: boolean;
   onBuy: (r: FootageRecording) => void;
   onBid: (r: FootageRecording) => void;
@@ -38,6 +39,7 @@ export function MarketplaceCard({
   recording: r,
   walletAddress,
   bids,
+  userHasBid,
   isBuying,
   onBuy,
   onBid,
@@ -146,6 +148,11 @@ export function MarketplaceCard({
               Yours
             </Badge>
           )}
+          {userHasBid && !r.sold && (
+            <Badge className="bg-[#FF6B00] text-white text-[10px] px-1.5 py-0 leading-5">
+              Bid Placed ✓
+            </Badge>
+          )}
         </div>
 
         {r.encrypted_cid && (
@@ -189,7 +196,7 @@ export function MarketplaceCard({
             View
           </Button>
         </Link>
-        {!r.sold && !isOwner && (
+        {!r.sold && !isOwner && !userHasBid && (
           <>
             <Button
               variant="neutral"
@@ -208,6 +215,11 @@ export function MarketplaceCard({
               {isBuying ? "Buying…" : "Buy"}
             </Button>
           </>
+        )}
+        {userHasBid && !r.sold && (
+          <div className="flex-1 flex items-center justify-center text-xs text-[#FF6B00] font-heading">
+            Bid Placed ✓
+          </div>
         )}
         {r.sold && (
           <div className="flex-1 flex items-center justify-center text-xs text-muted-foreground font-base">

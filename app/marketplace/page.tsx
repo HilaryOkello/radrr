@@ -2,7 +2,9 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
-import { useAccount } from "wagmi";
+import { useAccount, useSendTransaction } from "wagmi";
+import { createPublicClient, http, encodeFunctionData, parseEther } from "viem";
+import { filecoinCalibration } from "viem/chains";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Navbar } from "@/components/Navbar";
@@ -37,8 +39,10 @@ function highestPending(bids: Bid[]) {
 
 export default function MarketplacePage() {
   const { address: connectedAddress, isConnected } = useAccount();
+  const { sendTransactionAsync } = useSendTransaction();
   const [recordings, setRecordings]   = useState<FootageRecording[]>([]);
   const [bidsMap, setBidsMap]         = useState<Record<string, Bid[]>>({});
+  const [userBids, setUserBids]       = useState<Set<string>>(new Set()); // Track which recordings user has bid on
   const [loading, setLoading]         = useState(true);
   const [search, setSearch]           = useState("");
   const [filter, setFilter]           = useState<Filter>("all");
@@ -46,6 +50,17 @@ export default function MarketplacePage() {
   const [bidTarget, setBidTarget]     = useState<FootageRecording | null>(null);
   const [bidAmount, setBidAmount]     = useState("0.0005");
   const [bidding, setBidding]         = useState(false);
+
+  // Contract configuration
+  const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_FILECOIN_CONTRACT_ADDRESS as `0x${string}`;
+  
+  const RADRR_BID_ABI = [{
+    type: "function",
+    name: "placeBidFor",
+    stateMutability: "payable",
+    inputs: [{ name: "recordingId", type: "string" }, { name: "bidder", type: "address" }],
+    outputs: [],
+  }] as const;
 
   useEffect(() => {
     if (!isConnected) return;
@@ -132,12 +147,37 @@ export default function MarketplacePage() {
     setBidding(true);
     try {
       toast.info("Placing offer on Filecoin FVM…");
-      const res = await fetch("/api/bids", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ recordingId: bidTarget.recording_id, bidder: connectedAddress, amountEth: bidAmount }),
+
+      // Parse bid amount to wei
+      const amountWei = parseEther(bidAmount);
+
+      // Create public client for waiting
+      const publicClient = createPublicClient({
+        chain: filecoinCalibration,
+        transport: http(process.env.NEXT_PUBLIC_FILECOIN_RPC_URL ?? "https://api.calibration.node.glif.io/rpc/v1"),
       });
-      if (!res.ok) throw new Error((await res.json()).error);
+
+      // Encode function call
+      const data = encodeFunctionData({
+        abi: RADRR_BID_ABI,
+        functionName: "placeBidFor",
+        args: [bidTarget.recording_id, connectedAddress],
+      });
+
+      // Send transaction via MetaMask (buyer's wallet)
+      const hash = await sendTransactionAsync({
+        to: CONTRACT_ADDRESS,
+        data,
+        value: amountWei,
+        chainId: filecoinCalibration.id,
+      });
+
+      toast.info("Waiting for confirmation...");
+
+      // Wait for the transaction to be confirmed
+      await publicClient.waitForTransactionReceipt({ hash });
+
+      // Update UI - add bid to local state
       const newBid: Bid = {
         index: bidsMap[bidTarget.recording_id]?.length ?? 0,
         bidder: connectedAddress,
@@ -149,6 +189,10 @@ export default function MarketplacePage() {
         ...prev,
         [bidTarget.recording_id]: [...(prev[bidTarget.recording_id] ?? []), newBid],
       }));
+
+      // Mark this recording as bid on by user
+      setUserBids((prev) => new Set(prev).add(bidTarget.recording_id));
+
       toast.success(`💸 Offer of ${bidAmount} tFIL placed`, { position: "top-center" });
       setBidTarget(null);
     } catch (err) {
@@ -310,6 +354,7 @@ export default function MarketplacePage() {
                     recording={r}
                     walletAddress={connectedAddress}
                     bids={bidsMap[r.recording_id] ?? []}
+                    userHasBid={userBids.has(r.recording_id)}
                     isBuying={buying === r.recording_id}
                     onBuy={handleBuy}
                     onBid={handleOpenBid}
