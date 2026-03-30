@@ -254,7 +254,10 @@ export default function DashboardPage() {
     <main className="min-h-screen flex flex-col">
       <Navbar />
 
-      <div className="flex-1 p-6 max-w-6xl mx-auto w-full">
+      <div className="relative flex-1 p-6 max-w-6xl mx-auto w-full">
+        <div aria-hidden className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-chart-1 opacity-[0.09] blur-[120px] pointer-events-none animate-blob" />
+        <div aria-hidden className="absolute bottom-0 -left-10 w-72 h-72 rounded-full bg-chart-2 opacity-[0.08] blur-[100px] pointer-events-none animate-blob blob-delay-2" />
+        <div aria-hidden className="absolute top-1/2 right-1/4 w-56 h-56 rounded-full bg-chart-5 opacity-[0.07] blur-[100px] pointer-events-none animate-blob blob-delay-3" />
         {loading ? (
           <div className="flex items-center justify-center h-48">
             <div className="text-muted-foreground font-base animate-pulse">Loading...</div>

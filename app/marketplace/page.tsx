@@ -207,14 +207,16 @@ export default function MarketplacePage() {
       <Navbar />
 
       {/* ── Hero banner ── */}
-      <div className="border-b-2 border-border bg-main px-4 sm:px-8 py-8 sm:py-10">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+      <div className="relative overflow-hidden border-b-2 border-border bg-main px-4 sm:px-8 py-8 sm:py-10">
+        <div aria-hidden className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,white_0%,transparent_65%)] opacity-[0.15] pointer-events-none" />
+        <div aria-hidden className="absolute inset-0 bg-diagonal-stripes pointer-events-none" />
+        <div className="relative z-10 max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-end justify-between gap-6">
           <div>
             <h1 className="text-3xl sm:text-5xl font-heading leading-tight mb-2">
               Footage Marketplace
             </h1>
             <p className="text-sm sm:text-base font-base max-w-xl opacity-80">
-              Every clip cryptographically verified, stored on Filecoin, encrypted with Lit Protocol.
+              Every clip cryptographically verified, stored on Filecoin, encrypted end-to-end.
               85% of every sale goes direct to the witness.
             </p>
           </div>
@@ -237,7 +239,9 @@ export default function MarketplacePage() {
 
       {/* ── Not connected ── */}
       {!isConnected && (
-        <div className="flex-1 flex items-center justify-center p-6">
+        <div className="relative overflow-hidden flex-1 flex items-center justify-center p-6">
+          <div aria-hidden className="absolute top-0 left-1/4 w-96 h-96 rounded-full bg-chart-1 opacity-[0.10] blur-[120px] pointer-events-none animate-blob" />
+          <div aria-hidden className="absolute bottom-0 right-1/4 w-72 h-72 rounded-full bg-chart-5 opacity-[0.08] blur-[100px] pointer-events-none animate-blob blob-delay-2" />
           <div className="border-2 border-border rounded-base bg-secondary-background p-10 max-w-md w-full text-center shadow-[4px_4px_0px_0px_var(--border)]">
             <div className="text-5xl mb-5">🔗</div>
             <h2 className="font-heading text-2xl mb-2">Connect to browse</h2>
@@ -247,7 +251,7 @@ export default function MarketplacePage() {
             </p>
             <ConnectWallet />
             <div className="mt-6 pt-6 border-t-2 border-border flex justify-center gap-6 text-xs text-muted-foreground font-base">
-              <span>🔒 Lit Protocol</span>
+              <span>🔒 Encrypted</span>
               <span>📡 Filecoin</span>
               <span>✓ On-chain proof</span>
             </div>
@@ -257,7 +261,10 @@ export default function MarketplacePage() {
 
       {/* ── Connected: filters + grid ── */}
       {isConnected && (
-        <div className="flex-1 flex flex-col">
+        <div className="relative overflow-hidden flex-1 flex flex-col">
+          <div aria-hidden className="absolute -top-10 -right-10 w-80 h-80 rounded-full bg-chart-1 opacity-[0.08] blur-[120px] pointer-events-none animate-blob" />
+          <div aria-hidden className="absolute bottom-10 -left-10 w-72 h-72 rounded-full bg-chart-2 opacity-[0.07] blur-[100px] pointer-events-none animate-blob blob-delay-2" />
+          <div aria-hidden className="absolute top-1/2 left-1/2 w-64 h-64 rounded-full bg-chart-5 opacity-[0.07] blur-[100px] pointer-events-none animate-blob blob-delay-3" />
           {/* Sticky filter bar */}
           <div className="sticky top-0 z-10 border-b-2 border-border bg-background px-4 sm:px-6 py-3 flex flex-col sm:flex-row gap-3">
             <Input
