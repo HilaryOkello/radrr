@@ -3,13 +3,15 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { useAccount } from "wagmi";
+import { useAccount, useSendTransaction } from "wagmi";
+import { createPublicClient, http, encodeFunctionData } from "viem";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Navbar } from "@/components/Navbar";
 import type { FootageRecording } from "@/components/FootageCard";
 import { toast } from "sonner";
+import { filecoinCalibration } from "viem/chains";
 
 function ipfsUrl(cid: string) {
   return `https://${cid}.ipfs.w3s.link`;
@@ -42,11 +44,24 @@ export default function RecordingDetailPage() {
   const params = useParams();
   const recordingId = params.id as string;
   const { address: connectedAddress, isConnected } = useAccount();
+  const { sendTransactionAsync } = useSendTransaction();
   const [recording, setRecording] = useState<FootageRecording | null>(null);
   const [loading, setLoading] = useState(true);
   const [buying, setBuying] = useState(false);
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const [videoError, setVideoError] = useState(false);
+
+  const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_FILECOIN_CONTRACT_ADDRESS as `0x${string}`;
+  // price_eth is stored as wei, so use directly
+  const PRICE_WEI = recording?.price_eth ? BigInt(recording.price_eth) : BigInt(0);
+
+  const RADRR_PURCHASE_ABI = [{
+    type: "function",
+    name: "purchase",
+    stateMutability: "payable",
+    inputs: [{ name: "recordingId", type: "string" }],
+    outputs: [],
+  }] as const;
 
   useEffect(() => {
     fetch(`/api/recordings`)
@@ -87,10 +102,9 @@ export default function RecordingDetailPage() {
 
     setBuying(true);
     try {
-      toast.info("Processing payment on Filecoin FVM...");
-      await new Promise((r) => setTimeout(r, 1500));
-
-      const res = await fetch("/api/purchase", {
+      // First check if already purchased (e.g., via bid acceptance)
+      toast.info("Checking purchase status...");
+      const checkRes = await fetch("/api/purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -99,13 +113,101 @@ export default function RecordingDetailPage() {
         }),
       });
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error);
+      const checkData = await checkRes.json();
+
+      if (checkData.alreadyPurchased) {
+        // Already purchased via bid - no transaction needed
+        toast.success("Content purchased via offer! Decrypting...", { position: "top-center" });
+      } else {
+        // Not yet purchased - need to pay listing price
+        toast.info("Sending purchase transaction...");
+
+        // Create public client for waiting
+        const publicClient = createPublicClient({
+          chain: filecoinCalibration,
+          transport: http(process.env.NEXT_PUBLIC_FILECOIN_RPC_URL ?? "https://api.calibration.node.glif.io/rpc/v1"),
+        });
+
+        // Encode the function call
+        const data = encodeFunctionData({
+          abi: RADRR_PURCHASE_ABI,
+          functionName: "purchase",
+          args: [recording.recording_id],
+        });
+
+        // Send transaction via MetaMask (wallet)
+        const hash = await sendTransactionAsync({
+          to: CONTRACT_ADDRESS,
+          data,
+          value: PRICE_WEI,
+          chainId: filecoinCalibration.id,
+        });
+
+        toast.info("Waiting for transaction confirmation...");
+
+        // Wait for the transaction to be confirmed
+        await publicClient.waitForTransactionReceipt({ hash });
+
+        toast.success("Transaction confirmed! Verifying purchase...");
+
+        // Re-verify the purchase on-chain
+        const verifyRes = await fetch("/api/purchase", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            recordingId: recording.recording_id,
+            buyerAddress: connectedAddress,
+          }),
+        });
+
+        const verifyData = await verifyRes.json();
+        if (!verifyData.success) {
+          throw new Error(verifyData.error || "Purchase verification failed");
+        }
       }
 
+      // At this point, purchase is confirmed (either via bid or direct purchase)
       toast.success("🎉 Footage purchased — you own this", { position: "top-center" });
       setRecording((prev) => prev ? { ...prev, sold: true } : null);
+
+      // Fetch and decrypt the video
+      if (checkData.encryptedCid) {
+        toast.info("Fetching encrypted video...");
+        const encryptedRes = await fetch(ipfsUrl(checkData.encryptedCid));
+        if (!encryptedRes.ok) {
+          throw new Error("Failed to fetch encrypted video");
+        }
+        const encryptedData = await encryptedRes.json();
+
+        // Use keyCid from purchase data (stored on-chain)
+        const keyCid = checkData.keyCid;
+        if (!keyCid) {
+          throw new Error("Encryption key CID not found");
+        }
+
+        // Fetch the XOR-encrypted key from IPFS
+        toast.info("Fetching encryption key...");
+        const keyDataRes = await fetch(`https://${keyCid}.ipfs.w3s.link`);
+        if (!keyDataRes.ok) {
+          throw new Error("Failed to fetch encryption key from IPFS");
+        }
+        const { encryptedKey } = await keyDataRes.json();
+
+        // Decrypt video client-side (XOR-decrypt key, then decrypt video)
+        toast.info("Decrypting video...");
+        const { decryptVideoClientSide } = await import("@/lib/encryption-client");
+        const decryptedBytes = await decryptVideoClientSide(
+          encryptedData.ciphertext,
+          encryptedData.iv,
+          encryptedKey
+        );
+
+        // Create blob URL and play
+        const blob = new Blob([decryptedBytes], { type: "video/webm" });
+        const url = URL.createObjectURL(blob);
+        setVideoSrc(url);
+        toast.success("Video decrypted and ready!", { position: "top-center" });
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Purchase failed");
     } finally {
