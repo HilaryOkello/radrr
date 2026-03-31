@@ -48680,5 +48680,2951 @@
     "threshold": 700,
     "passed": false,
     "action": "Endorsement withheld — attestation flagged as unendorsed"
+  },
+  {
+    "timestamp": "2026-03-31T09:28:12.938Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "discover",
+    "action": "fetch_recordings",
+    "details": {
+      "limit": 50
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:14.619Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "discover",
+    "action": "unprocessed_found",
+    "details": {
+      "count": 7
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:14.662Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "clusters_identified",
+    "details": {
+      "totalClusters": 1,
+      "candidateClusters": 1
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:14.698Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filter_start",
+    "details": {
+      "gpsKey": "-1.3,36.8",
+      "recordings": 7,
+      "gpsPrecision": 0.01,
+      "timeWindow": "10min"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:14.726Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774858672997_ukl9sc",
+      "reasons": [
+        "Time: 65min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:14.752Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774863151256_i7820n",
+      "reasons": [
+        "Time: 141min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:14.776Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774936214215_esh3m9",
+      "reasons": [
+        "Time: 1358min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:14.799Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "Time: 1362min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:14.831Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "Time: 1365min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:14.853Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 1390min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:14.876Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774863151256_i7820n",
+      "reasons": [
+        "Time: 76min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:14.901Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774936214215_esh3m9",
+      "reasons": [
+        "Time: 1293min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:14.924Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "Time: 1297min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:14.947Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "Time: 1300min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:14.974Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 1325min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:14.995Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774936214215_esh3m9",
+      "reasons": [
+        "Time: 1218min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:15.017Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "Time: 1221min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:15.071Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "Time: 1225min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:15.110Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 1250min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:15.148Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_passed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:15.186Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_passed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 7min within 10min window"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:15.216Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 32min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:15.239Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_passed",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:15.275Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 29min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:15.305Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774936656214_o2j1ro",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 25min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:15.334Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filter_complete",
+    "details": {
+      "gpsKey": "-1.3,36.8",
+      "totalPairs": 21,
+      "passed": 3,
+      "filtered": 18,
+      "savingsPercent": 86
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:15.357Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "execute",
+    "action": "siglip_comparison_start",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936444348_9horcm",
+      "metadata": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ]
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:15.378Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "verify",
+    "action": "visual_match_failed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reason": "Visual similarity below threshold",
+      "method": "GPS+Time+Visual"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:15.397Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "execute",
+    "action": "siglip_comparison_start",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "metadata": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 7min within 10min window"
+      ]
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:15.421Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "verify",
+    "action": "visual_match_failed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reason": "Visual similarity below threshold",
+      "method": "GPS+Time+Visual"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:15.442Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "execute",
+    "action": "siglip_comparison_start",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "metadata": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ]
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:15.467Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "verify",
+    "action": "visual_match_failed",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reason": "Visual similarity below threshold",
+      "method": "GPS+Time+Visual"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:15.494Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "reputation",
+    "action": "cycle_complete",
+    "details": {
+      "duration_ms": 2556,
+      "totalCandidates": 21,
+      "metadataPassed": 3,
+      "metadataFiltered": 18,
+      "apiCallsSaved": 18,
+      "tasksSucceeded": 0,
+      "tasksFailed": 0
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:42.941Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "discover",
+    "action": "fetch_recordings",
+    "details": {
+      "limit": 50
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:44.785Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "discover",
+    "action": "unprocessed_found",
+    "details": {
+      "count": 7
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:44.814Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "clusters_identified",
+    "details": {
+      "totalClusters": 1,
+      "candidateClusters": 1
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:44.844Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filter_start",
+    "details": {
+      "gpsKey": "-1.3,36.8",
+      "recordings": 7,
+      "gpsPrecision": 0.01,
+      "timeWindow": "10min"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:44.873Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774858672997_ukl9sc",
+      "reasons": [
+        "Time: 65min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:44.900Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774863151256_i7820n",
+      "reasons": [
+        "Time: 141min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:44.924Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774936214215_esh3m9",
+      "reasons": [
+        "Time: 1358min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:44.947Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "Time: 1362min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:44.972Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "Time: 1365min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:44.993Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 1390min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.016Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774863151256_i7820n",
+      "reasons": [
+        "Time: 76min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.037Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774936214215_esh3m9",
+      "reasons": [
+        "Time: 1293min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.057Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "Time: 1297min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.077Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "Time: 1300min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.099Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 1325min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.119Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774936214215_esh3m9",
+      "reasons": [
+        "Time: 1218min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.141Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "Time: 1221min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.166Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "Time: 1225min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.182Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 1250min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.202Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_passed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.219Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_passed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 7min within 10min window"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.236Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 32min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.254Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_passed",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.270Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 29min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.289Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774936656214_o2j1ro",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 25min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.308Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filter_complete",
+    "details": {
+      "gpsKey": "-1.3,36.8",
+      "totalPairs": 21,
+      "passed": 3,
+      "filtered": 18,
+      "savingsPercent": 86
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.327Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "execute",
+    "action": "siglip_comparison_start",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936444348_9horcm",
+      "metadata": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ]
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.348Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "verify",
+    "action": "visual_match_failed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reason": "Visual similarity below threshold",
+      "method": "GPS+Time+Visual"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.371Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "execute",
+    "action": "siglip_comparison_start",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "metadata": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 7min within 10min window"
+      ]
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.394Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "verify",
+    "action": "visual_match_failed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reason": "Visual similarity below threshold",
+      "method": "GPS+Time+Visual"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.416Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "execute",
+    "action": "siglip_comparison_start",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "metadata": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ]
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.439Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "verify",
+    "action": "visual_match_failed",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reason": "Visual similarity below threshold",
+      "method": "GPS+Time+Visual"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:45.459Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "reputation",
+    "action": "cycle_complete",
+    "details": {
+      "duration_ms": 2518,
+      "totalCandidates": 21,
+      "metadataPassed": 3,
+      "metadataFiltered": 18,
+      "apiCallsSaved": 18,
+      "tasksSucceeded": 0,
+      "tasksFailed": 0
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:28:46.861Z",
+    "agent": "0x2efa5ebcA68341C3f9c21d02426Bca69aEe19D01",
+    "phase": "evaluate",
+    "corrobAgent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "reputationScore": 100,
+    "threshold": 700,
+    "passed": false,
+    "action": "Score 100 < 700 — refusing endorsement"
+  },
+  {
+    "timestamp": "2026-03-31T09:28:52.170Z",
+    "agent": "0x2efa5ebcA68341C3f9c21d02426Bca69aEe19D01",
+    "phase": "warn",
+    "corrobAgent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "reputationScore": 100,
+    "threshold": 700,
+    "passed": false,
+    "action": "Endorsement withheld — attestation flagged as unendorsed"
+  },
+  {
+    "timestamp": "2026-03-31T09:29:12.942Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "discover",
+    "action": "fetch_recordings",
+    "details": {
+      "limit": 50
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:14.834Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "discover",
+    "action": "unprocessed_found",
+    "details": {
+      "count": 7
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:14.865Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "clusters_identified",
+    "details": {
+      "totalClusters": 1,
+      "candidateClusters": 1
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:14.891Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filter_start",
+    "details": {
+      "gpsKey": "-1.3,36.8",
+      "recordings": 7,
+      "gpsPrecision": 0.01,
+      "timeWindow": "10min"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:14.930Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774858672997_ukl9sc",
+      "reasons": [
+        "Time: 65min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:14.951Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774863151256_i7820n",
+      "reasons": [
+        "Time: 141min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:14.974Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774936214215_esh3m9",
+      "reasons": [
+        "Time: 1358min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:14.998Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "Time: 1362min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.020Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "Time: 1365min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.043Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 1390min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.064Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774863151256_i7820n",
+      "reasons": [
+        "Time: 76min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.082Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774936214215_esh3m9",
+      "reasons": [
+        "Time: 1293min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.100Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "Time: 1297min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.118Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "Time: 1300min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.137Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 1325min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.156Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774936214215_esh3m9",
+      "reasons": [
+        "Time: 1218min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.174Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "Time: 1221min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.193Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "Time: 1225min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.217Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 1250min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.239Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_passed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.258Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_passed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 7min within 10min window"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.276Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 32min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.293Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_passed",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.316Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 29min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.343Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774936656214_o2j1ro",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 25min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.362Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filter_complete",
+    "details": {
+      "gpsKey": "-1.3,36.8",
+      "totalPairs": 21,
+      "passed": 3,
+      "filtered": 18,
+      "savingsPercent": 86
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.379Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "execute",
+    "action": "siglip_comparison_start",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936444348_9horcm",
+      "metadata": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ]
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.398Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "verify",
+    "action": "visual_match_failed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reason": "Visual similarity below threshold",
+      "method": "GPS+Time+Visual"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.419Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "execute",
+    "action": "siglip_comparison_start",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "metadata": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 7min within 10min window"
+      ]
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.440Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "verify",
+    "action": "visual_match_failed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reason": "Visual similarity below threshold",
+      "method": "GPS+Time+Visual"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.460Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "execute",
+    "action": "siglip_comparison_start",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "metadata": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ]
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.480Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "verify",
+    "action": "visual_match_failed",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reason": "Visual similarity below threshold",
+      "method": "GPS+Time+Visual"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:15.514Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "reputation",
+    "action": "cycle_complete",
+    "details": {
+      "duration_ms": 2572,
+      "totalCandidates": 21,
+      "metadataPassed": 3,
+      "metadataFiltered": 18,
+      "apiCallsSaved": 18,
+      "tasksSucceeded": 0,
+      "tasksFailed": 0
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:42.947Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "discover",
+    "action": "fetch_recordings",
+    "details": {
+      "limit": 50
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:44.989Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "discover",
+    "action": "unprocessed_found",
+    "details": {
+      "count": 7
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.020Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "clusters_identified",
+    "details": {
+      "totalClusters": 1,
+      "candidateClusters": 1
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.054Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filter_start",
+    "details": {
+      "gpsKey": "-1.3,36.8",
+      "recordings": 7,
+      "gpsPrecision": 0.01,
+      "timeWindow": "10min"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.089Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774858672997_ukl9sc",
+      "reasons": [
+        "Time: 65min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.127Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774863151256_i7820n",
+      "reasons": [
+        "Time: 141min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.161Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774936214215_esh3m9",
+      "reasons": [
+        "Time: 1358min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.185Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "Time: 1362min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.210Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "Time: 1365min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.248Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 1390min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.294Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774863151256_i7820n",
+      "reasons": [
+        "Time: 76min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.326Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774936214215_esh3m9",
+      "reasons": [
+        "Time: 1293min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.358Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "Time: 1297min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.389Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "Time: 1300min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.418Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 1325min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.446Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774936214215_esh3m9",
+      "reasons": [
+        "Time: 1218min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.478Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "Time: 1221min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.511Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "Time: 1225min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.551Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 1250min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.582Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_passed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.617Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_passed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 7min within 10min window"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.644Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 32min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.669Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_passed",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.705Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 29min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.731Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774936656214_o2j1ro",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 25min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.757Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filter_complete",
+    "details": {
+      "gpsKey": "-1.3,36.8",
+      "totalPairs": 21,
+      "passed": 3,
+      "filtered": 18,
+      "savingsPercent": 86
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.784Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "execute",
+    "action": "siglip_comparison_start",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936444348_9horcm",
+      "metadata": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ]
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.814Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "verify",
+    "action": "visual_match_failed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reason": "Visual similarity below threshold",
+      "method": "GPS+Time+Visual"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.847Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "execute",
+    "action": "siglip_comparison_start",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "metadata": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 7min within 10min window"
+      ]
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.882Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "verify",
+    "action": "visual_match_failed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reason": "Visual similarity below threshold",
+      "method": "GPS+Time+Visual"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.911Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "execute",
+    "action": "siglip_comparison_start",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "metadata": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ]
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.940Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "verify",
+    "action": "visual_match_failed",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reason": "Visual similarity below threshold",
+      "method": "GPS+Time+Visual"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:45.962Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "reputation",
+    "action": "cycle_complete",
+    "details": {
+      "duration_ms": 3015,
+      "totalCandidates": 21,
+      "metadataPassed": 3,
+      "metadataFiltered": 18,
+      "apiCallsSaved": 18,
+      "tasksSucceeded": 0,
+      "tasksFailed": 0
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:29:46.907Z",
+    "agent": "0x2efa5ebcA68341C3f9c21d02426Bca69aEe19D01",
+    "phase": "evaluate",
+    "corrobAgent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "reputationScore": 100,
+    "threshold": 700,
+    "passed": false,
+    "action": "Score 100 < 700 — refusing endorsement"
+  },
+  {
+    "timestamp": "2026-03-31T09:29:51.660Z",
+    "agent": "0x2efa5ebcA68341C3f9c21d02426Bca69aEe19D01",
+    "phase": "warn",
+    "corrobAgent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "reputationScore": 100,
+    "threshold": 700,
+    "passed": false,
+    "action": "Endorsement withheld — attestation flagged as unendorsed"
+  },
+  {
+    "timestamp": "2026-03-31T09:30:12.951Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "discover",
+    "action": "fetch_recordings",
+    "details": {
+      "limit": 50
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:30:24.045Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "error",
+    "action": "fetch_recordings_failed",
+    "details": {
+      "error": "ContractFunctionExecutionError: HTTP request failed.\n\nURL: https://api.calibration.node.glif.io/rpc/v1\nRequest body: {\"method\":\"eth_call\",\"params\":[{\"data\":\"0x989ad1fd00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000032\",\"to\":\"0x0B02E8eC8624E7e0024979D14735Bb5F4c10B182\"},\"latest\"]}\n \nRaw Call Arguments:\n  to:    0x0B02E8eC8624E7e0024979D14735Bb5F4c10B182\n  data:  0x989ad1fd00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000032\n \nContract Call:\n  address:   0x0B02E8eC8624E7e0024979D14735Bb5F4c10B182\n  function:  getRecordings(uint256 fromIndex, uint256 limit)\n  args:                   (0, 50)\n\nDocs: https://viem.sh/docs/contract/readContract\nDetails: fetch failed\nVersion: viem@2.47.6"
+    },
+    "success": false
+  },
+  {
+    "timestamp": "2026-03-31T09:30:42.971Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "discover",
+    "action": "fetch_recordings",
+    "details": {
+      "limit": 50
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:30:44.072Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "error",
+    "action": "fetch_recordings_failed",
+    "details": {
+      "error": "ContractFunctionExecutionError: HTTP request failed.\n\nURL: https://api.calibration.node.glif.io/rpc/v1\nRequest body: {\"method\":\"eth_call\",\"params\":[{\"data\":\"0x989ad1fd00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000032\",\"to\":\"0x0B02E8eC8624E7e0024979D14735Bb5F4c10B182\"},\"latest\"]}\n \nRaw Call Arguments:\n  to:    0x0B02E8eC8624E7e0024979D14735Bb5F4c10B182\n  data:  0x989ad1fd00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000032\n \nContract Call:\n  address:   0x0B02E8eC8624E7e0024979D14735Bb5F4c10B182\n  function:  getRecordings(uint256 fromIndex, uint256 limit)\n  args:                   (0, 50)\n\nDocs: https://viem.sh/docs/contract/readContract\nDetails: fetch failed\nVersion: viem@2.47.6"
+    },
+    "success": false
+  },
+  {
+    "timestamp": "2026-03-31T09:30:46.954Z",
+    "agent": "0x2efa5ebcA68341C3f9c21d02426Bca69aEe19D01",
+    "phase": "error",
+    "corrobAgent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "reputationScore": 0,
+    "threshold": 700,
+    "passed": false,
+    "action": "Failed to fetch reputation: HTTP request failed.\n\nURL: https://api.calibration.node.glif.io/rpc/v1\nRequest body: {\"method\":\"eth_call\",\"params\":[{\"data\":\"0xebeae587000000000000000000000000a93414a1e97c09f982b83e2134e21c1cb46be081\",\"to\":\"0x76bd383BB3a4824131DC114dfE79e2BC0CfE6c89\"},\"latest\"]}\n \nRaw Call Arguments:\n  to:    0x76bd383BB3a4824131DC114dfE79e2BC0CfE6c89\n  data:  0xebeae587000000000000000000000000a93414a1e97c09f982b83e2134e21c1cb46be081\n \nContract Call:\n  address:   0x76bd383BB3a4824131DC114dfE79e2BC0CfE6c89\n  function:  getAgentReputation(address)\n  args:                        (0xa93414A1E97C09f982b83E2134E21C1Cb46Be081)\n\nDocs: https://viem.sh/docs/contract/readContract\nDetails: fetch failed\nVersion: viem@2.47.6"
+  },
+  {
+    "timestamp": "2026-03-31T09:31:12.990Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "discover",
+    "action": "fetch_recordings",
+    "details": {
+      "limit": 50
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:15.599Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "discover",
+    "action": "unprocessed_found",
+    "details": {
+      "count": 7
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:15.644Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "clusters_identified",
+    "details": {
+      "totalClusters": 1,
+      "candidateClusters": 1
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:15.675Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filter_start",
+    "details": {
+      "gpsKey": "-1.3,36.8",
+      "recordings": 7,
+      "gpsPrecision": 0.01,
+      "timeWindow": "10min"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:15.698Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774858672997_ukl9sc",
+      "reasons": [
+        "Time: 65min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:15.720Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774863151256_i7820n",
+      "reasons": [
+        "Time: 141min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:15.747Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774936214215_esh3m9",
+      "reasons": [
+        "Time: 1358min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:15.769Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "Time: 1362min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:15.795Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "Time: 1365min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:15.813Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 1390min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:15.835Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774863151256_i7820n",
+      "reasons": [
+        "Time: 76min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:15.857Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774936214215_esh3m9",
+      "reasons": [
+        "Time: 1293min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:15.878Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "Time: 1297min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:15.898Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "Time: 1300min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:15.927Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 1325min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:15.951Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774936214215_esh3m9",
+      "reasons": [
+        "Time: 1218min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:15.973Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "Time: 1221min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:15.992Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "Time: 1225min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:16.013Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 1250min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:16.034Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_passed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:16.062Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_passed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 7min within 10min window"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:16.083Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 32min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:16.104Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_passed",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:16.125Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 29min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:16.148Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774936656214_o2j1ro",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 25min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:16.172Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filter_complete",
+    "details": {
+      "gpsKey": "-1.3,36.8",
+      "totalPairs": 21,
+      "passed": 3,
+      "filtered": 18,
+      "savingsPercent": 86
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:16.191Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "execute",
+    "action": "siglip_comparison_start",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936444348_9horcm",
+      "metadata": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ]
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:16.220Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "verify",
+    "action": "visual_match_failed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reason": "Visual similarity below threshold",
+      "method": "GPS+Time+Visual"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:16.244Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "execute",
+    "action": "siglip_comparison_start",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "metadata": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 7min within 10min window"
+      ]
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:16.263Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "verify",
+    "action": "visual_match_failed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reason": "Visual similarity below threshold",
+      "method": "GPS+Time+Visual"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:16.286Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "execute",
+    "action": "siglip_comparison_start",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "metadata": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ]
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:16.306Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "verify",
+    "action": "visual_match_failed",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reason": "Visual similarity below threshold",
+      "method": "GPS+Time+Visual"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:16.326Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "reputation",
+    "action": "cycle_complete",
+    "details": {
+      "duration_ms": 3336,
+      "totalCandidates": 21,
+      "metadataPassed": 3,
+      "metadataFiltered": 18,
+      "apiCallsSaved": 18,
+      "tasksSucceeded": 0,
+      "tasksFailed": 0
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:43.000Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "discover",
+    "action": "fetch_recordings",
+    "details": {
+      "limit": 50
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.065Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "discover",
+    "action": "unprocessed_found",
+    "details": {
+      "count": 7
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.105Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "clusters_identified",
+    "details": {
+      "totalClusters": 1,
+      "candidateClusters": 1
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.140Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filter_start",
+    "details": {
+      "gpsKey": "-1.3,36.8",
+      "recordings": 7,
+      "gpsPrecision": 0.01,
+      "timeWindow": "10min"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.180Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774858672997_ukl9sc",
+      "reasons": [
+        "Time: 65min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.208Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774863151256_i7820n",
+      "reasons": [
+        "Time: 141min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.230Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774936214215_esh3m9",
+      "reasons": [
+        "Time: 1358min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.256Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "Time: 1362min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.279Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "Time: 1365min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.310Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774854737060_m84rom",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 1390min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.338Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774863151256_i7820n",
+      "reasons": [
+        "Time: 76min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.362Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774936214215_esh3m9",
+      "reasons": [
+        "Time: 1293min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.384Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "Time: 1297min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.411Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "Time: 1300min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.437Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774858672997_ukl9sc",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 1325min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.463Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774936214215_esh3m9",
+      "reasons": [
+        "Time: 1218min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.485Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "Time: 1221min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.508Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "Time: 1225min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.535Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774863151256_i7820n",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 1250min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.561Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_passed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reasons": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.584Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_passed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 7min within 10min window"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.609Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 32min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.634Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_passed",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reasons": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.662Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 29min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.690Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filtered",
+    "details": {
+      "recordingA": "rec_1774936656214_o2j1ro",
+      "recordingB": "rec_1774938145901_07o2qa",
+      "reasons": [
+        "Time: 25min apart (threshold: 10min)"
+      ],
+      "gpsPrecision": 0.01
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.725Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "plan",
+    "action": "metadata_filter_complete",
+    "details": {
+      "gpsKey": "-1.3,36.8",
+      "totalPairs": 21,
+      "passed": 3,
+      "filtered": 18,
+      "savingsPercent": 86
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.751Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "execute",
+    "action": "siglip_comparison_start",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936444348_9horcm",
+      "metadata": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ]
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.781Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "verify",
+    "action": "visual_match_failed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936444348_9horcm",
+      "reason": "Visual similarity below threshold",
+      "method": "GPS+Time+Visual"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.825Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "execute",
+    "action": "siglip_comparison_start",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "metadata": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 7min within 10min window"
+      ]
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.846Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "verify",
+    "action": "visual_match_failed",
+    "details": {
+      "recordingA": "rec_1774936214215_esh3m9",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reason": "Visual similarity below threshold",
+      "method": "GPS+Time+Visual"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.878Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "execute",
+    "action": "siglip_comparison_start",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "metadata": [
+        "GPS: 0.000° within 0.01° radius",
+        "Time: 4min within 10min window"
+      ]
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.898Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "verify",
+    "action": "visual_match_failed",
+    "details": {
+      "recordingA": "rec_1774936444348_9horcm",
+      "recordingB": "rec_1774936656214_o2j1ro",
+      "reason": "Visual similarity below threshold",
+      "method": "GPS+Time+Visual"
+    },
+    "success": true
+  },
+  {
+    "timestamp": "2026-03-31T09:31:45.924Z",
+    "agent": "0xa93414A1E97C09f982b83E2134E21C1Cb46Be081",
+    "phase": "reputation",
+    "action": "cycle_complete",
+    "details": {
+      "duration_ms": 2924,
+      "totalCandidates": 21,
+      "metadataPassed": 3,
+      "metadataFiltered": 18,
+      "apiCallsSaved": 18,
+      "tasksSucceeded": 0,
+      "tasksFailed": 0
+    },
+    "success": true
   }
 ]
