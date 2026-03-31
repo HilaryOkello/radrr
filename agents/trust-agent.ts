@@ -14,6 +14,9 @@
  *   5. LOG       — append structured entry to agent_log.json
  */
 
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 import fs from "fs";
 import path from "path";
 import {
