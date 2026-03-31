@@ -34,15 +34,327 @@ export const filecoinCalibration = {
 
 // ─── ABI (JSON format — required for tuple + array return types) ─────────────
 
-// Load compiled ABI from Hardhat artifacts
-import RadrrArtifact from "../contracts/filecoin/artifacts/src/Radrr.sol/Radrr.json";
-
-// Use full ABI for write operations, but minimal ABI for complex view functions
-// to avoid FVM "stack underflow" errors with tuple decoding
-const RADRR_ABI_FULL = RadrrArtifact.abi as Abi;
-
-// Use full ABI from Hardhat artifacts for all operations
-const RADRR_ABI = RADRR_ABI_FULL;
+// Inlined ABI from Radrr.sol (Hardhat artifact) — matched to code expectations
+const RADRR_ABI = [
+  {
+    "type": "function",
+    "name": "acceptBidFor",
+    "inputs": [
+      { "internalType": "string", "name": "recordingId", "type": "string" },
+      { "internalType": "uint256", "name": "bidIndex", "type": "uint256" },
+      { "internalType": "address", "name": "witness", "type": "address" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "anchorRecording",
+    "inputs": [
+      { "internalType": "string", "name": "recordingId", "type": "string" },
+      { "internalType": "string", "name": "merkleRoot", "type": "string" },
+      { "internalType": "string", "name": "gpsApprox", "type": "string" },
+      { "internalType": "string", "name": "title", "type": "string" },
+      { "internalType": "string", "name": "trailerCid", "type": "string" },
+      { "internalType": "string", "name": "visibilityLevel", "type": "string" },
+      { "internalType": "string", "name": "licenseType", "type": "string" },
+      { "internalType": "uint256", "name": "priceWei", "type": "uint256" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "anchorRecordingFor",
+    "inputs": [
+      { "internalType": "string", "name": "recordingId", "type": "string" },
+      { "internalType": "string", "name": "merkleRoot", "type": "string" },
+      { "internalType": "string", "name": "gpsApprox", "type": "string" },
+      { "internalType": "string", "name": "title", "type": "string" },
+      { "internalType": "string", "name": "description", "type": "string" },
+      { "internalType": "string", "name": "previewCid", "type": "string" },
+      { "internalType": "string", "name": "trailerCid", "type": "string" },
+      { "internalType": "string", "name": "visibilityLevel", "type": "string" },
+      { "internalType": "string", "name": "licenseType", "type": "string" },
+      { "internalType": "uint256", "name": "priceWei", "type": "uint256" },
+      { "internalType": "address", "name": "witness", "type": "address" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getBids",
+    "inputs": [{ "internalType": "string", "name": "recordingId", "type": "string" }],
+    "outputs": [{
+      "internalType": "struct Radrr.Bid[]",
+      "name": "",
+      "type": "tuple[]",
+      "components": [
+        { "internalType": "address", "name": "bidder", "type": "address" },
+        { "internalType": "uint256", "name": "amount", "type": "uint256" },
+        { "internalType": "uint256", "name": "timestamp", "type": "uint256" },
+        { "internalType": "uint8", "name": "status", "type": "uint8" }
+      ]
+    }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getIdentity",
+    "inputs": [{ "internalType": "address", "name": "account", "type": "address" }],
+    "outputs": [{
+      "internalType": "struct Radrr.Identity",
+      "name": "",
+      "type": "tuple",
+      "components": [
+        { "internalType": "address", "name": "account", "type": "address" },
+        { "internalType": "string", "name": "pseudonym", "type": "string" },
+        { "internalType": "uint256", "name": "credibilityScore", "type": "uint256" },
+        { "internalType": "uint256", "name": "recordingCount", "type": "uint256" },
+        { "internalType": "uint256", "name": "totalSales", "type": "uint256" }
+      ]
+    }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRecording",
+    "inputs": [{ "internalType": "string", "name": "recordingId", "type": "string" }],
+    "outputs": [{
+      "internalType": "struct Radrr.Recording",
+      "name": "",
+      "type": "tuple",
+      "components": [
+        { "internalType": "string", "name": "recordingId", "type": "string" },
+        { "internalType": "string", "name": "merkleRoot", "type": "string" },
+        { "internalType": "string", "name": "gpsApprox", "type": "string" },
+        { "internalType": "uint256", "name": "timestamp", "type": "uint256" },
+        { "internalType": "string", "name": "cid", "type": "string" },
+        { "internalType": "string", "name": "encryptedCid", "type": "string" },
+        { "internalType": "string", "name": "keyCid", "type": "string" },
+        { "internalType": "address", "name": "witness", "type": "address" },
+        { "internalType": "string", "name": "title", "type": "string" },
+        { "internalType": "string", "name": "description", "type": "string" },
+        { "internalType": "string", "name": "previewCid", "type": "string" },
+        { "internalType": "string", "name": "trailerCid", "type": "string" },
+        { "internalType": "string", "name": "visibilityLevel", "type": "string" },
+        { "internalType": "string", "name": "licenseType", "type": "string" },
+        { "internalType": "uint256", "name": "priceWei", "type": "uint256" },
+        { "internalType": "bool", "name": "sold", "type": "bool" },
+        { "internalType": "address", "name": "buyer", "type": "address" },
+        { "internalType": "string[]", "name": "corroborationBundle", "type": "string[]" }
+      ]
+    }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRecordings",
+    "inputs": [
+      { "internalType": "uint256", "name": "fromIndex", "type": "uint256" },
+      { "internalType": "uint256", "name": "limit", "type": "uint256" }
+    ],
+    "outputs": [{
+      "internalType": "struct Radrr.Recording[]",
+      "name": "",
+      "type": "tuple[]",
+      "components": [
+        { "internalType": "string", "name": "recordingId", "type": "string" },
+        { "internalType": "string", "name": "merkleRoot", "type": "string" },
+        { "internalType": "string", "name": "gpsApprox", "type": "string" },
+        { "internalType": "uint256", "name": "timestamp", "type": "uint256" },
+        { "internalType": "string", "name": "cid", "type": "string" },
+        { "internalType": "string", "name": "encryptedCid", "type": "string" },
+        { "internalType": "string", "name": "keyCid", "type": "string" },
+        { "internalType": "address", "name": "witness", "type": "address" },
+        { "internalType": "string", "name": "title", "type": "string" },
+        { "internalType": "string", "name": "description", "type": "string" },
+        { "internalType": "string", "name": "previewCid", "type": "string" },
+        { "internalType": "string", "name": "trailerCid", "type": "string" },
+        { "internalType": "string", "name": "visibilityLevel", "type": "string" },
+        { "internalType": "string", "name": "licenseType", "type": "string" },
+        { "internalType": "uint256", "name": "priceWei", "type": "uint256" },
+        { "internalType": "bool", "name": "sold", "type": "bool" },
+        { "internalType": "address", "name": "buyer", "type": "address" },
+        { "internalType": "string[]", "name": "corroborationBundle", "type": "string[]" }
+      ]
+    }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRecordingsByGps",
+    "inputs": [{ "internalType": "string", "name": "gpsApprox", "type": "string" }],
+    "outputs": [{ "internalType": "string[]", "name": "", "type": "string[]" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRecordingsByWitness",
+    "inputs": [{ "internalType": "address", "name": "witness", "type": "address" }],
+    "outputs": [{
+      "internalType": "struct Radrr.Recording[]",
+      "name": "",
+      "type": "tuple[]",
+      "components": [
+        { "internalType": "string", "name": "recordingId", "type": "string" },
+        { "internalType": "string", "name": "merkleRoot", "type": "string" },
+        { "internalType": "string", "name": "gpsApprox", "type": "string" },
+        { "internalType": "uint256", "name": "timestamp", "type": "uint256" },
+        { "internalType": "string", "name": "cid", "type": "string" },
+        { "internalType": "string", "name": "encryptedCid", "type": "string" },
+        { "internalType": "string", "name": "keyCid", "type": "string" },
+        { "internalType": "address", "name": "witness", "type": "address" },
+        { "internalType": "string", "name": "title", "type": "string" },
+        { "internalType": "string", "name": "description", "type": "string" },
+        { "internalType": "string", "name": "previewCid", "type": "string" },
+        { "internalType": "string", "name": "trailerCid", "type": "string" },
+        { "internalType": "string", "name": "visibilityLevel", "type": "string" },
+        { "internalType": "string", "name": "licenseType", "type": "string" },
+        { "internalType": "uint256", "name": "priceWei", "type": "uint256" },
+        { "internalType": "bool", "name": "sold", "type": "bool" },
+        { "internalType": "address", "name": "buyer", "type": "address" },
+        { "internalType": "string[]", "name": "corroborationBundle", "type": "string[]" }
+      ]
+    }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "incrementCredibility",
+    "inputs": [
+      { "internalType": "address", "name": "account", "type": "address" },
+      { "internalType": "uint256", "name": "points", "type": "uint256" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "isPurchased",
+    "inputs": [
+      { "internalType": "string", "name": "recordingId", "type": "string" },
+      { "internalType": "address", "name": "buyer", "type": "address" }
+    ],
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "owner",
+    "inputs": [],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "placeBidFor",
+    "inputs": [
+      { "internalType": "string", "name": "recordingId", "type": "string" },
+      { "internalType": "address", "name": "bidder", "type": "address" }
+    ],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "platformWallet",
+    "inputs": [],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "purchase",
+    "inputs": [{ "internalType": "string", "name": "recordingId", "type": "string" }],
+    "outputs": [],
+    "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "registerIdentity",
+    "inputs": [{ "internalType": "string", "name": "pseudonym", "type": "string" }],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "rejectBidFor",
+    "inputs": [
+      { "internalType": "string", "name": "recordingId", "type": "string" },
+      { "internalType": "uint256", "name": "bidIndex", "type": "uint256" },
+      { "internalType": "address", "name": "witness", "type": "address" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "safetyFundWallet",
+    "inputs": [],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "totalRecordings",
+    "inputs": [],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "updateCid",
+    "inputs": [
+      { "internalType": "string", "name": "recordingId", "type": "string" },
+      { "internalType": "string", "name": "cid", "type": "string" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateCorroboration",
+    "inputs": [
+      { "internalType": "string", "name": "recordingId", "type": "string" },
+      { "internalType": "string[]", "name": "bundleIds", "type": "string[]" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateEncryptedCid",
+    "inputs": [
+      { "internalType": "string", "name": "recordingId", "type": "string" },
+      { "internalType": "string", "name": "encryptedCid", "type": "string" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateKeyCid",
+    "inputs": [
+      { "internalType": "string", "name": "recordingId", "type": "string" },
+      { "internalType": "string", "name": "keyCid", "type": "string" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "withdrawBidFor",
+    "inputs": [
+      { "internalType": "string", "name": "recordingId", "type": "string" },
+      { "internalType": "uint256", "name": "bidIndex", "type": "uint256" },
+      { "internalType": "address", "name": "bidder", "type": "address" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  }
+] as const satisfies Abi;
 
 const AGENT_REGISTRY_ABI = [
   { type: "function", name: "registerAgent",      stateMutability: "nonpayable", inputs: [{ type: "address" }, { type: "string" }, { type: "string" }, { type: "string[]" }, { type: "string" }], outputs: [] },
