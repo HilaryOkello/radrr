@@ -114,7 +114,7 @@ export default function AgentPage() {
                   <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
                       Identity
-                      <Badge className="bg-chart-5 text-white text-[10px]">ERC-8004</Badge>
+                      <Badge className="bg-chart-5 text-white text-xs px-2.5 py-1 font-medium">ERC-8004</Badge>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3 text-sm">
@@ -173,31 +173,45 @@ export default function AgentPage() {
                         className="flex flex-col gap-1 border border-border rounded-base p-3 bg-background text-xs"
                       >
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-muted-foreground font-mono">Cycle {String(entry.cycle ?? "?")}</span>
-                          <Badge className={`text-[10px] px-1.5 py-0 leading-5 ${phaseColor(String(entry.phase ?? ""))}`}>
+                          <span className="text-muted-foreground font-mono">
+                            {entry.timestamp ? new Date(String(entry.timestamp)).toLocaleString() : "—"}
+                          </span>
+                          <Badge className={`text-xs px-3 py-1 font-medium ${phaseColor(String(entry.phase ?? ""))}`}>
                             {String(entry.phase ?? "unknown")}
                           </Badge>
-                          <span className="text-muted-foreground ml-auto">{formatTs(entry.timestamp as number)}</span>
+                          <span className="text-muted-foreground ml-auto">
+                            {entry.success ? "✓" : "✗"}
+                          </span>
                         </div>
-                        <p className="text-muted-foreground font-base">{String(entry.notes ?? entry.error ?? "")}</p>
-                        {typeof entry.tx_hash === "string" && (
+                        <p className="text-muted-foreground font-base">
+                          {(() => {
+                            const action = String(entry.action ?? "");
+                            const details = entry.details as Record<string, unknown> | undefined;
+                            if (action === "metadata_filtered" && details?.reasons) {
+                              return `Filtered: ${(details.reasons as string[]).join(", ")}`;
+                            }
+                            if (action === "metadata_passed" && details?.reasons) {
+                              return `Passed: ${(details.reasons as string[]).join(", ")}`;
+                            }
+                            if (action === "cycle_complete" && details) {
+                              return `Cycle complete: ${details.metadataFiltered} filtered, ${details.metadataPassed} passed`;
+                            }
+                            return action.replace(/_/g, " ");
+                          })()}
+                        </p>
+                        {typeof (entry.details as Record<string, unknown>)?.txHash === "string" && (
                           <a
-                            href={`${FILFOX}/tx/${entry.tx_hash}`}
+                            href={`${FILFOX}/tx/${(entry.details as Record<string, unknown>).txHash}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="font-mono text-[#0099FF] hover:underline"
                           >
-                            tx {shortHash(entry.tx_hash)}
+                            tx {shortHash((entry.details as Record<string, unknown>).txHash)}
                           </a>
                         )}
-                        {typeof entry.similarity_score === "number" && (
+                        {(entry.details as Record<string, unknown>)?.similarity !== undefined && (
                           <span className="font-mono text-foreground">
-                            similarity: <strong>{String(entry.similarity_score)}</strong>
-                            {entry.passed !== undefined && (
-                              <span className={entry.passed ? " text-chart-5" : " text-destructive"}>
-                                {entry.passed ? " ✓ passed" : " ✗ below threshold"}
-                              </span>
-                            )}
+                            similarity: <strong>{String((entry.details as Record<string, unknown>).similarity)}</strong>
                           </span>
                         )}
                       </div>
@@ -277,9 +291,9 @@ export default function AgentPage() {
                   </CardHeader>
                   <CardContent className="space-y-2">
                     {["discover", "plan", "execute", "verify", "commit", "reputation", "log"].map((phase, i) => (
-                      <div key={phase} className="flex items-center gap-2 text-xs">
-                        <span className="text-muted-foreground font-mono w-4">{i + 1}.</span>
-                        <Badge className={`${phaseColor(phase)} text-[10px] px-1.5 py-0 leading-5`}>{phase}</Badge>
+                      <div key={phase} className="flex items-center gap-3 text-sm">
+                        <span className="text-muted-foreground font-mono w-6">{i + 1}.</span>
+                        <Badge className={`${phaseColor(phase)} text-xs px-3 py-1 font-medium`}>{phase}</Badge>
                       </div>
                     ))}
                   </CardContent>

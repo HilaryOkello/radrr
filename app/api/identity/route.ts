@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const raw = await getIdentity(account);
+    const raw = await getIdentity(account) as { pseudonym: string; credibilityScore: bigint; recordingCount: bigint; totalSales: bigint };
     const identity = {
       pseudonym: raw.pseudonym,
       credibility_score: Number(raw.credibilityScore),

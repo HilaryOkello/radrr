@@ -400,8 +400,8 @@ function RecordingsList({ recordings, walletAddress }: { recordings: FootageReco
   }
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-      {recordings.map((r) => (
-        <div key={r.recording_id} className="flex flex-col gap-2">
+      {recordings.map((r, index) => (
+        <div key={r.recording_id || `recording-${index}`} className="flex flex-col gap-2">
           <FootageCard recording={r} mode="dashboard" walletAddress={walletAddress} />
           <div className="flex flex-wrap gap-2 text-xs">
             <Badge variant="neutral" className="bg-secondary-background">
@@ -525,8 +525,8 @@ function PurchasedList({ recordings, walletAddress }: { recordings: FootageRecor
   }
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-      {recordings.map((r) => (
-        <div key={r.recording_id} className="flex flex-col gap-2">
+      {recordings.map((r, index) => (
+        <div key={r.recording_id || `purchase-${index}`} className="flex flex-col gap-2">
           <FootageCard recording={r} mode="dashboard" walletAddress={walletAddress} />
           <div className="flex flex-wrap gap-2 text-xs">
             <Badge variant="neutral" className="bg-chart-2/20 text-chart-2 border-chart-2">
