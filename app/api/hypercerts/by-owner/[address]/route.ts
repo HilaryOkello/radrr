@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AtpAgent } from "@atproto/api";
 
-const PDS_URL = process.env.CERTIFIED_APP_PDS ?? "https://certified.one";
+const USE_TESTNET = process.env.HYPERCERTS_TESTNET !== "false";
+const GRAPH_URL = USE_TESTNET
+  ? "https://api.hypercerts.org/v1/graphql"
+  : "https://api.hypercerts.org/v1/graphql";
 
 export interface HypercertEntry {
-  tokenId: string;       // AT-URI of the record
-  uri: string;           // AT-URI
+  tokenId: string;
+  uri: string;
   name: string;
   description: string;
   image: string;
-  contributor: string;   // witness EVM address
+  contributor: string;
   recordingId: string | null;
   verificationLevel: string | null;
   isCorroborated: boolean | null;
@@ -18,6 +20,33 @@ export interface HypercertEntry {
   platform: string | null;
   createdAt: number;
 }
+
+const QUERY = `
+  query HypercertsByContributor($address: String!) {
+    hypercerts(
+      where: {
+        hypercert_id: { contains: "" }
+        contributors: { contributor_address: { eq: $address } }
+      }
+      first: 100
+    ) {
+      data {
+        hypercert_id
+        uri
+        units
+        metadata {
+          name
+          description
+          external_url
+          work_timeframe_from
+        }
+        contract {
+          chain_id
+        }
+      }
+    }
+  }
+`;
 
 export async function GET(
   req: NextRequest,
@@ -30,91 +59,59 @@ export async function GET(
       return NextResponse.json({ error: "Invalid address" }, { status: 400 });
     }
 
-    // Accept DID only if it looks like a real resolved DID (not placeholder)
-    const rawDid = process.env.CERTIFIED_APP_DID ?? "";
-    const platformDid = rawDid.startsWith("did:plc:") && rawDid.length > 12 ? rawDid : null;
+    const res = await fetch(GRAPH_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: QUERY,
+        variables: { address: address.toLowerCase() },
+      }),
+      signal: AbortSignal.timeout(8000),
+    });
 
-    const repo = platformDid ?? await resolveDid(process.env.CERTIFIED_APP_HANDLE ?? "");
-    if (!repo) {
+    if (!res.ok) {
+      console.error("[hypercerts/by-owner] indexer error", res.status);
       return NextResponse.json({ hypercerts: [] });
     }
 
-    // Read records from the PDS — public, no auth needed
-    const agent = new AtpAgent({ service: PDS_URL });
-
-    let cursor: string | undefined;
+    const json = await res.json();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const allRecords: any[] = [];
+    const raw: any[] = json?.data?.hypercerts?.data ?? [];
 
-    do {
-      const res = await agent.com.atproto.repo.listRecords({
-        repo,
-        collection: "org.hypercerts.claim.activity",
-        limit: 100,
-        cursor,
-      });
-      allRecords.push(...res.data.records);
-      cursor = res.data.cursor;
-    } while (cursor);
+    const hypercerts: HypercertEntry[] = raw.map((h) => {
+      const meta = h.metadata ?? {};
+      const createdAt = meta.work_timeframe_from
+        ? Number(meta.work_timeframe_from) * 1000
+        : 0;
 
-    const addressLower = address.toLowerCase();
+      // Parse Radrr-specific fields from description if present
+      const desc: string = meta.description ?? "";
+      const recordingIdMatch = desc.match(/Recording ID: ([^\n]+)/);
+      const corroboratedMatch = desc.match(/Corroborated: (true|false)/);
 
-    const hypercerts: HypercertEntry[] = allRecords
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .filter((r: any) => {
-        const rec = r.value;
-        // Match by witnessAddress field or contributors identity
-        if (typeof rec.witnessAddress === "string") {
-          return rec.witnessAddress.toLowerCase() === addressLower;
-        }
-        if (Array.isArray(rec.contributors)) {
-          return rec.contributors.some(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (c: any) => c?.contributorIdentity?.identity?.toLowerCase() === addressLower
-          );
-        }
-        return false;
-      })
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map((r: any) => {
-        const rec = r.value;
-        const createdAt = rec.createdAt ? new Date(rec.createdAt).getTime() : 0;
-        return {
-          tokenId: r.uri,
-          uri: r.uri,
-          name: rec.title ?? "Untitled Hypercert",
-          description: rec.description ?? "",
-          image: "",
-          contributor: rec.witnessAddress ?? address,
-          recordingId: rec.recordingId ?? null,
-          verificationLevel: rec.verificationLevel ?? null,
-          isCorroborated: rec.isCorroborated ?? null,
-          isPublicShare: rec.isPublicShare ?? null,
-          totalUnits: "1",
-          platform: rec.platform ?? "radrr",
-          createdAt,
-        } satisfies HypercertEntry;
-      });
+      return {
+        tokenId: h.hypercert_id ?? h.uri ?? "",
+        uri: h.uri ?? "",
+        name: meta.name ?? "Radrr Hypercert",
+        description: desc,
+        image: meta.image ?? "",
+        contributor: address,
+        recordingId: recordingIdMatch ? recordingIdMatch[1].trim() : null,
+        verificationLevel: null,
+        isCorroborated: corroboratedMatch ? corroboratedMatch[1] === "true" : null,
+        isPublicShare: desc.includes("public documentation") ? true
+          : desc.includes("verified purchase") ? false
+          : null,
+        totalUnits: String(h.units ?? 1),
+        platform: "radrr",
+        createdAt,
+      } satisfies HypercertEntry;
+    });
 
     hypercerts.sort((a, b) => b.createdAt - a.createdAt);
-
     return NextResponse.json({ hypercerts });
   } catch (err) {
     console.error("[hypercerts/by-owner]", err);
     return NextResponse.json({ hypercerts: [] });
-  }
-}
-
-async function resolveDid(handle: string): Promise<string | null> {
-  try {
-    const res = await fetch(
-      `${PDS_URL}/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`,
-      { signal: AbortSignal.timeout(5000) }
-    );
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.did ?? null;
-  } catch {
-    return null;
   }
 }

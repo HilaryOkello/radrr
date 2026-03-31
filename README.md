@@ -183,9 +183,10 @@ Copy `.env.local.example` to `.env.local`:
 | `ENCRYPTION_SECRET` | Server secret for XOR key obfuscation |
 | `STORACHA_PROOF` | Base64-encoded w3up delegation CAR |
 | `STORACHA_PRINCIPAL` | Base64-encoded ed25519 principal (optional) |
-| `CERTIFIED_APP_HANDLE` | certified.one handle |
-| `CERTIFIED_APP_PASSWORD` | AT Protocol app password |
-| `CERTIFIED_APP_PDS` | PDS URL (`https://certified.one`) |
+| `HYPERCERTS_PRIVATE_KEY` | Wallet private key for signing Hypercert mints on Optimism |
+| `HYPERCERTS_TESTNET` | `true` = Optimism Sepolia (test), `false` = Optimism mainnet |
+| `OPTIMISM_SEPOLIA_RPC_URL` | Optimism Sepolia RPC (default: `https://sepolia.optimism.io`) |
+| `OPTIMISM_RPC_URL` | Optimism mainnet RPC (default: `https://mainnet.optimism.io`) |
 | `HUGGINGFACE_API_KEY` | HuggingFace token for SigLIP 2 |
 
 ### Storacha Space Setup
@@ -241,10 +242,11 @@ npx hardhat run deploy.ts --network filecoin_calibration
 - `public/agent.json` is the machine-readable ERC-8004 agent manifest
 - `agent_log.json` is the structured execution log
 
-### Hypercerts (AT Protocol)
-- Minted on every verified purchase via `org.hypercerts.claim.activity` on certified.one PDS
-- Buyers hold a portable credential proving they funded verified citizen journalism
-- Queryable by wallet address via `/api/hypercerts/by-owner/[address]`
+### Hypercerts (`@hypercerts-org/sdk`)
+- ERC-1155 Hypercerts minted on Optimism Sepolia (test) / Optimism mainnet (production)
+- Minted on two events: witness publishing footage publicly, and buyer completing a verified purchase
+- Queryable via the Hypercerts GraphQL indexer at `/api/hypercerts/by-owner/[address]`
+- Uses `formatHypercertData` + `HypercertClient.mintHypercert()` from the official SDK
 
 ### SigLIP 2 / AI Corroboration
 - `google/siglip-so400m-patch14-384` via HuggingFace Inference API

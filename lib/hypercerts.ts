@@ -1,23 +1,40 @@
 /**
- * Hypercerts integration via AT Protocol (certified.app).
- * Creates org.hypercerts.claim.activity records on the platform's PDS.
- * Uses app password auth — no OAuth flow needed server-side.
+ * Hypercerts integration via @hypercerts-org/sdk.
+ * Mints ERC-1155 Hypercerts on Optimism Sepolia (test) or Optimism (production).
+ * Returns the transaction hash; token ID can be derived via getHypercertTokenId.
  */
 
-import { AtpAgent } from "@atproto/api";
+import {
+  HypercertClient,
+  TransferRestrictions,
+  formatHypercertData,
+} from "@hypercerts-org/sdk";
+import { createWalletClient, http } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { optimismSepolia, optimism } from "viem/chains";
 
-// PDS URL — set CERTIFIED_APP_PDS in .env.local (e.g. https://certified.one)
-const PDS_URL = process.env.CERTIFIED_APP_PDS ?? "https://certified.one";
+const USE_TESTNET = process.env.HYPERCERTS_TESTNET !== "false";
+const CHAIN = USE_TESTNET ? optimismSepolia : optimism;
+const ENVIRONMENT = USE_TESTNET ? "test" : "production";
 
-async function getAgent(): Promise<AtpAgent> {
-  const handle = process.env.CERTIFIED_APP_HANDLE;
-  const password = process.env.CERTIFIED_APP_PASSWORD;
-  if (!handle || !password) {
-    throw new Error("CERTIFIED_APP_HANDLE and CERTIFIED_APP_PASSWORD must be set");
-  }
-  const agent = new AtpAgent({ service: PDS_URL });
-  await agent.login({ identifier: handle, password });
-  return agent;
+function getClient(): HypercertClient {
+  const privateKey = process.env.HYPERCERTS_PRIVATE_KEY as `0x${string}`;
+  if (!privateKey) throw new Error("HYPERCERTS_PRIVATE_KEY is not set");
+
+  const account = privateKeyToAccount(privateKey);
+  const transport = http(
+    USE_TESTNET
+      ? (process.env.OPTIMISM_SEPOLIA_RPC_URL ?? "https://sepolia.optimism.io")
+      : (process.env.OPTIMISM_RPC_URL ?? "https://mainnet.optimism.io")
+  );
+
+  const walletClient = createWalletClient({ account, chain: CHAIN, transport });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return new HypercertClient({
+    environment: ENVIRONMENT,
+    walletClient: walletClient as any,
+  });
 }
 
 export interface HypercertParams {
@@ -32,73 +49,53 @@ export interface HypercertParams {
 }
 
 /**
- * Create a Hypercert activity record for a footage event.
- * Returns the AT-URI of the created record (e.g. at://did:plc:.../org.hypercerts.claim.activity/...).
+ * Mint a Hypercert for a footage event.
+ * Returns the transaction hash of the mint.
  */
 export async function mintSaleHypercert(params: HypercertParams): Promise<string> {
-  const agent = await getAgent();
+  const client = getClient();
 
   const isPublicShare = params.isPublicShare ?? false;
-  const verificationLevel = isPublicShare
-    ? "public"
-    : params.isCorroborated
-    ? "corroborated"
-    : params.witnessCredibilityScore > 50
-    ? "verified"
-    : "unverified";
+  const workStart = Math.floor(params.recordingTimestamp / 1000);
+  const workEnd = workStart + 3600;
 
-  const startDate = new Date(params.recordingTimestamp).toISOString();
-  const endDate = new Date(params.recordingTimestamp + 3600 * 1000).toISOString();
-
-  const result = await agent.com.atproto.repo.createRecord({
-    repo: agent.session!.did,
-    collection: "org.hypercerts.claim.activity",
-    record: {
-      $type: "org.hypercerts.claim.activity",
-      title: isPublicShare
-        ? `Radrr Public Documentation — ${params.eventDescription.slice(0, 60)}`
-        : `Radrr Witness Documentation — ${params.eventDescription.slice(0, 60)}`,
-      shortDescription: `Citizen journalism footage documented at ${params.gpsApprox}`,
-      description: [
-        isPublicShare
-          ? "Freely shared citizen journalism footage on Radrr — no purchase required."
-          : "Citizen journalism footage documented by a verified Radrr witness.",
-        `Event: ${params.eventDescription}`,
-        `Location: ${params.gpsApprox} (approximate)`,
-        `Recording ID: ${params.recordingId}`,
-        `Verification level: ${verificationLevel}`,
-        `Witness credibility score: ${params.witnessCredibilityScore}`,
-      ].join("\n"),
-      workScope: {
-        $type: "org.hypercerts.claim.activity#workScopeString",
-        scope: "citizen-journalism",
-      },
-      startDate,
-      endDate,
-      contributors: [
-        {
-          contributorIdentity: {
-            $type: "org.hypercerts.claim.activity#contributorIdentity",
-            identity: params.witnessAddress,
-          },
-          contributionWeight: "100",
-          contributionDetails: {
-            $type: "org.hypercerts.claim.activity#contributorRole",
-            role: "Witness",
-          },
-        },
-      ],
-      createdAt: new Date().toISOString(),
-      // Radrr-specific fields stored alongside standard lexicon fields
-      recordingId: params.recordingId,
-      witnessAddress: params.witnessAddress,
-      verificationLevel,
-      gpsApprox: params.gpsApprox,
-      isCorroborated: params.isCorroborated,
-      isPublicShare,
-      platform: "radrr",
-    },
+  const { data, valid, errors } = formatHypercertData({
+    name: isPublicShare
+      ? `Radrr: ${params.eventDescription.slice(0, 60)}`
+      : `Radrr Purchase: ${params.eventDescription.slice(0, 60)}`,
+    description: [
+      isPublicShare
+        ? "Freely shared citizen journalism footage on Radrr."
+        : "Verified citizen journalism footage purchased on Radrr.",
+      `Location: ${params.gpsApprox}`,
+      `Recording ID: ${params.recordingId}`,
+      `Corroborated: ${params.isCorroborated}`,
+    ].join("\n"),
+    external_url: `https://radrr.vercel.app/recording/${params.recordingId}`,
+    image: "",
+    version: "1.0",
+    impactScope: ["citizen-journalism", "public-record"],
+    excludedImpactScope: [],
+    workScope: [isPublicShare ? "public-documentation" : "verified-purchase"],
+    excludedWorkScope: [],
+    workTimeframeStart: workStart,
+    workTimeframeEnd: workEnd,
+    impactTimeframeStart: workStart,
+    impactTimeframeEnd: workEnd,
+    contributors: [params.witnessAddress],
+    rights: ["Public Display"],
+    excludedRights: [],
   });
 
-  return result.data.uri;
+  if (!valid || !data) {
+    throw new Error(`Invalid hypercert data: ${JSON.stringify(errors)}`);
+  }
+
+  const txHash = await client.mintHypercert({
+    metaData: data,
+    totalUnits: BigInt(1),
+    transferRestriction: TransferRestrictions.AllowAll,
+  });
+
+  return txHash as string;
 }
