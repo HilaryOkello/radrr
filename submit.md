@@ -36,15 +36,15 @@ March 2026, during the hackathon.
 
 ---
 
-## Challenges to Enter
+## Technologies / Tools Integrated
 
-### Protocol Labs — Infrastructure & Digital Rights
+### Protocol Labs / Filecoin
 - Decentralised storage: all footage on Filecoin via Storacha — no central server holds video
 - Cryptographic provenance: Merkle root anchored on FVM at capture time, before any negotiation
 - Censorship resistance: footage CID is immutable once pinned on Filecoin; no party can delete it
 - Client-side AES-256-GCM encryption ensures server compromise does not expose footage
 
-### Filecoin Foundation — Build on Filecoin
+### Filecoin FVM
 - Smart contracts deployed on Filecoin FVM Calibration (chain 314159)
 - `Radrr.sol`: `0x0B02E8eC8624E7e0024979D14735Bb5F4c10B182`
 - `AgentRegistry.sol`: `0x76bd383BB3a4824131DC114dfE79e2BC0CfE6c89`
@@ -53,13 +53,13 @@ March 2026, during the hackathon.
 - Synapse SDK client integrated with custom Multicall3 override on Calibration
 - All contract interactions via viem in `lib/filecoin.ts`
 
-### Hypercerts — Use Hypercerts
+### Hypercerts (AT Protocol)
 - Hypercerts minted on every verified purchase via AT Protocol (`org.hypercerts.claim.activity`)
 - Stored on certified.one PDS — portable, permanent proof of contribution
 - Queried by wallet address via `com.atproto.repo.listRecords`
 - Implemented in `lib/hypercerts.ts`, triggered from `/api/purchase`
 
-### AI & Robotics — Intelligent Agents
+### AI Corroboration (SigLIP 2)
 - SigLIP 2 (`google/siglip-so400m-patch14-384`) via HuggingFace Inference API
 - Cosine similarity threshold 0.85 for corroboration decisions
 - Corroboration agent runs a 7-phase decision loop every 30 seconds: discover → plan → execute → verify → commit → reputation → log
@@ -68,7 +68,7 @@ March 2026, during the hackathon.
 - All agent phases structured and logged to `agent_log.json`, stored on Filecoin
 - `lib/siglip.ts`, `agents/corroboration-agent.ts`, `agents/trust-agent.ts`
 
-### Agents With Receipts — ERC-8004
+### ERC-8004 Agent Identity & Reputation
 - `AgentRegistry.sol` implements all three ERC-8004 registries in one contract:
   - Identity Registry (§2): `registerAgent`, `getAgent`
   - Reputation Registry (§3): `recordTaskSuccess`, `recordTaskFailure`, `getAgentReputation`
@@ -80,30 +80,12 @@ March 2026, during the hackathon.
 - Agent manifest at `public/agent.json`; status UI at `app/agent/page.tsx`
 - Explorer links for all on-chain agent activity via Filfox
 
-### Storacha — Store on Storacha
+### Storacha
 - `@storacha/client` used for all persistent storage
 - `uploadFile()` for encrypted video, public trailers, thumbnails
 - `uploadJson()` for recording metadata and structured agent execution logs
 - Stable `ed25519` principal across restarts (`STORACHA_PRINCIPAL` env var)
 - Delegation proof via `w3 delegation create` CLI flow
-
----
-
-## Technologies Used
-
-- **Filecoin FVM** (Calibration testnet, chain 314159) — on-chain anchoring, purchase, bidding
-- **Storacha / w3up** — Filecoin decentralised storage for all video and metadata
-- **AES-256-GCM** (Web Crypto API) + XOR key obfuscation — client-side video encryption
-- **AT Protocol / certified.one** — Hypercerts minted on purchase
-- **ERC-8004** — on-chain agent identity, reputation, and validation registries
-- **SigLIP 2** (HuggingFace Inference API) — AI visual corroboration
-- **Synapse SDK** — storage payments (Multicall3 deployed; full integration pending Calibration contracts)
-- **Next.js 15** App Router, React 19, Tailwind CSS v4
-- **FFmpeg.wasm** — in-browser WebM trailer generation
-- **viem** — Filecoin FVM contract interactions
-- **wagmi** — wallet connection (MetaMask injected connector)
-- **Nominatim / OpenStreetMap** — reverse geocoding GPS coordinates to city names
-- **Hardhat** — contract compilation and deployment
 
 ---
 

@@ -26,7 +26,7 @@ Every major news event of the last decade was first captured by an ordinary pers
 - [API Routes](#api-routes)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
-- [Sponsor Integrations](#sponsor-integrations)
+- [Technologies / Tools Integrated](#technologies--tools-integrated)
 
 ---
 
@@ -528,7 +528,7 @@ npx hardhat run deploy.ts --network filecoin_calibration
 
 ---
 
-## Sponsor Integrations
+## Technologies / Tools Integrated
 
 ### Filecoin / FVM
 - `Radrr.sol` and `AgentRegistry.sol` deployed on Filecoin FVM Calibration (chain 314159)
