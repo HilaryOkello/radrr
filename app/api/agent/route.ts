@@ -3,78 +3,97 @@ import { readFileSync } from "fs";
 import path from "path";
 import { getAgentReputation, hasAgentCredential } from "@/lib/filecoin";
 
-// Read from environment variables
-const AGENT_ADDRESS = process.env.FILECOIN_AGENT_ADDRESS || "";
-const AGENT_REGISTRY = process.env.FILECOIN_AGENT_REGISTRY_ADDRESS || "";
-const RADRR_CONTRACT = process.env.FILECOIN_CONTRACT_ADDRESS || "";
+const CORROBORATION_AGENT = process.env.FILECOIN_AGENT_ADDRESS || "";
+const TRUST_AGENT         = process.env.FILECOIN_TRUST_AGENT_ADDRESS || "";
+const AGENT_REGISTRY      = process.env.FILECOIN_AGENT_REGISTRY_ADDRESS || "";
+const RADRR_CONTRACT      = process.env.FILECOIN_CONTRACT_ADDRESS || "";
+
+async function fetchReputation(address: string) {
+  if (!address) return { score: "0", tasksCompleted: "0", tasksFailed: "0", lastUpdated: "0" };
+  try {
+    const raw = await getAgentReputation(address) as {
+      score: bigint;
+      tasksCompleted: bigint;
+      tasksFailed: bigint;
+      lastUpdated: bigint;
+    };
+    return {
+      score: raw.score.toString(),
+      tasksCompleted: raw.tasksCompleted.toString(),
+      tasksFailed: raw.tasksFailed.toString(),
+      lastUpdated: raw.lastUpdated.toString(),
+    };
+  } catch {
+    return { score: "0", tasksCompleted: "0", tasksFailed: "0", lastUpdated: "0" };
+  }
+}
+
+async function fetchCredentials(address: string, types: string[]) {
+  if (!address) return [];
+  try {
+    const checks = await Promise.all(
+      types.map((c) => hasAgentCredential(address, c).then((has) => (has ? c : null)))
+    );
+    return checks.filter(Boolean) as string[];
+  } catch {
+    return [];
+  }
+}
 
 export async function GET() {
   try {
-    // Load agent log from project root (where the agent writes it)
+    // Load shared agent log
     let logEntries: Array<Record<string, unknown>> = [];
     try {
       const logPath = path.join(process.cwd(), "agent_log.json");
-      const rawLog = readFileSync(logPath, "utf-8");
-      logEntries = JSON.parse(rawLog) as Array<Record<string, unknown>>;
+      logEntries = JSON.parse(readFileSync(logPath, "utf-8"));
     } catch {
-      // Log file doesn't exist yet or is corrupted
       logEntries = [];
     }
 
-    // Fetch on-chain reputation (BigInts must be serialized to strings)
-    let reputation: {
-      score: string;
-      tasksCompleted: string;
-      tasksFailed: string;
-      lastUpdated: string;
-    } | null = null;
+    // Fetch both agents in parallel
+    const [corrReputation, trustReputation, corrCredentials, trustCredentials] = await Promise.all([
+      fetchReputation(CORROBORATION_AGENT),
+      fetchReputation(TRUST_AGENT),
+      fetchCredentials(CORROBORATION_AGENT, ["corroboration", "similarity-analysis", "on-chain-attestation", "trust-endorsed"]),
+      fetchCredentials(TRUST_AGENT, ["trust-validator"]),
+    ]);
 
-    try {
-      const raw = await getAgentReputation(AGENT_ADDRESS) as {
-        score: bigint;
-        tasksCompleted: bigint;
-        tasksFailed: bigint;
-        lastUpdated: bigint;
-      };
-      reputation = {
-        score: raw.score.toString(),
-        tasksCompleted: raw.tasksCompleted.toString(),
-        tasksFailed: raw.tasksFailed.toString(),
-        lastUpdated: raw.lastUpdated.toString(),
-      };
-    } catch {
-      // Registry may not have this agent — return default
-      reputation = { score: "0", tasksCompleted: "0", tasksFailed: "0", lastUpdated: "0" };
-    }
-
-    // Check known credentials
-    let credentials: string[] = [];
-    try {
-      const credTypes = ["corroboration", "similarity-analysis", "on-chain-attestation"];
-      const checks = await Promise.all(
-        credTypes.map((c) => hasAgentCredential(AGENT_ADDRESS, c).then((has) => has ? c : null))
-      );
-      credentials = checks.filter(Boolean) as string[];
-    } catch {
-      credentials = [];
-    }
-
-    // Recent log: last 10 entries
-    const recentLog = logEntries.slice(-10).reverse();
+    // Split log by agent — trust agent entries have a corrobAgent field
+    const corrLog = logEntries.filter((e) => !e.corrobAgent).slice(-10).reverse();
+    const trustLog = logEntries.filter((e) => !!e.corrobAgent).slice(-5).reverse();
 
     return NextResponse.json({
-      agent: {
-        address: AGENT_ADDRESS,
-        name: "Radrr Corroboration Agent",
+      shared: {
         registry: AGENT_REGISTRY,
         contract: RADRR_CONTRACT,
         network: "Filecoin Calibration Testnet",
         chain_id: 314159,
       },
-      reputation,
-      credentials,
-      recentLog,
-      totalLogEntries: logEntries.length,
+      corroborationAgent: {
+        address: CORROBORATION_AGENT,
+        name: "Corroboration Agent",
+        role: "Discovers recordings, runs SigLIP 2 similarity analysis, and commits corroboration bundles on-chain.",
+        reputation: corrReputation,
+        credentials: corrCredentials,
+        recentLog: corrLog,
+        totalLogEntries: logEntries.filter((e) => !e.corrobAgent).length,
+        decisionLoop: ["discover", "plan", "execute", "verify", "commit", "reputation", "log"],
+        pollIntervalMs: 30000,
+      },
+      trustAgent: {
+        address: TRUST_AGENT,
+        name: "Trust Agent",
+        role: "Monitors the Corroboration Agent's ERC-8004 reputation. Issues trust-endorsed credential if score ≥ 700/1000.",
+        reputation: trustReputation,
+        credentials: trustCredentials,
+        recentLog: trustLog,
+        totalLogEntries: logEntries.filter((e) => !!e.corrobAgent).length,
+        decisionLoop: ["fetch", "evaluate", "endorse", "warn"],
+        pollIntervalMs: 60000,
+        threshold: 700,
+        endorsed: corrCredentials.includes("trust-endorsed"),
+      },
     });
   } catch (err) {
     console.error("[agent route]", err);

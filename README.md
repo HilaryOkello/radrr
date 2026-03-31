@@ -376,7 +376,8 @@ radrr-app/
 | `Radrr.sol` | `0x0B02E8eC8624E7e0024979D14735Bb5F4c10B182` | Core marketplace: anchor, purchase (85/10/5 split), bids, corroboration bundles |
 | `AgentRegistry.sol` | `0x76bd383BB3a4824131DC114dfE79e2BC0CfE6c89` | ERC-8004: identity registry, reputation registry, validation registry |
 
-Corroboration agent registered at `0x3cfeCc707FA2a5b43DB15dA6891bfA8DA9fc2F66`.
+Corroboration agent: `0xa93414A1E97C09f982b83E2134E21C1Cb46Be081`
+Trust agent: `0x2efa5ebcA68341C3f9c21d02426Bca69aEe19D01`
 
 ---
 
