@@ -243,6 +243,14 @@ npx hardhat run deploy.ts --network filecoin_calibration
 - `public/agent.json` is the machine-readable ERC-8004 agent manifest
 - `agent_log.json` is the structured execution log
 
+### 🤖 Agent Only: Let the Agent Cook
+- Full 7-phase autonomous decision loop (discover → plan → execute → verify → commit → reputation → log)
+- Multi-tool orchestration: HuggingFace (SigLIP 2), Filecoin FVM, Storacha, Synapse SDK
+- Safety guardrails: threshold-based decision making, on-chain verification before action
+- Multi-agent coordination: trust agent monitors corroboration agent's reputation autonomously
+- Self-improving: agent reputation updates after every task (success or failure)
+- Live at `/agent` with real-time reputation gauges and activity logs
+
 ### Hypercerts (AT Protocol / certified.one)
 - Hypercerts minted via AT Protocol on certified.one PDS using `org.hypercerts.claim.activity` records
 - Minted on two events: witness publishing footage publicly (`visibility: full`), and buyer completing a verified purchase
