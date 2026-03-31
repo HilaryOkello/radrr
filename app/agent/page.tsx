@@ -46,7 +46,7 @@ function scoreColor(score: number) {
   if (score >= 800) return "bg-chart-5 text-white";
   if (score >= 500) return "bg-main text-black";
   if (score >= 200) return "bg-chart-2 text-black";
-  return "bg-destructive text-white";
+  return "bg-chart-4 text-white";
 }
 
 function scoreLabel(score: number) {
@@ -62,7 +62,7 @@ function phaseColor(phase: string): { className: string; style?: React.CSSProper
     case "reputation": case "endorse": return { className: "text-white", style: BLUE_STYLE };
     case "execute":                    return { className: "bg-main text-black" };
     case "verify": case "evaluate":    return { className: "bg-chart-2 text-black" };
-    case "warn": case "error":         return { className: "bg-destructive text-white" };
+    case "warn": case "error":         return { className: "bg-chart-4 text-white" };
     default:                           return { className: "bg-secondary text-foreground" };
   }
 }
