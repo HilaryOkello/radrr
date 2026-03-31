@@ -26,8 +26,8 @@ const features = [
   },
   {
     icon: "💸",
-    title: "85% Goes To You",
-    body: "Smart contracts split every sale instantly. No invoices. No 90-day waits. No platform taking the majority.",
+    title: "80% Goes To You",
+    body: "Smart contracts split every sale instantly — 80% to you, 10% to a journalism fund for freely listed footage, 10% to the platform.",
   },
   {
     icon: "📜",
@@ -65,7 +65,7 @@ export default function Home() {
             Your price.
           </h1>
           <p className="text-sm text-white/65 font-base mt-4 max-w-lg leading-relaxed text-pretty">
-            Eyewitnesses capture cryptographically verified footage and sell it on their own terms. No professional camera. No middlemen. 85% direct to you.
+            Eyewitnesses capture cryptographically verified footage and sell it on their own terms. No professional camera. No middlemen. 80% direct to you.
           </p>
           <div className="flex flex-row gap-3 mt-6">
             <Link href="/record">
@@ -145,7 +145,7 @@ export default function Home() {
           Witnessed something important?
         </h2>
         <p className="text-base mb-8 max-w-md mx-auto font-base opacity-80">
-          Record from your browser. The blockchain handles the proof. You keep 85% of the revenue.
+          Record from your browser. The blockchain handles the proof. You keep 80% of the revenue.
         </p>
         <Link href="/record">
           <Button

@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import { useLocationName } from "@/hooks/useLocationName";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { FootageRecording } from "@/components/FootageCard";
@@ -40,6 +41,7 @@ export function VideoFeedCard({ recording: r, similarity, stagger = 0 }: Props) 
   const [playing, setPlaying] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const locationName = useLocationName(r.gps_approx);
 
   const videoSrc = r.trailer_cid
     ? ipfsUrl(r.trailer_cid)
@@ -167,7 +169,7 @@ export function VideoFeedCard({ recording: r, similarity, stagger = 0 }: Props) 
             {r.title || "Untitled Recording"}
           </h3>
           <p className="text-[11px] text-muted-foreground font-mono mt-0.5 line-clamp-1">
-            📍 {r.gps_approx} · {timeAgo(r.timestamp)}
+            📍 {locationName ? `${locationName} (${r.gps_approx})` : r.gps_approx} · {timeAgo(r.timestamp)}
           </p>
         </div>
 

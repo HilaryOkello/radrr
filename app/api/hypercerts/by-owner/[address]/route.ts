@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { AtpAgent } from "@atproto/api";
 
-const USE_TESTNET = process.env.HYPERCERTS_TESTNET !== "false";
-const GRAPH_URL = USE_TESTNET
-  ? "https://api.hypercerts.org/v1/graphql"
-  : "https://api.hypercerts.org/v1/graphql";
+const PDS_URL = process.env.CERTIFIED_APP_PDS ?? "https://certified.one";
 
 export interface HypercertEntry {
   tokenId: string;
@@ -21,32 +19,16 @@ export interface HypercertEntry {
   createdAt: number;
 }
 
-const QUERY = `
-  query HypercertsByContributor($address: String!) {
-    hypercerts(
-      where: {
-        hypercert_id: { contains: "" }
-        contributors: { contributor_address: { eq: $address } }
-      }
-      first: 100
-    ) {
-      data {
-        hypercert_id
-        uri
-        units
-        metadata {
-          name
-          description
-          external_url
-          work_timeframe_from
-        }
-        contract {
-          chain_id
-        }
-      }
-    }
+async function getAgent(): Promise<AtpAgent> {
+  const handle = process.env.CERTIFIED_APP_HANDLE;
+  const password = process.env.CERTIFIED_APP_PASSWORD;
+  if (!handle || !password) {
+    throw new Error("CERTIFIED_APP_HANDLE and CERTIFIED_APP_PASSWORD must be set");
   }
-`;
+  const agent = new AtpAgent({ service: PDS_URL });
+  await agent.login({ identifier: handle, password });
+  return agent;
+}
 
 export async function GET(
   req: NextRequest,
@@ -59,53 +41,63 @@ export async function GET(
       return NextResponse.json({ error: "Invalid address" }, { status: 400 });
     }
 
-    const res = await fetch(GRAPH_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query: QUERY,
-        variables: { address: address.toLowerCase() },
-      }),
-      signal: AbortSignal.timeout(8000),
-    });
-
-    if (!res.ok) {
-      console.error("[hypercerts/by-owner] indexer error", res.status);
+    // Fetch hypercerts from AT Protocol PDS
+    const agent = await getAgent();
+    const did = agent.session?.did;
+    
+    if (!did) {
+      console.error("[hypercerts/by-owner] Not authenticated");
       return NextResponse.json({ hypercerts: [] });
     }
 
-    const json = await res.json();
+    // Query records from the PDS
+    const response = await agent.com.atproto.repo.listRecords({
+      repo: did,
+      collection: "org.hypercerts.claim.activity",
+      limit: 100,
+    });
+
+    const records = response.data.records ?? [];
+
+    // Filter by the requested address (check if witnessAddress matches)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const raw: any[] = json?.data?.hypercerts?.data ?? [];
-
-    const hypercerts: HypercertEntry[] = raw.map((h) => {
-      const meta = h.metadata ?? {};
-      const createdAt = meta.work_timeframe_from
-        ? Number(meta.work_timeframe_from) * 1000
-        : 0;
-
-      // Parse Radrr-specific fields from description if present
-      const desc: string = meta.description ?? "";
+    const hypercerts: HypercertEntry[] = records.map((record: any) => {
+      const value = record.value;
+      const desc = value.description ?? "";
+      
+      // Parse Radrr-specific fields from description
       const recordingIdMatch = desc.match(/Recording ID: ([^\n]+)/);
       const corroboratedMatch = desc.match(/Corroborated: (true|false)/);
+      
+      // Check if this hypercert belongs to the requested address
+      const contributors = value.contributors ?? [];
+      const isMintedByUser = contributors.some(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (c: any) => c.contributorIdentity?.identity?.toLowerCase() === address.toLowerCase()
+      );
+      
+      const createdAt = value.createdAt 
+        ? new Date(value.createdAt).getTime()
+        : 0;
 
       return {
-        tokenId: h.hypercert_id ?? h.uri ?? "",
-        uri: h.uri ?? "",
-        name: meta.name ?? "Radrr Hypercert",
+        tokenId: record.uri.split("/").pop() ?? "",
+        uri: record.uri,
+        name: value.title ?? "Radrr Hypercert",
         description: desc,
-        image: meta.image ?? "",
+        image: "",
         contributor: address,
         recordingId: recordingIdMatch ? recordingIdMatch[1].trim() : null,
-        verificationLevel: null,
+        verificationLevel: value.verificationLevel ?? null,
         isCorroborated: corroboratedMatch ? corroboratedMatch[1] === "true" : null,
-        isPublicShare: desc.includes("public documentation") ? true
-          : desc.includes("verified purchase") ? false
-          : null,
-        totalUnits: String(h.units ?? 1),
-        platform: "radrr",
+        isPublicShare: desc.includes("freely shared") || desc.includes("public documentation"),
+        totalUnits: "1",
+        platform: value.platform ?? "radrr",
         createdAt,
       } satisfies HypercertEntry;
+    }).filter((h: HypercertEntry) => {
+      // For minted hypercerts, check if the contributor matches
+      return h.contributor.toLowerCase() === address.toLowerCase();
     });
 
     hypercerts.sort((a, b) => b.createdAt - a.createdAt);

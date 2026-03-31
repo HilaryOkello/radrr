@@ -658,7 +658,7 @@ export default function RecordPage() {
                     onChange={(e) => setPriceEth(e.target.value)}
                   />
                   <div className="text-xs text-muted-foreground mt-1">
-                    85% goes directly to you · buyers can also make offers
+                    80% goes directly to you · 10% to journalism fund · 10% platform
                   </div>
                 </div>
 

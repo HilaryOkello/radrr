@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isPurchased, getRecordings, recordAgentTaskSuccess } from "@/lib/filecoin";
+import { isPurchased, getRecording, recordAgentTaskSuccess } from "@/lib/filecoin";
 import { mintSaleHypercert } from "@/lib/hypercerts";
 
 const AGENT_ADDRESS = "0x3B5FA5297f158cBB1c375372594858BB3B150463";
@@ -31,19 +31,8 @@ export async function POST(req: NextRequest) {
     const purchased = await isPurchased(recordingId, buyerAddress);
     
     // Get recording details for Hypercert and key data
-    const recordings = (await getRecordings(0, 50)) as unknown as Array<{
-      recording_id: string;
-      encrypted_cid?: string;
-      key_cid?: string;
-      witness: string;
-      gps_approx: string;
-      timestamp: number;
-      title: string;
-      corroboration_bundle: string[];
-    }>;
-
-    const recording = recordings.find((r) => r.recording_id === recordingId);
-    if (!recording) {
+    const recording = await getRecording(recordingId);
+    if (!recording || !recording.recordingId) {
       return NextResponse.json({ error: "Recording not found" }, { status: 404 });
     }
 
@@ -66,9 +55,9 @@ export async function POST(req: NextRequest) {
         witnessAddress: recording.witness,
         witnessCredibilityScore: 50,
         eventDescription: recording.title,
-        gpsApprox: recording.gps_approx,
-        recordingTimestamp: recording.timestamp,
-        isCorroborated: recording.corroboration_bundle.length > 0,
+        gpsApprox: recording.gpsApprox,
+        recordingTimestamp: Number(recording.timestamp),
+        isCorroborated: recording.corroborationBundle?.length > 0,
       });
       hypercertTokenId = txHash ?? null;
     } catch (err) {
@@ -85,8 +74,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       alreadyPurchased: true, // True if purchased via bid acceptance or direct purchase
-      encryptedCid: recording.encrypted_cid,
-      keyCid: recording.key_cid,
+      encryptedCid: recording.encryptedCid,
+      keyCid: recording.keyCid,
       recordingId,
       hypercertTokenId,
     });

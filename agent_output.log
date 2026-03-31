@@ -1,0 +1,1308 @@
+[dotenv@17.3.1] injecting env (20) from .env.local -- tip: ⚡️ secrets for agents: https://dotenvx.com/as2
+[ENV] Contract address: 0x0B02E8eC8624E7e0024979D14735Bb5F4c10B182
+✓ Environment loaded successfully
+  Agent Address: 0xa93414A1E97C09f982b83E2134E21C1Cb46Be081
+  Contract Address: 0x0B02E8eC8624E7e0024979D14735Bb5F4c10B182
+✓ Private key is valid and matches address
+Radrr Corroboration Agent starting...
+Agent address: 0xa93414A1E97C09f982b83E2134E21C1Cb46Be081
+[2026-03-30T15:49:47.487Z] [DISCOVER] agent_started {
+  agentAddress: '0xa93414A1E97C09f982b83E2134E21C1Cb46Be081',
+  capabilities: [
+    'corroboration',
+    'siglip-embedding',
+    'gps-clustering',
+    'on-chain-write'
+  ],
+  pollIntervalMs: 30000
+}
+[2026-03-30T15:49:47.491Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:49:51.219Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:49:51.223Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:49:51.226Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:49:51.230Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:49:51.234Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:49:51.237Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:49:51.240Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:49:51.244Z] [REPUTATION] cycle_complete {
+  duration_ms: 3753,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:50:21.272Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:50:26.835Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:50:26.839Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:50:26.841Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:50:26.844Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:50:26.846Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:50:26.851Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:50:26.854Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:50:26.858Z] [REPUTATION] cycle_complete {
+  duration_ms: 5586,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:50:51.286Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:50:52.573Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:50:52.577Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:50:52.580Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:50:52.585Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:50:52.588Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:50:52.592Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:50:52.596Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:50:52.600Z] [REPUTATION] cycle_complete {
+  duration_ms: 1314,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:51:21.311Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:51:22.751Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:51:22.756Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:51:22.759Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:51:22.764Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:51:22.767Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:51:22.771Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:51:22.775Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:51:22.779Z] [REPUTATION] cycle_complete {
+  duration_ms: 1468,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:51:51.336Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:51:53.184Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:51:53.191Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:51:53.195Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:51:53.200Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:51:53.203Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:51:53.207Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:51:53.211Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:51:53.215Z] [REPUTATION] cycle_complete {
+  duration_ms: 1879,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:52:21.337Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:52:23.040Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:52:23.045Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:52:23.049Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:52:23.054Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:52:23.057Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:52:23.059Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:52:23.061Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:52:23.065Z] [REPUTATION] cycle_complete {
+  duration_ms: 1728,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:52:51.368Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:52:52.824Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:52:52.834Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:52:52.842Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:52:52.849Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:52:52.852Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:52:52.855Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:52:52.858Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:52:52.862Z] [REPUTATION] cycle_complete {
+  duration_ms: 1494,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:53:21.393Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:53:23.236Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:53:23.240Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:53:23.243Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:53:23.248Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:53:23.252Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:53:23.256Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:53:23.260Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:53:23.264Z] [REPUTATION] cycle_complete {
+  duration_ms: 1871,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:53:51.396Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:53:53.172Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:53:53.177Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:53:53.181Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:53:53.186Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:53:53.189Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:53:53.194Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:53:53.198Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:53:53.202Z] [REPUTATION] cycle_complete {
+  duration_ms: 1806,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:54:21.411Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:54:23.131Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:54:23.135Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:54:23.139Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:54:23.144Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:54:23.148Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:54:23.152Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:54:23.156Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:54:23.160Z] [REPUTATION] cycle_complete {
+  duration_ms: 1749,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:54:51.435Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:54:53.139Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:54:53.144Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:54:53.149Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:54:53.156Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:54:53.162Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:54:53.168Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:54:53.170Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:54:53.173Z] [REPUTATION] cycle_complete {
+  duration_ms: 1738,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:55:21.459Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:55:22.958Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:55:22.963Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:55:22.967Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:55:22.972Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:55:22.976Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:55:22.980Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:55:22.984Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:55:22.989Z] [REPUTATION] cycle_complete {
+  duration_ms: 1530,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:55:51.484Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:55:52.782Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:55:52.789Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:55:52.793Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:55:52.798Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:55:52.802Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:55:52.806Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:55:52.809Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:55:52.812Z] [REPUTATION] cycle_complete {
+  duration_ms: 1328,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:56:21.510Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:56:23.019Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:56:23.024Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:56:23.028Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:56:23.033Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:56:23.038Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:56:23.042Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:56:23.047Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:56:23.051Z] [REPUTATION] cycle_complete {
+  duration_ms: 1541,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:56:51.528Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:56:52.973Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:56:52.978Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:56:52.982Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:56:52.987Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:56:52.991Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:56:52.996Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:56:53.000Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:56:53.006Z] [REPUTATION] cycle_complete {
+  duration_ms: 1478,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:57:21.543Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:57:22.835Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:57:22.842Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:57:22.847Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:57:22.852Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:57:22.856Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:57:22.861Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:57:22.865Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:57:22.870Z] [REPUTATION] cycle_complete {
+  duration_ms: 1327,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:57:51.568Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:57:53.251Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:57:53.257Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:57:53.261Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:57:53.266Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:57:53.271Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:57:53.276Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:57:53.281Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:57:53.286Z] [REPUTATION] cycle_complete {
+  duration_ms: 1718,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:58:21.593Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:58:22.866Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:58:22.872Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:58:22.875Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:58:22.881Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:58:22.896Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:58:22.905Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:58:22.907Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:58:22.915Z] [REPUTATION] cycle_complete {
+  duration_ms: 1322,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:58:51.611Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:58:53.187Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:58:53.192Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:58:53.198Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:58:53.202Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:58:53.207Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:58:53.211Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:58:53.216Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:58:53.220Z] [REPUTATION] cycle_complete {
+  duration_ms: 1609,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:59:21.624Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:59:22.918Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:59:22.921Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:59:22.925Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:59:22.928Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:59:22.932Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:59:22.935Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:59:22.938Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:59:22.940Z] [REPUTATION] cycle_complete {
+  duration_ms: 1316,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T15:59:51.649Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T15:59:53.167Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T15:59:53.172Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T15:59:53.177Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T15:59:53.182Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:59:53.188Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:59:53.192Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T15:59:53.197Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T15:59:53.201Z] [REPUTATION] cycle_complete {
+  duration_ms: 1552,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T16:00:21.658Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T16:00:22.966Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T16:00:22.970Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T16:00:22.975Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T16:00:22.980Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:00:22.985Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:00:22.990Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:00:22.995Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T16:00:22.999Z] [REPUTATION] cycle_complete {
+  duration_ms: 1341,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T16:00:51.664Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T16:00:53.268Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T16:00:53.273Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T16:00:53.279Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T16:00:53.285Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:00:53.291Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:00:53.296Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:00:53.300Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T16:00:53.305Z] [REPUTATION] cycle_complete {
+  duration_ms: 1641,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T16:01:21.675Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T16:01:28.691Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T16:01:28.697Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T16:01:28.703Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T16:01:28.709Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:01:28.715Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:01:28.721Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:01:28.726Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T16:01:28.732Z] [REPUTATION] cycle_complete {
+  duration_ms: 7057,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T16:01:51.694Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T16:01:53.169Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T16:01:53.175Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T16:01:53.180Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T16:01:53.186Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:01:53.192Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:01:53.198Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:01:53.203Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T16:01:53.208Z] [REPUTATION] cycle_complete {
+  duration_ms: 1514,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T16:02:21.719Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T16:02:23.315Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T16:02:23.320Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T16:02:23.326Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T16:02:23.332Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:02:23.338Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:02:23.344Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:02:23.351Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T16:02:23.357Z] [REPUTATION] cycle_complete {
+  duration_ms: 1638,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T16:02:51.741Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T16:02:53.212Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T16:02:53.218Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T16:02:53.224Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T16:02:53.229Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:02:53.235Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:02:53.241Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:02:53.246Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T16:02:53.252Z] [REPUTATION] cycle_complete {
+  duration_ms: 1511,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T16:03:21.766Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T16:03:23.075Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T16:03:23.080Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T16:03:23.086Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T16:03:23.092Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:03:23.098Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:03:23.103Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:03:23.109Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T16:03:23.115Z] [REPUTATION] cycle_complete {
+  duration_ms: 1349,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T16:03:51.791Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T16:03:55.710Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T16:03:55.716Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T16:03:55.722Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T16:03:55.727Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:03:55.733Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:03:55.739Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:03:55.745Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T16:03:55.751Z] [REPUTATION] cycle_complete {
+  duration_ms: 3960,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}
+[2026-03-30T16:04:22.584Z] [DISCOVER] fetch_recordings { limit: 50 }
+[2026-03-30T16:04:24.453Z] [DISCOVER] unprocessed_found { count: 3 }
+[2026-03-30T16:04:24.459Z] [PLAN] clusters_identified { totalClusters: 1, candidateClusters: 1 }
+[2026-03-30T16:04:24.465Z] [PLAN] metadata_filter_start {
+  gpsKey: '-1.3,36.8',
+  recordings: 3,
+  gpsPrecision: 0.05,
+  timeWindow: '10min'
+}
+[2026-03-30T16:04:24.471Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774858672997_ukl9sc',
+  reasons: [ 'Time: 65min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:04:24.477Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774854737060_m84rom',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 141min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:04:24.482Z] [PLAN] metadata_filtered {
+  recordingA: 'rec_1774858672997_ukl9sc',
+  recordingB: 'rec_1774863151256_i7820n',
+  reasons: [ 'Time: 76min apart (threshold: 10min)' ],
+  gpsPrecision: 0.05
+}
+[2026-03-30T16:04:24.488Z] [PLAN] metadata_filter_complete {
+  gpsKey: '-1.3,36.8',
+  totalPairs: 3,
+  passed: 0,
+  filtered: 3,
+  savingsPercent: 100
+}
+[2026-03-30T16:04:24.494Z] [REPUTATION] cycle_complete {
+  duration_ms: 1910,
+  totalCandidates: 3,
+  metadataPassed: 0,
+  metadataFiltered: 3,
+  apiCallsSaved: 3,
+  tasksSucceeded: 0,
+  tasksFailed: 0
+}

@@ -149,7 +149,7 @@ export default function DashboardPage() {
         const err = await res.json();
         throw new Error(err.error);
       }
-      toast.success("💸 Sale complete — 85% is yours", { position: "top-center" });
+      toast.success("💸 Sale complete — 80% is yours", { position: "top-center" });
       // Update local state
       setRecordingBids((prev) =>
         prev.map((rb) =>
