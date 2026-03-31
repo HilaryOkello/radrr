@@ -165,7 +165,7 @@ export function FootageCard({
               </div>
             )}
             {mode === "marketplace" && bidCount === 0 && (
-              <div className="text-xs text-muted-foreground font-base">85% to witness</div>
+              <div className="text-xs text-muted-foreground font-base">80% to witness · 10% fund · 10% platform</div>
             )}
             {mode === "dashboard" && (
               <div className="text-xs text-muted-foreground font-base">

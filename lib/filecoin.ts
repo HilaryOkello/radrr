@@ -551,6 +551,16 @@ export async function getRecordings(fromIndex = 0, limit = 20): Promise<readonly
   }) as Promise<readonly any[]>;
 }
 
+export async function getRecording(recordingId: string): Promise<any> {
+  const client = getPublicClient();
+  return client.readContract({
+    address: getContractAddress(),
+    abi: RADRR_ABI,
+    functionName: "getRecording",
+    args: [recordingId],
+  });
+}
+
 export async function getRecordingsByWitness(witness: string): Promise<readonly any[]> {
   const client = getPublicClient();
   return client.readContract({

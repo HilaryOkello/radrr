@@ -485,7 +485,7 @@ export default function RecordingDetailPage() {
                   )}
 
                   <p className="text-xs text-muted-foreground font-base text-center">
-                    85% to witness · 5% journalism fund
+                    80% to witness · 10% journalism fund · 10% platform
                   </p>
                 </CardContent>
               </Card>
