@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const FILFOX = "https://calibration.filfox.info/en";
@@ -38,32 +39,14 @@ interface PageData {
   trustAgent: AgentInfo;
 }
 
-// Plain span chip — avoids cva bg-main override issues on Badge
-function Chip({ children, color = "default" }: { children: React.ReactNode; color?: string }) {
-  const styles: Record<string, string> = {
-    green:   "bg-chart-5 text-white",
-    blue:    "text-white",
-    yellow:  "bg-main text-black",
-    orange:  "bg-chart-2 text-black",
-    red:     "bg-destructive text-white",
-    default: "bg-secondary text-foreground border border-border",
-  };
-  const inlineStyle = color === "blue" ? { backgroundColor: "#0099FF" } : undefined;
-  return (
-    <span
-      className={`inline-flex items-center rounded-base px-2.5 py-1 text-xs font-base whitespace-nowrap ${styles[color] ?? styles.default}`}
-      style={inlineStyle}
-    >
-      {children}
-    </span>
-  );
-}
+// bg-[#0099FF] can't be reliably overridden via tailwind-merge, so use inline style
+const BLUE_STYLE = { backgroundColor: "#0099FF" };
 
-function scoreChipColor(score: number) {
-  if (score >= 800) return "green";
-  if (score >= 500) return "yellow";
-  if (score >= 200) return "orange";
-  return "red";
+function scoreColor(score: number) {
+  if (score >= 800) return "bg-chart-5 text-white";
+  if (score >= 500) return "bg-main text-black";
+  if (score >= 200) return "bg-chart-2 text-black";
+  return "bg-destructive text-white";
 }
 
 function scoreLabel(score: number) {
@@ -73,14 +56,14 @@ function scoreLabel(score: number) {
   return "New Agent";
 }
 
-function phaseChipColor(phase: string) {
+function phaseColor(phase: string): { className: string; style?: React.CSSProperties } {
   switch (phase) {
-    case "commit":                    return "green";
-    case "reputation": case "endorse": return "blue";
-    case "execute":                   return "yellow";
-    case "verify": case "evaluate":   return "orange";
-    case "warn": case "error":        return "red";
-    default:                          return "default";
+    case "commit":                     return { className: "bg-chart-5 text-white" };
+    case "reputation": case "endorse": return { className: "text-white", style: BLUE_STYLE };
+    case "execute":                    return { className: "bg-main text-black" };
+    case "verify": case "evaluate":    return { className: "bg-chart-2 text-black" };
+    case "warn": case "error":         return { className: "bg-destructive text-white" };
+    default:                           return { className: "bg-secondary text-foreground" };
   }
 }
 
@@ -108,11 +91,14 @@ function AgentCard({ agent, shared }: { agent: AgentInfo; shared: PageData["shar
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2 flex-wrap">
             {agent.name}
-            <Chip color="green">ERC-8004</Chip>
+            <Badge className="bg-chart-5 text-white">ERC-8004</Badge>
             {agent.endorsed !== undefined && (
-              <Chip color={agent.endorsed ? "blue" : "default"}>
+              <Badge
+                className="text-white"
+                style={agent.endorsed ? BLUE_STYLE : undefined}
+              >
                 {agent.endorsed ? "✓ trust-endorsed" : "not endorsed"}
-              </Chip>
+              </Badge>
             )}
           </CardTitle>
         </CardHeader>
@@ -164,9 +150,9 @@ function AgentCard({ agent, shared }: { agent: AgentInfo; shared: PageData["shar
             <span className="text-muted-foreground text-xs font-base mb-1">/ 1000</span>
           </div>
           <ReputationBar score={score} />
-          <Chip color={scoreChipColor(score)}>
-            <span className="w-full text-center">{scoreLabel(score)}</span>
-          </Chip>
+          <Badge className={`${scoreColor(score)} w-full justify-center`}>
+            {scoreLabel(score)}
+          </Badge>
           <div className="grid grid-cols-2 gap-2 text-center text-xs">
             <div className="border border-border rounded-base p-2">
               <div className="font-heading text-lg text-chart-5">{agent.reputation.tasksCompleted}</div>
@@ -196,7 +182,7 @@ function AgentCard({ agent, shared }: { agent: AgentInfo; shared: PageData["shar
           ) : (
             <div className="flex flex-wrap gap-2">
               {agent.credentials.map((c) => (
-                <Chip key={c} color="blue">✓ {c}</Chip>
+                <Badge key={c} className="text-white" style={BLUE_STYLE}>✓ {c}</Badge>
               ))}
             </div>
           )}
@@ -209,12 +195,15 @@ function AgentCard({ agent, shared }: { agent: AgentInfo; shared: PageData["shar
           <CardTitle className="text-sm">Decision Loop</CardTitle>
         </CardHeader>
         <CardContent className="space-y-1.5">
-          {agent.decisionLoop.map((phase, i) => (
-            <div key={phase} className="flex items-center gap-2">
-              <span className="text-muted-foreground font-mono text-xs w-4">{i + 1}.</span>
-              <Chip color={phaseChipColor(phase)}>{phase}</Chip>
-            </div>
-          ))}
+          {agent.decisionLoop.map((phase, i) => {
+            const p = phaseColor(phase);
+            return (
+              <div key={phase} className="flex items-center gap-2">
+                <span className="text-muted-foreground font-mono text-xs w-4">{i + 1}.</span>
+                <Badge className={p.className} style={p.style}>{phase}</Badge>
+              </div>
+            );
+          })}
         </CardContent>
       </Card>
     </div>
@@ -239,9 +228,9 @@ function ActivityLog({ entries, total, title }: { entries: Array<Record<string, 
               <span className="text-muted-foreground font-mono">
                 {entry.timestamp ? new Date(String(entry.timestamp)).toLocaleString() : "—"}
               </span>
-              <Chip color={phaseChipColor(String(entry.phase ?? ""))}>
-                {String(entry.phase ?? "unknown")}
-              </Chip>
+              {(() => { const p = phaseColor(String(entry.phase ?? "")); return (
+                <Badge className={p.className} style={p.style}>{String(entry.phase ?? "unknown")}</Badge>
+              ); })()}
               {entry.success !== undefined && (
                 <span className={`ml-auto ${entry.success ? "text-chart-5" : "text-destructive"}`}>
                   {entry.success ? "✓" : "✗"}
