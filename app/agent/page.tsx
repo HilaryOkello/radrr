@@ -179,25 +179,24 @@ function AgentCard({ agent, shared }: { agent: AgentInfo; shared: PageData["shar
             )}
           </AccordionContent>
         </AccordionItem>
-      </Accordion>
 
-      {/* Decision Loop */}
-      <Card className="border-2 border-border">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Decision Loop</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-1.5">
-          {agent.decisionLoop.map((phase, i) => {
-            const p = phaseColor(phase);
-            return (
-              <div key={phase} className="flex items-center gap-2">
-                <span className="text-muted-foreground font-mono text-xs w-4">{i + 1}.</span>
-                <Badge className={p.className} style={p.style}>{phase}</Badge>
-              </div>
-            );
-          })}
-        </CardContent>
-      </Card>
+        <AccordionItem value="decision-loop">
+          <AccordionTrigger>Decision Loop</AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-1.5">
+              {agent.decisionLoop.map((phase, i) => {
+                const p = phaseColor(phase);
+                return (
+                  <div key={phase} className="flex items-center gap-2">
+                    <span className="text-muted-foreground font-mono text-xs w-4">{i + 1}.</span>
+                    <Badge className={p.className} style={p.style}>{phase}</Badge>
+                  </div>
+                );
+              })}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 }
