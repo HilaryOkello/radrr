@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 
 const FILFOX = "https://calibration.filfox.info/en";
 
@@ -139,55 +140,46 @@ function AgentCard({ agent, shared }: { agent: AgentInfo; shared: PageData["shar
         </CardContent>
       </Card>
 
-      {/* Reputation */}
-      <Card className="border-2 border-border">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Reputation</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-end gap-2">
-            <span className="font-heading text-3xl">{score}</span>
-            <span className="text-muted-foreground text-xs font-base mb-1">/ 1000</span>
-          </div>
-          <ReputationBar score={score} />
-          <Badge className={`${scoreColor(score)} w-full justify-center`}>
-            {scoreLabel(score)}
-          </Badge>
-          <div className="grid grid-cols-2 gap-2 text-center text-xs">
-            <div className="border border-border rounded-base p-2">
-              <div className="font-heading text-lg text-chart-5">{agent.reputation.tasksCompleted}</div>
-              <div className="text-muted-foreground font-base">Completed</div>
+      {/* Reputation + Credentials as accordion */}
+      <Accordion type="multiple" defaultValue={["reputation"]}>
+        <AccordionItem value="reputation">
+          <AccordionTrigger>Reputation</AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-3">
+              <div className="flex items-end gap-2">
+                <span className="font-heading text-3xl">{score}</span>
+                <span className="text-muted-foreground text-xs font-base mb-1">/ 1000</span>
+              </div>
+              <ReputationBar score={score} />
+              <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                <div className="border border-border rounded-base p-2">
+                  <div className="font-heading text-lg text-chart-5">{agent.reputation.tasksCompleted}</div>
+                  <div className="text-muted-foreground font-base">Completed</div>
+                </div>
+                <div className="border border-border rounded-base p-2">
+                  <div className="font-heading text-lg text-chart-4">{agent.reputation.tasksFailed}</div>
+                  <div className="text-muted-foreground font-base">Failed</div>
+                </div>
+              </div>
             </div>
-            <div className="border border-border rounded-base p-2">
-              <div className="font-heading text-lg text-destructive">{agent.reputation.tasksFailed}</div>
-              <div className="text-muted-foreground font-base">Failed</div>
-            </div>
-          </div>
-          {Number(agent.reputation.lastUpdated) > 0 && (
-            <p className="text-[10px] text-muted-foreground font-base text-center">
-              Updated {new Date(Number(agent.reputation.lastUpdated) * 1000).toLocaleDateString()}
-            </p>
-          )}
-        </CardContent>
-      </Card>
+          </AccordionContent>
+        </AccordionItem>
 
-      {/* Credentials */}
-      <Card className="border-2 border-border">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Credentials</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {agent.credentials.length === 0 ? (
-            <p className="text-xs text-muted-foreground font-base">No on-chain credentials yet</p>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {agent.credentials.map((c) => (
-                <Badge key={c} className="text-white" style={BLUE_STYLE}>✓ {c}</Badge>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        <AccordionItem value="credentials">
+          <AccordionTrigger>Credentials</AccordionTrigger>
+          <AccordionContent>
+            {agent.credentials.length === 0 ? (
+              <p className="text-xs text-muted-foreground font-base">No on-chain credentials yet</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {agent.credentials.map((c) => (
+                  <Badge key={c} className="text-white" style={BLUE_STYLE}>✓ {c}</Badge>
+                ))}
+              </div>
+            )}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
       {/* Decision Loop */}
       <Card className="border-2 border-border">
