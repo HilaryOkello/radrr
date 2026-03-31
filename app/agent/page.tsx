@@ -141,7 +141,7 @@ function AgentCard({ agent, shared }: { agent: AgentInfo; shared: PageData["shar
       </Card>
 
       {/* Reputation + Credentials as accordion */}
-      <Accordion type="multiple" defaultValue={["reputation"]}>
+      <Accordion type="multiple">
         <AccordionItem value="reputation">
           <AccordionTrigger>Reputation</AccordionTrigger>
           <AccordionContent>
