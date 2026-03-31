@@ -187,7 +187,7 @@ export function MarketplaceCard({
             <span className="font-heading text-foreground">{formatTFIL(topBid?.amount ?? "0")}</span>
           </p>
         ) : (
-          <p className="text-[11px] text-muted-foreground font-base">85% to witness · no offers yet</p>
+          <p className="text-[11px] text-muted-foreground font-base">80% to witness · 10% fund · 10% platform</p>
         )}
       </div>
 

@@ -62,6 +62,14 @@ export default function MarketplacePage() {
     outputs: [],
   }] as const;
 
+  const RADRR_PURCHASE_ABI = [{
+    type: "function",
+    name: "purchase",
+    stateMutability: "payable",
+    inputs: [{ name: "recordingId", type: "string" }],
+    outputs: [],
+  }] as const;
+
   useEffect(() => {
     if (!isConnected) return;
     fetch("/api/recordings")
@@ -115,14 +123,67 @@ export default function MarketplacePage() {
     if (!connectedAddress) { toast.error("Connect your wallet to purchase."); return; }
     setBuying(recording.recording_id);
     try {
-      toast.info("Processing payment on Filecoin FVM…");
-      await new Promise((r) => setTimeout(r, 1500));
-      const res = await fetch("/api/purchase", {
+      // First check if already purchased (e.g., via bid acceptance)
+      toast.info("Checking purchase status...");
+      const checkRes = await fetch("/api/purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ recordingId: recording.recording_id, buyerAddress: connectedAddress }),
       });
-      if (!res.ok) throw new Error((await res.json()).error);
+
+      const checkData = await checkRes.json();
+
+      if (checkData.alreadyPurchased) {
+        // Already purchased via bid - no transaction needed
+        toast.success("Content purchased via offer!", { position: "top-center" });
+      } else {
+        // Not yet purchased - need to pay listing price
+        toast.info("Sending purchase transaction...");
+
+        // Create public client for waiting
+        const publicClient = createPublicClient({
+          chain: filecoinCalibration,
+          transport: http(process.env.NEXT_PUBLIC_FILECOIN_RPC_URL ?? "https://api.calibration.node.glif.io/rpc/v1"),
+        });
+
+        // Encode the function call
+        const data = encodeFunctionData({
+          abi: RADRR_PURCHASE_ABI,
+          functionName: "purchase",
+          args: [recording.recording_id],
+        });
+
+        // Parse price to wei
+        const priceWei = parseEther(recording.price_eth.toString());
+
+        // Send transaction via MetaMask (wallet)
+        const hash = await sendTransactionAsync({
+          to: CONTRACT_ADDRESS,
+          data,
+          value: priceWei,
+          chainId: filecoinCalibration.id,
+        });
+
+        toast.info("Waiting for transaction confirmation...");
+
+        // Wait for the transaction to be confirmed
+        await publicClient.waitForTransactionReceipt({ hash });
+
+        toast.success("Transaction confirmed! Verifying purchase...");
+
+        // Re-verify the purchase on-chain
+        const verifyRes = await fetch("/api/purchase", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ recordingId: recording.recording_id, buyerAddress: connectedAddress }),
+        });
+
+        if (!verifyRes.ok) {
+          const errorData = await verifyRes.json();
+          throw new Error(errorData.error || "Purchase verification failed");
+        }
+      }
+
       toast.success("🎉 Footage purchased", { position: "top-center" });
       setRecordings((prev) =>
         prev.map((r) => r.recording_id === recording.recording_id ? { ...r, sold: true } : r)
@@ -217,7 +278,7 @@ export default function MarketplacePage() {
             </h1>
             <p className="text-sm sm:text-base font-base max-w-xl opacity-80">
               Every clip cryptographically verified, stored on Filecoin, encrypted end-to-end.
-              85% of every sale goes direct to the witness.
+              80% of every sale goes direct to the witness.
             </p>
           </div>
           {isConnected && !loading && (

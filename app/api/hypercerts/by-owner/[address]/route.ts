@@ -4,12 +4,12 @@ import { AtpAgent } from "@atproto/api";
 const PDS_URL = process.env.CERTIFIED_APP_PDS ?? "https://certified.one";
 
 export interface HypercertEntry {
-  tokenId: string;       // AT-URI of the record
-  uri: string;           // AT-URI
+  tokenId: string;
+  uri: string;
   name: string;
   description: string;
   image: string;
-  contributor: string;   // witness EVM address
+  contributor: string;
   recordingId: string | null;
   verificationLevel: string | null;
   isCorroborated: boolean | null;
@@ -17,6 +17,17 @@ export interface HypercertEntry {
   totalUnits: string;
   platform: string | null;
   createdAt: number;
+}
+
+async function getAgent(): Promise<AtpAgent> {
+  const handle = process.env.CERTIFIED_APP_HANDLE;
+  const password = process.env.CERTIFIED_APP_PASSWORD;
+  if (!handle || !password) {
+    throw new Error("CERTIFIED_APP_HANDLE and CERTIFIED_APP_PASSWORD must be set");
+  }
+  const agent = new AtpAgent({ service: PDS_URL });
+  await agent.login({ identifier: handle, password });
+  return agent;
 }
 
 export async function GET(
@@ -30,91 +41,69 @@ export async function GET(
       return NextResponse.json({ error: "Invalid address" }, { status: 400 });
     }
 
-    // Accept DID only if it looks like a real resolved DID (not placeholder)
-    const rawDid = process.env.CERTIFIED_APP_DID ?? "";
-    const platformDid = rawDid.startsWith("did:plc:") && rawDid.length > 12 ? rawDid : null;
-
-    const repo = platformDid ?? await resolveDid(process.env.CERTIFIED_APP_HANDLE ?? "");
-    if (!repo) {
+    // Fetch hypercerts from AT Protocol PDS
+    const agent = await getAgent();
+    const did = agent.session?.did;
+    
+    if (!did) {
+      console.error("[hypercerts/by-owner] Not authenticated");
       return NextResponse.json({ hypercerts: [] });
     }
 
-    // Read records from the PDS — public, no auth needed
-    const agent = new AtpAgent({ service: PDS_URL });
+    // Query records from the PDS
+    const response = await agent.com.atproto.repo.listRecords({
+      repo: did,
+      collection: "org.hypercerts.claim.activity",
+      limit: 100,
+    });
 
-    let cursor: string | undefined;
+    const records = response.data.records ?? [];
+
+    // Filter by the requested address (check if witnessAddress matches)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const allRecords: any[] = [];
+    const hypercerts: HypercertEntry[] = records.map((record: any) => {
+      const value = record.value;
+      const desc = value.description ?? "";
+      
+      // Parse Radrr-specific fields from description
+      const recordingIdMatch = desc.match(/Recording ID: ([^\n]+)/);
+      const corroboratedMatch = desc.match(/Corroborated: (true|false)/);
+      
+      // Check if this hypercert belongs to the requested address
+      const contributors = value.contributors ?? [];
+      const isMintedByUser = contributors.some(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (c: any) => c.contributorIdentity?.identity?.toLowerCase() === address.toLowerCase()
+      );
+      
+      const createdAt = value.createdAt 
+        ? new Date(value.createdAt).getTime()
+        : 0;
 
-    do {
-      const res = await agent.com.atproto.repo.listRecords({
-        repo,
-        collection: "org.hypercerts.claim.activity",
-        limit: 100,
-        cursor,
-      });
-      allRecords.push(...res.data.records);
-      cursor = res.data.cursor;
-    } while (cursor);
-
-    const addressLower = address.toLowerCase();
-
-    const hypercerts: HypercertEntry[] = allRecords
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .filter((r: any) => {
-        const rec = r.value;
-        // Match by witnessAddress field or contributors identity
-        if (typeof rec.witnessAddress === "string") {
-          return rec.witnessAddress.toLowerCase() === addressLower;
-        }
-        if (Array.isArray(rec.contributors)) {
-          return rec.contributors.some(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (c: any) => c?.contributorIdentity?.identity?.toLowerCase() === addressLower
-          );
-        }
-        return false;
-      })
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map((r: any) => {
-        const rec = r.value;
-        const createdAt = rec.createdAt ? new Date(rec.createdAt).getTime() : 0;
-        return {
-          tokenId: r.uri,
-          uri: r.uri,
-          name: rec.title ?? "Untitled Hypercert",
-          description: rec.description ?? "",
-          image: "",
-          contributor: rec.witnessAddress ?? address,
-          recordingId: rec.recordingId ?? null,
-          verificationLevel: rec.verificationLevel ?? null,
-          isCorroborated: rec.isCorroborated ?? null,
-          isPublicShare: rec.isPublicShare ?? null,
-          totalUnits: "1",
-          platform: rec.platform ?? "radrr",
-          createdAt,
-        } satisfies HypercertEntry;
-      });
+      return {
+        tokenId: record.uri.split("/").pop() ?? "",
+        uri: record.uri,
+        name: value.title ?? "Radrr Hypercert",
+        description: desc,
+        image: "",
+        contributor: address,
+        recordingId: recordingIdMatch ? recordingIdMatch[1].trim() : null,
+        verificationLevel: value.verificationLevel ?? null,
+        isCorroborated: corroboratedMatch ? corroboratedMatch[1] === "true" : null,
+        isPublicShare: desc.includes("freely shared") || desc.includes("public documentation"),
+        totalUnits: "1",
+        platform: value.platform ?? "radrr",
+        createdAt,
+      } satisfies HypercertEntry;
+    }).filter((h: HypercertEntry) => {
+      // For minted hypercerts, check if the contributor matches
+      return h.contributor.toLowerCase() === address.toLowerCase();
+    });
 
     hypercerts.sort((a, b) => b.createdAt - a.createdAt);
-
     return NextResponse.json({ hypercerts });
   } catch (err) {
     console.error("[hypercerts/by-owner]", err);
     return NextResponse.json({ hypercerts: [] });
-  }
-}
-
-async function resolveDid(handle: string): Promise<string | null> {
-  try {
-    const res = await fetch(
-      `${PDS_URL}/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`,
-      { signal: AbortSignal.timeout(5000) }
-    );
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.did ?? null;
-  } catch {
-    return null;
   }
 }

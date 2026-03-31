@@ -36,7 +36,7 @@ Radrr anchors footage to the public record the moment it is captured — before 
 
 **At capture:** A Merkle root of GPS + timestamp is written to the Filecoin FVM. The full video is AES-256-GCM encrypted client-side (the server never sees plaintext) and stored on Filecoin via Storacha. A public trailer is pinned separately. Two autonomous AI agents independently corroborate the footage on-chain.
 
-**At purchase:** The smart contract automatically splits payment — 85% to the witness, 10% to corroborating agents, 5% to the platform. The buyer receives a Hypercert (permanent proof they funded verified citizen journalism) and decrypts the video entirely in-browser — no server ever holds the key.
+**At purchase:** The smart contract automatically splits payment — 80% to the witness, 10% to a journalism fund for freely listed footage, 10% to the platform. The buyer receives a Hypercert (permanent proof they funded verified citizen journalism) and decrypts the video entirely in-browser — no server ever holds the key.
 
 **Hypercerts are minted in two cases:** when a witness publishes footage publicly (`visibilityLevel: full`), and when a buyer completes a purchase. Both events produce a permanent, portable credential on the AT Protocol PDS.
 
@@ -69,7 +69,7 @@ graph LR
     W -->|"encrypt + upload"| ST
     W -->|"upload AES key"| IP
     W -->|"anchor Merkle root"| RS
-    RS -.->|"85% tFIL auto-split"| W
+    RS -.->|"80% tFIL auto-split"| W
     RS -.->|"on public publish: mint Hypercert"| AT
     AT -.->|"witness credential"| W
     B -->|"purchase tx"| RS
@@ -125,6 +125,7 @@ Both agents expose a live status page at `/agent` with reputation gauges, earned
 | Certificates | AT Protocol (certified.one PDS) | Hypercerts minted on every purchase |
 | Wallet | wagmi + MetaMask injected connector | Filecoin tFIL transactions |
 | Geocoding | Nominatim (OpenStreetMap) | Reverse geocoding GPS → city name |
+| Location Display | useLocationName hook | Shows city name with GPS coordinates on video cards |
 | Storage Payments | Synapse SDK | Integrated with Multicall3 override for Calibration |
 
 ---
@@ -141,7 +142,7 @@ Both agents expose a live status page at `/agent` with reputation gauges, earned
 | Corroboration Agent | `0xa93414A1E97C09f982b83E2134E21C1Cb46Be081` |
 | Trust Agent | `0x2efa5ebcA68341C3f9c21d02426Bca69aEe19D01` |
 
-`Radrr.sol` handles: footage anchoring, on-chain purchases (85/10/5 tFIL splits), bidding, and corroboration bundles.
+`Radrr.sol` handles: footage anchoring, on-chain purchases (80/10/10 tFIL splits), bidding, and corroboration bundles.
 
 `AgentRegistry.sol` implements all three ERC-8004 registries in a single contract: identity (`registerAgent`), reputation (`recordTaskSuccess` / `recordTaskFailure`), and validation (`issueCredential` / `hasCredential`).
 
@@ -183,9 +184,10 @@ Copy `.env.local.example` to `.env.local`:
 | `ENCRYPTION_SECRET` | Server secret for XOR key obfuscation |
 | `STORACHA_PROOF` | Base64-encoded w3up delegation CAR |
 | `STORACHA_PRINCIPAL` | Base64-encoded ed25519 principal (optional) |
-| `CERTIFIED_APP_HANDLE` | certified.one handle |
-| `CERTIFIED_APP_PASSWORD` | AT Protocol app password |
-| `CERTIFIED_APP_PDS` | PDS URL (`https://certified.one`) |
+| `CERTIFIED_APP_HANDLE` | certified.one account handle (e.g., user@certified.app) |
+| `CERTIFIED_APP_PASSWORD` | certified.one app password |
+| `CERTIFIED_APP_PDS` | certified.one PDS URL (default: https://certified.one) |
+| `CERTIFIED_APP_DID` | Your AT Protocol DID from certified.one |
 | `HUGGINGFACE_API_KEY` | HuggingFace token for SigLIP 2 |
 
 ### Storacha Space Setup
@@ -223,7 +225,7 @@ npx hardhat run deploy.ts --network filecoin_calibration
 ### Filecoin / FVM
 - `Radrr.sol` and `AgentRegistry.sol` deployed on Filecoin FVM Calibration (chain 314159)
 - Merkle root of GPS + timestamp anchored at capture time — immutable before any sale
-- Purchase enforces automatic 85/10/5 tFIL splits on-chain, no intermediary
+- Purchase enforces automatic 80/10/10 tFIL splits on-chain, no intermediary
 - All viem contract interactions in `lib/filecoin.ts`
 
 ### Storacha
@@ -241,14 +243,15 @@ npx hardhat run deploy.ts --network filecoin_calibration
 - `public/agent.json` is the machine-readable ERC-8004 agent manifest
 - `agent_log.json` is the structured execution log
 
-### Hypercerts (AT Protocol)
-- Minted on every verified purchase via `org.hypercerts.claim.activity` on certified.one PDS
-- Buyers hold a portable credential proving they funded verified citizen journalism
-- Queryable by wallet address via `/api/hypercerts/by-owner/[address]`
+### Hypercerts (AT Protocol / certified.one)
+- Hypercerts minted via AT Protocol on certified.one PDS using `org.hypercerts.claim.activity` records
+- Minted on two events: witness publishing footage publicly (`visibility: full`), and buyer completing a verified purchase
+- Queryable by wallet address via `com.atproto.repo.listRecords` at `/api/hypercerts/by-owner/[address]`
+- Portable, permanent credentials stored on your PDS — no blockchain gas fees
 
 ### SigLIP 2 / AI Corroboration
 - `google/siglip-so400m-patch14-384` via HuggingFace Inference API
 - Visual embeddings compared with cosine similarity — threshold 0.85
-- Corroborating agents earn 10% of every future purchase of recordings they verify
+- Corroborating agents build reputation that unlocks platform governance rights
 - Full 7-phase decision loop: discover → plan → execute → verify → commit → reputation → log
 - All phases logged to `agent_log.json` and stored on Filecoin via Storacha
