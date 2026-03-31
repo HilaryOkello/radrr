@@ -1,10 +1,32 @@
 # Radrr
 
-**A community truth network where eyewitnesses capture, verify, and share or sell footage — putting the proof of what happened in the hands of the people who lived it.**
+**A decentralised marketplace for citizen footage with cryptographic provenance — where eyewitnesses capture, verify, and sell recordings, and autonomous AI agents independently corroborate them on-chain.**
 
-Every major news event of the last decade was first captured by an ordinary person on an ordinary phone. Yet there is no accessible way for that person to prove their footage is authentic, protect it from deletion, or get paid when it matters.
+Every major news event of the last decade was first captured by an ordinary person on an ordinary phone. Yet there is no accessible way for that person to prove their footage is authentic, protect it from deletion, or get paid when it matters. Radrr fixes this — entirely in the browser, no app install, no professional equipment, no intermediary taking the majority of the money.
 
-Radrr turns any camera into a tamper-proof evidence vault and any citizen recorder into a participant in the public record — paid, protected, and permanently credited. It runs entirely in the browser. No app install. No professional equipment. No intermediary taking the majority of the money.
+---
+
+## Table of Contents
+
+- [The Problem](#the-problem)
+- [The Solution](#the-solution)
+- [Flow Diagrams](#flow-diagrams)
+  - [Recording Upload Flow](#recording-upload-flow)
+  - [Purchase & Decryption Flow](#purchase--decryption-flow)
+  - [AI Corroboration Loop](#ai-corroboration-loop)
+  - [Agent Trust Chain](#agent-trust-chain)
+- [Data Flow Diagrams](#data-flow-diagrams)
+  - [End-to-End System](#end-to-end-system)
+  - [Recording Upload Sequence](#recording-upload-sequence)
+  - [Purchase Sequence](#purchase-sequence)
+  - [ERC-8004 Agent Lifecycle](#erc-8004-agent-lifecycle)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Smart Contracts](#smart-contracts)
+- [API Routes](#api-routes)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Sponsor Integrations](#sponsor-integrations)
 
 ---
 
@@ -16,17 +38,11 @@ But the current system fails them at every step:
 
 - **Footage gets deleted** — by device failure, intimidation, or platform takedown
 - **Provenance is invisible** — screenshots and re-uploads destroy the chain of custody
-- **Recorders go uncompensated** — media outlets, lawyers, and insurers use the footage; the person who risked their safety to capture it sees nothing
+- **Recorders go uncompensated** — media outlets, lawyers, and insurers use the footage; the person who risked their safety sees nothing
 - **No proof of authorship** — anyone can claim they filmed something
-- **AI-generated fakes erode trust** — without verifiable provenance, even real footage becomes suspect
+- **AI fakes erode trust** — without verifiable provenance, even real footage becomes suspect
 
-### The only existing solution costs $6,499
-
-The only video authentication solution available today is Sony's C2PA-compliant Camera Authenticity system, launched in October 2025. It requires a professional camera body starting at $6,499 plus a paid annual digital signature licence. It is designed exclusively for newsroom workflows, not citizen witnesses.
-
-Meanwhile, **416 million people across Africa** are now using mobile internet — the vast majority on affordable Android devices — where the most significant local news events are being captured every day. Those recordings carry no verifiable proof of when, where, or whether they have been altered. Governments delete inconvenient footage. Deepfakes are increasingly indistinguishable from real recordings. And the people who risk their safety to document the truth receive nothing. Their footage is reposted by media organisations without credit, consent, or payment.
-
-The problem isn't that people aren't recording. It's that there's no accessible infrastructure to make their recordings matter.
+The only video authentication solution available today is Sony's C2PA-compliant camera system — starting at **$6,499** plus a paid annual licence. It is designed for newsroom workflows, not citizen witnesses. Meanwhile, **416 million people across Africa** are recording the most significant local news events every day with no verifiable proof of authenticity.
 
 ---
 
@@ -34,216 +50,299 @@ The problem isn't that people aren't recording. It's that there's no accessible 
 
 Radrr is a decentralised footage marketplace built on cryptographic truth.
 
-The moment a recording is captured:
-1. A Merkle root of the GPS location and timestamp is **anchored on the Filecoin FVM** — immutable, timestamped, on-chain
-2. The full footage is **encrypted with Lit Protocol** — no one can see it without paying
-3. The public trailer is **stored on Filecoin** — permanently accessible, censorship-resistant
-4. AI agents **corroborate the footage** — independent verification, not editorial judgment
+At capture time:
+1. A **Merkle root** of GPS + timestamp is anchored on the **Filecoin FVM** — immutable, timestamped, on-chain
+2. The full footage is **AES-256-GCM encrypted** client-side — no server ever holds the plaintext
+3. The encrypted key is XOR-obfuscated, uploaded to IPFS, and the **keyCid stored on-chain**
+4. A public trailer is **pinned to Filecoin** via Storacha — permanently accessible, censorship-resistant
+5. Autonomous **AI agents** corroborate footage using SigLIP 2 visual embeddings — independent verification, not editorial judgment
 
-When footage is purchased by a journalist, an insurer, a legal team, or anyone who needs verified evidence:
+At purchase:
 - The witness receives **85% of the payment**, automatically, on-chain
-- Corroborating agents share **10%** — incentivising a network of independent verifiers
-- The buyer receives a **Hypercert** — a permanent, verifiable record of their contribution to the public record
-
-Hypercerts here are not just receipts. They are **proof of participation in civic infrastructure**. When you buy footage on Radrr, you are funding citizen journalism, supporting evidence-based accountability, and staking your own identity on the value of that moment. The Hypercert is your credential in the emerging ecosystem of verifiable public good.
-
----
-
-## Who This Is For
-
-**Citizen recorders** — You filmed something that matters. Radrr ensures you're credited, compensated, and that your footage can never be quietly erased.
-
-**Journalists & newsrooms** — Source footage with cryptographic provenance. Know exactly when and where it was captured, verified independently before you publish.
-
-**Legal professionals** — Purchase footage with an unbroken chain of custody from capture to transaction, anchored on a public blockchain.
-
-**Insurers & investigators** — Commission corroborated evidence from geographic areas, verified by AI against reference footage.
-
-**Civil society & NGOs** — Build archives of verified public-interest recordings. Every purchase funds the next recorder.
+- Corroborating agents share **10%** — incentivising independent verification
+- The buyer receives a **Hypercert** — permanent proof they funded verified citizen journalism
+- The video is decrypted **client-side** using the keyCid retrieved from on-chain
 
 ---
 
-## The Market
+## Flow Diagrams
 
-### The money in footage is enormous — and almost none of it reaches the person who filmed it
-
-The global stock footage and video licensing market is worth **over $6 billion annually** and growing. But that number obscures where the real demand is: breaking news, verified eyewitness footage, and legally admissible evidence — the exact categories where supply is most scarce and verification costs are highest.
-
-**Where newsrooms spend:**
-- AP, Reuters, and Getty charge between **$300 and $3,000+ per clip** for archival news footage
-- Exclusive eyewitness footage of major events can sell for **tens of thousands of dollars** — the person who filmed it typically receives 20–50% after platform cuts
-- Newsrooms spend an estimated **$50,000–$500,000 per year** on UGC verification services (Storyful, NewsGuard, AFP Fact Check) — manual analyst work to confirm footage isn't fabricated or mislabelled
-- A single deepfake investigation by a newsroom's visual forensics team can cost **$10,000–$50,000** in analyst time
-
-**Where legal and insurance money goes:**
-- The US litigation market alone spends hundreds of millions annually on video evidence authentication
-- Insurance adjusters routinely commission private investigators to locate and authenticate accident footage — a process that can take weeks and cost thousands per case
-- Law enforcement agencies pay for commercial platforms to source and verify footage; those platforms are centralised, proprietary, and expensive
-
-**The UGC licensing platforms take most of the money:**
-
-| Platform | Creator's cut | Verification method | Storage | Provenance |
-|---|---|---|---|---|
-| Jukin Media | 30–50% | Manual editorial | Centralised | None |
-| Newsflare | 50% | Manual editorial | Centralised | None |
-| Storyful | 0% (subscription) | Manual OSINT | Centralised | None |
-| Stringr | ~50% | Manual | Centralised | None |
-| AP/Reuters/Getty | 20–35% | Editorial only | Centralised | None |
-| **Radrr** | **85%** | **SigLIP 2 AI + on-chain** | **Filecoin (permanent)** | **Cryptographic** |
-
-### The authenticity crisis is getting worse
-
-The emergence of generative AI has collapsed the baseline assumption that video footage is real. In 2024, multiple major news events were accompanied by viral deepfakes that took days to debunk. Newsrooms now treat every piece of UGC as suspect until manually verified — a process that is slow, expensive, and doesn't scale.
-
-The C2PA standard (backed by Adobe, Microsoft, BBC, and others) is the industry's attempt to solve this. It relies on device manufacturers opting in and charges per-device licence fees. It provides no economic incentive for recorders or verifiers. It is, by design, a solution for hardware manufacturers and large media workflows — not for the person with a phone in their pocket at the wrong place at the right time.
-
-Radrr's approach is different: **provenance is enforced at the infrastructure level**, not the policy level. The proof is on-chain before the recorder even sets a price. Corroboration is done by economically incentivised AI agents with on-chain reputation scores. No editor needs to trust anything — the math does.
-
-### The opportunity
-
-The market is moving toward verified content. Regulators in the EU and UK are beginning to require provenance metadata for AI-generated and UGC content used in broadcast. Legal standards for digital evidence are tightening. Media organisations are building internal verification teams they cannot afford to scale.
-
-Radrr's model turns verification from a cost centre into a market. Corroborators are paid by the purchase. Witnesses are paid directly. Buyers get a Hypercert — proof they funded a piece of the verified public record. The economics align every participant's incentives without a centralised intermediary taking the majority of the value.
-
----
-
-## Why Decentralisation is Not Optional
-
-A centralised version of this already exists. It is called Getty Images, Storyful, and Reuters Connect. They take 70–80% of revenue. They can delete footage under government pressure. They can be hacked and evidence destroyed. They require journalists to trust a private company's editorial judgment about what is authentic.
-
-Radrr uses the decentralised stack as structural enforcement, not as decoration:
-
-- **Filecoin** makes footage undeletable. A CID pinned to Filecoin cannot be removed by a platform, a government, or a court order served on a startup.
-- **The Filecoin FVM** makes the proof tamper-evident. The Merkle root of GPS and timestamp is on-chain before any sale. No one — not even Radrr — can alter it retroactively.
-- **Lit Protocol** makes access control trustless. The decryption key is never held by a server. It is released by a Lit Action that checks `isPurchased()` on-chain. No payment, no access — enforced by code, not policy.
-- **Storacha** makes storage witness-owned. UCAN delegation means the witness's storage space is theirs, not Radrr's. The platform going offline does not make footage disappear.
-- **Smart contracts** make payments automatic and uncensorable. 85% reaches the witness wallet the moment a purchase confirms. No invoice, no 90-day payment cycle, no intermediary discretion.
-- **ERC-8004 on-chain identity** means corroborating agents carry reputation that cannot be faked or reset. A high-reputation agent's corroboration means something because it is built from a public, auditable history.
-
-Each component is load-bearing. Remove any one of them and you are back to trusting a company.
-
----
-
-## Architecture
-
-### High-Level Data Flow
+### Recording Upload Flow
 
 ```
- Browser (Witness)                    Next.js API                        Filecoin FVM
- ─────────────────                    ──────────                         ────────────
-  [Record video]
-       │  MediaRecorder WebM
-       ▼
-  [Generate trailer]──── FFmpeg.wasm ──►  /api/upload-trailer ──► Storacha (CID)
-       │
-  [Encrypt full video]── Lit Protocol ──► /api/upload-encrypted ──► Storacha (CID)
-       │  AES-256-GCM ciphertext             (if Lit unreachable: local AES key)
-       │
-  [Anchor on-chain]──────────────────► /api/record
-       │                                     │
-       │                             keccak256(GPS + timestamp)
-       │                             Merkle root
-       │                                     │
-       │                              Radrr.sol.anchor()
-       │                                     │
-       │                          ◄── txHash ── Filecoin FVM Calibration
-       │
-  [Publish / set price]
-       │
-       ▼
-  Public listing — trailer visible, full footage encrypted
+Witness Browser
+      │
+      ├─[1]─ MediaRecorder API → WebM video
+      │
+      ├─[2]─ FFmpeg.wasm → trailer (first 15s, no audio)
+      │
+      ├─[3]─ Web Crypto API
+      │       AES-256-GCM encrypt full video
+      │       XOR-obfuscate encryption key with server secret
+      │
+      ├─[4]─ POST /api/upload-trailer ──────────────► Storacha
+      │       thumbnail + trailer                      └─ trailerCid, previewCid
+      │
+      ├─[5]─ POST /api/upload-encrypted ───────────► Storacha
+      │       AES ciphertext + IV                      └─ encryptedCid
+      │
+      ├─[6]─ POST /api/upload-key ─────────────────► IPFS
+      │       XOR-encrypted key JSON                   └─ keyCid
+      │
+      └─[7]─ POST /api/record
+              │
+              ├─ keccak256(GPS + timestamp) → merkleRoot
+              │
+              └─ Radrr.sol.anchorRecordingFor(
+                    recordingId, merkleRoot, gps,
+                    trailerCid, encryptedCid, keyCid,
+                    price, witness
+                 )
+                 └─► txHash on Filecoin FVM Calibration
 ```
 
 ### Purchase & Decryption Flow
 
 ```
- Browser (Buyer)                      Next.js API                     Filecoin FVM
- ───────────────                      ──────────                      ────────────
-  [Buy recording]
-       │  price in tFIL
-       ▼
-  Radrr.sol.purchase()
-       │  85% → witness (automatic, on-chain)
-       │  10% → corroborators (split between verifiers)
-       │   5% → platform
-       ▼
-  isPurchased(recordingId, buyer) == true
-       │
-       ▼
-  /api/purchase
-       │
-       ├──► Lit Protocol session sigs
-       │    └─► Lit Action calls isPurchased() on Filecoin RPC
-       │    └─► decryptToString() → full video
-       │
-       ├──► Mint Hypercert (AT Protocol)
-       │    └─► org.hypercerts.claim.activity on certified.one
-       │    └─► permanent credential: you funded verified journalism
-       │
-       └──► return decrypted video URL to buyer
+Buyer Browser
+      │
+      ├─[1]─ MetaMask → Radrr.sol.purchase(recordingId) { value: priceWei }
+      │                  └─ 85% → witness wallet   (automatic, on-chain)
+      │                  └─ 10% → corroborators     (split per bundle entry)
+      │                  └─  5% → platform
+      │
+      ├─[2]─ waitForTransactionReceipt(txHash)
+      │
+      ├─[3]─ POST /api/purchase { recordingId, buyerAddress }
+      │       │
+      │       ├─ isPurchased(recordingId, buyer) on Filecoin RPC → true
+      │       ├─ mint Hypercert on AT Protocol (certified.one)
+      │       ├─ recordAgentTaskSuccess on ERC-8004 registry
+      │       └─ return { encryptedCid, keyCid }
+      │
+      ├─[4]─ fetch encryptedCid from IPFS → { ciphertext, iv }
+      ├─[5]─ fetch keyCid from IPFS → { encryptedKey }
+      ├─[6]─ XOR-decrypt key → raw AES-256-GCM key
+      ├─[7]─ AES-256-GCM.decrypt(ciphertext, iv, key) → video bytes
+      └─[8]─ Blob URL → <video> element plays full footage
 ```
 
-### Corroboration Pipeline
+### AI Corroboration Loop
 
 ```
- AI Agent (server)
- ─────────────────
-  for each unverified recording:
-       │
-       ├─► fetch trailer frames from Storacha
-       │
-       ├─► SigLIP 2 embeddings (HuggingFace API)
-       │       model: google/siglip-so400m-patch14-384
-       │
-       ├─► cosine_similarity(trailer_embedding, reference_embedding)
-       │       ≥ 0.85 → corroborate (earn 10% share of all future purchases)
-       │       < 0.85 → reject
-       │
-       ├─► Radrr.sol.corroborate(recordingId, verdict)
-       │
-       ├─► agent execution log pinned to Filecoin via Storacha
-       │
-       └─► ERC-8004 reputation updated on AgentRegistry.sol
-               consistent corroborators build on-chain credibility
+Corroboration Agent  (runs every 30 seconds)
+         │
+    DISCOVER ──► fetch all recordings from Radrr.sol
+         │
+      PLAN ──────► group by GPS cluster (0.1° ≈ 10 km radius)
+         │          filter clusters with ≥ 2 recordings
+         │
+    EXECUTE ──────► for each candidate pair:
+         │           SigLIP 2 embeddings via HuggingFace API
+         │           model: google/siglip-so400m-patch14-384
+         │           cosine_similarity(embedding_a, embedding_b)
+         │
+     VERIFY ──────► score ≥ 0.85?
+         │           YES ──► proceed
+         │           NO  ──► skip pair, log result
+         │
+     COMMIT ──────► Radrr.sol.updateCorroboration(recordingId, bundleIds[])
+         │
+  REPUTATION ──────► AgentRegistry.sol.recordTaskSuccess(agent, reason)
+         │
+        LOG ──────► append structured entry to agent_log.json
+                    store log on Filecoin via Storacha
 ```
 
-### Agent Identity (ERC-8004)
+### Agent Trust Chain
 
 ```
- AgentRegistry.sol (0x49c4...)
- ─────────────────────────────────────────────────────────
-  ┌──────────────────────┬──────────────────────────────────┐
-  │  Identity Registry   │  registerAgent(did, metadata)    │
-  │  (ERC-8004 §2)       │  getAgent(address) → DID + meta  │
-  ├──────────────────────┼──────────────────────────────────┤
-  │  Reputation Registry │  updateReputation(addr, delta)   │
-  │  (ERC-8004 §3)       │  getReputation(addr) → score     │
-  ├──────────────────────┼──────────────────────────────────┤
-  │  Validation Registry │  validate(claimId, verdict)      │
-  │  (ERC-8004 §4)       │  getValidation(claimId)          │
-  └──────────────────────┴──────────────────────────────────┘
-  Every corroboration creates an immutable validation record.
-  Agents with high reputation scores carry more evidential weight.
+Trust Agent  (runs every 60 seconds)
+         │
+      FETCH ──► AgentRegistry.sol.getAgentReputation(corroborationAgent)
+         │        └─ returns { score, tasksCompleted, tasksFailed }
+         │
+   EVALUATE ──► score ≥ 700 / 1000?
+         │
+        YES ──► issueCredential(corroborationAgent, "trust-endorsed", evidenceCid)
+         │       recordAgentTaskSuccess(trustAgent, "trust check passed")
+         │       log: "trust-endorsed credential issued"
+         │
+         NO ──► recordAgentTaskFailure(trustAgent, "score below threshold")
+                log: "endorsement withheld — attestation flagged as unendorsed"
 ```
 
-### Hypercerts Flow
+---
+
+## Data Flow Diagrams
+
+### End-to-End System
+
+```mermaid
+graph TB
+    subgraph Browser
+        W([Witness])
+        B([Buyer])
+    end
+
+    subgraph NextJS["Next.js API"]
+        AR[/api/record]
+        AU[/api/upload-*]
+        AP[/api/purchase]
+        AC[/api/corroborate]
+        AG[/api/agent]
+    end
+
+    subgraph FVM["Filecoin FVM · chain 314159"]
+        RS[("Radrr.sol")]
+        RG[("AgentRegistry.sol")]
+    end
+
+    subgraph Storage["Decentralised Storage"]
+        ST[(Storacha / Filecoin)]
+        IP[(IPFS)]
+    end
+
+    subgraph Agents["Autonomous Agents · Node.js"]
+        CA[Corroboration Agent\n30s loop]
+        TA[Trust Agent\n60s loop]
+    end
+
+    W -->|"encrypt + upload"| AU
+    AU -->|"trailer, thumbnail, ciphertext"| ST
+    AU -->|"XOR-encrypted key"| IP
+    W -->|"anchor"| AR
+    AR -->|"anchorRecordingFor()"| RS
+    RS -.->|"85% tFIL on purchase"| W
+    B -->|"purchase() + tFIL"| RS
+    B -->|"verify"| AP
+    AP -->|"isPurchased()"| RS
+    AP -->|"encryptedCid + keyCid"| B
+    B -->|"fetch ciphertext"| ST
+    B -->|"fetch key"| IP
+    CA -->|"updateCorroboration()"| RS
+    CA -->|"recordTaskSuccess()"| RG
+    TA -->|"getAgentReputation()"| RG
+    TA -->|"issueCredential()"| RG
+    AP -->|"recordTaskSuccess()"| RG
+    AG -->|"getAgentReputation()"| RG
+```
+
+### Recording Upload Sequence
+
+```mermaid
+sequenceDiagram
+    participant W as Witness (Browser)
+    participant API as Next.js API
+    participant ST as Storacha
+    participant IP as IPFS
+    participant FVM as Filecoin FVM
+
+    W->>W: MediaRecorder → WebM
+    W->>W: FFmpeg.wasm → trailer
+    W->>W: AES-256-GCM encrypt video
+    W->>W: XOR-obfuscate encryption key
+
+    W->>API: POST /api/upload-trailer
+    API->>ST: uploadFile(trailer) → trailerCid
+    API->>ST: uploadFile(thumbnail) → previewCid
+    API-->>W: { trailerCid, previewCid }
+
+    W->>API: POST /api/upload-encrypted
+    API->>ST: uploadFile(ciphertext) → encryptedCid
+    API-->>W: { encryptedCid }
+
+    W->>API: POST /api/upload-key
+    API->>IP: upload key JSON → keyCid
+    API-->>W: { keyCid }
+
+    W->>API: POST /api/record
+    API->>API: keccak256(GPS+timestamp) → merkleRoot
+    API->>FVM: anchorRecordingFor(id, merkleRoot, gps, cids, price, witness)
+    FVM-->>API: txHash
+    API-->>W: { txHash, recordingId }
+```
+
+### Purchase Sequence
+
+```mermaid
+sequenceDiagram
+    participant B as Buyer (Browser)
+    participant MM as MetaMask
+    participant FVM as Filecoin FVM
+    participant API as Next.js API
+    participant IP as IPFS
+    participant AT as AT Protocol
+
+    B->>MM: sign purchase tx
+    MM->>FVM: Radrr.sol.purchase(recordingId) + priceWei
+    FVM->>FVM: split: 85% witness · 10% corroborators · 5% platform
+    FVM-->>B: txHash
+
+    B->>FVM: waitForTransactionReceipt(txHash)
+    B->>API: POST /api/purchase { recordingId, buyerAddress }
+    API->>FVM: isPurchased(recordingId, buyer) → true
+    API->>AT: createRecord(org.hypercerts.claim.activity)
+    AT-->>API: hypercertUri
+    API->>FVM: recordAgentTaskSuccess(agentAddr, reason)
+    API-->>B: { encryptedCid, keyCid }
+
+    B->>IP: fetch encryptedCid → { ciphertext, iv }
+    B->>IP: fetch keyCid → { encryptedKey }
+    B->>B: XOR-decrypt → AES key
+    B->>B: AES-256-GCM decrypt → video bytes
+    B->>B: Blob URL → video plays
+```
+
+### ERC-8004 Agent Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> Registered : registerAgent(did, metadata)
+    Registered --> Active : first recordTaskSuccess()
+    Active --> Active : recordTaskSuccess()\nscore increases
+    Active --> Penalised : recordTaskFailure()\nscore decreases
+    Penalised --> Active : subsequent successes
+    Active --> TrustEndorsed : Trust Agent: score ≥ 700\nissueCredential("trust-endorsed")
+    TrustEndorsed --> Active : score drops below 700\nendorsement withheld
+    Active --> Credentialed : issueCredential(\n"corroboration"\n"similarity-analysis"\n"on-chain-attestation")
+```
+
+---
+
+## Architecture
 
 ```
- Purchase confirmed on-chain
-       │
-       ▼
-  /api/purchase
-       │
-       ├─► AT Protocol login (certified.one PDS)
-       │
-       ├─► com.atproto.repo.createRecord
-       │       collection: org.hypercerts.claim.activity
-       │       record: { recordingId, buyer, txHash, timestamp, location }
-       │
-       └─► Hypercert URI returned and stored
-               ↳ buyer now holds a permanent, portable credential
-               ↳ proof they supported verified public-interest recording
-               ↳ queryable by wallet via /api/hypercerts/by-owner/[address]
+radrr-app/
+│
+├── Browser (client-side)
+│   ├── /record           MediaRecorder + FFmpeg.wasm + AES-256-GCM + XOR key
+│   ├── /marketplace      Browse, filter, bid on footage
+│   ├── /recording/[id]   Trailer, purchase, client-side decrypt, corroboration links
+│   ├── /dashboard        Witness recordings, buyer purchases, open bids
+│   └── /agent            ERC-8004 reputation gauge, credentials, activity log
+│
+├── Next.js API (server-side)
+│   ├── /api/record           Merkle root + anchorRecordingFor on Filecoin FVM
+│   ├── /api/upload-*         Storacha + IPFS uploads
+│   ├── /api/purchase         isPurchased check + Hypercert mint + reputation update
+│   ├── /api/corroborate      SigLIP 2 similarity + updateCorroboration on-chain
+│   ├── /api/agent            ERC-8004 reputation, credentials, activity log
+│   ├── /api/recordings       Public listing from Filecoin FVM
+│   ├── /api/bids             Bid queries
+│   └── /api/identity         Agent identity lookup
+│
+├── Filecoin FVM (chain 314159)
+│   ├── Radrr.sol             Anchor, purchase (85/10/5 tFIL splits), bids, bundles
+│   └── AgentRegistry.sol     ERC-8004: identity + reputation + validation registries
+│
+├── Autonomous Agents (Node.js, long-running)
+│   ├── corroboration-agent.ts   SigLIP 2 poll loop, 30s interval
+│   └── trust-agent.ts           Reputation monitor + credential issuance, 60s interval
+│
+└── Decentralised Storage
+    ├── Storacha (w3up)      Videos, trailers, thumbnails, metadata, agent logs
+    └── IPFS                 AES key bundles (keyCid stored on-chain in Radrr.sol)
 ```
 
 ---
@@ -252,28 +351,32 @@ Each component is load-bearing. Remove any one of them and you are back to trust
 
 | Layer | Technology | Purpose |
 |---|---|---|
-| Frontend | Next.js 15 (App Router), React 19, Tailwind | UI |
-| Recording | MediaRecorder API, FFmpeg.wasm | In-browser WebM capture, trailer generation |
-| Blockchain | Filecoin FVM Calibration (chain 314159) | Immutable anchoring, purchase, bidding |
-| Smart contracts | Solidity 0.8, Hardhat | Radrr.sol, AgentRegistry.sol, Multicall3.sol |
-| Decentralised storage | Storacha (w3up / Filecoin Pin) | Video, metadata, agent logs — all on Filecoin |
-| Encryption | Lit Protocol V1 (Naga / DatilDev) | Access-controlled decryption on purchase |
-| AI corroboration | SigLIP 2 via HuggingFace Inference API | Visual embedding similarity (threshold 0.85) |
-| Identity | ERC-8004 (all 3 registries) | On-chain agent identity + reputation |
-| Certificates | AT Protocol (certified.one) | Hypercerts minted on purchase |
-| Payments | tFIL, on-chain splits | 85/10/5 automatic distribution |
+| Frontend | Next.js 15 App Router, React 19, Tailwind CSS v4 | UI |
+| Recording | MediaRecorder API, FFmpeg.wasm | In-browser WebM capture + trailer generation |
+| Encryption | AES-256-GCM (Web Crypto API) + XOR key obfuscation | Client-side video encryption — server never sees plaintext |
+| Blockchain | Filecoin FVM Calibration (chain 314159), viem | Immutable anchoring, purchase splits, bidding |
+| Smart contracts | Solidity 0.8, Hardhat | Radrr.sol, AgentRegistry.sol |
+| Storage | Storacha (w3up / @storacha/client) | All video + metadata + agent logs on Filecoin |
+| AI corroboration | SigLIP 2 via HuggingFace Inference API | Visual embedding cosine similarity, threshold 0.85 |
+| Agent identity | ERC-8004 (all 3 registries on-chain) | Agent identity, reputation, validation |
+| Certificates | AT Protocol (certified.one PDS) | Hypercerts minted on every purchase |
+| Wallet | wagmi + MetaMask injected connector | Filecoin tFIL transactions |
+| Geocoding | Nominatim (OpenStreetMap) | Reverse geocoding GPS coords → city name |
+| Storage payments | Synapse SDK | Integrated with Multicall3 override; full payment ready once Synapse ships Calibration |
 
 ---
 
-## Smart Contracts (Filecoin Calibration — chain 314159)
+## Smart Contracts
+
+**Network:** Filecoin Calibration Testnet · chain ID 314159
+**Explorer:** [calibration.filfox.info](https://calibration.filfox.info/en)
 
 | Contract | Address | Description |
 |---|---|---|
-| `Radrr.sol` | `0x189a06cD3afd146a53B4f096aB6E4bcdb79068AD` | Core: anchor, purchase (85/10/5 split), bid, corroborate |
-| `AgentRegistry.sol` | `0x49c483c7DE2A8dD58ca44d664539e069b045bc4D` | ERC-8004 identity, reputation, validation registries |
-| `Multicall3.sol` | `0x519Bc263133Beee1f4CacCCb4f2EB60503177AcD` | Deployed because canonical `0xcA11...` is not on Calibration |
+| `Radrr.sol` | `0x0B02E8eC8624E7e0024979D14735Bb5F4c10B182` | Core marketplace: anchor, purchase (85/10/5 split), bids, corroboration bundles |
+| `AgentRegistry.sol` | `0x76bd383BB3a4824131DC114dfE79e2BC0CfE6c89` | ERC-8004: identity registry, reputation registry, validation registry |
 
-Explorer: [calibration.filfox.info](https://calibration.filfox.info/en)
+Corroboration agent registered at `0x3cfeCc707FA2a5b43DB15dA6891bfA8DA9fc2F66`.
 
 ---
 
@@ -281,50 +384,73 @@ Explorer: [calibration.filfox.info](https://calibration.filfox.info/en)
 
 | Route | Method | Description |
 |---|---|---|
-| `/api/record` | POST | Anchor recording Merkle root on Filecoin FVM |
-| `/api/upload-encrypted` | POST | Encrypt video with Lit + upload to Storacha |
-| `/api/upload-trailer` | POST | Upload public trailer/thumbnail to Storacha |
-| `/api/purchase` | POST | Verify purchase, decrypt video, mint Hypercert |
-| `/api/corroborate` | POST | SigLIP 2 corroboration pipeline |
+| `/api/record` | POST | Compute Merkle root + anchor recording on Filecoin FVM |
+| `/api/upload` | POST | Upload raw video to Storacha |
+| `/api/upload-trailer` | POST | Upload public trailer + thumbnail to Storacha |
+| `/api/upload-encrypted` | POST | Upload AES-256-GCM encrypted video to Storacha |
+| `/api/upload-key` | POST | Upload XOR-encrypted key JSON to IPFS |
+| `/api/purchase` | POST | Verify on-chain purchase · return encryptedCid+keyCid · mint Hypercert · update agent reputation |
+| `/api/corroborate` | POST | Run SigLIP 2 similarity + update corroboration bundle on-chain |
+| `/api/agent` | GET | ERC-8004 reputation, credentials, recent activity log |
+| `/api/recordings` | GET | List public recordings from Filecoin FVM |
 | `/api/identity` | GET | ERC-8004 agent identity lookup |
-| `/api/recordings` | GET | List public recordings |
-| `/api/hypercerts/by-owner/[address]` | GET | Hypercerts for a wallet address |
 | `/api/bids/by-bidder/[address]` | GET | Bids placed by a wallet |
+| `/api/hypercerts/by-owner/[address]` | GET | Hypercerts owned by a wallet |
 
 ---
 
-## Sponsor Integrations
+## Project Structure
 
-### Filecoin / Storacha
-- All footage uploaded via `@storacha/client` (`uploadFile`) to Filecoin — no central server holds video
-- Recording metadata and agent logs pinned as JSON via `uploadJson` (Filecoin Pin)
-- Radrr.sol and AgentRegistry.sol deployed on Filecoin FVM Calibration
-- `Multicall3.sol` deployed at `0x519Bc...` (canonical `0xcA11...` not available on Calibration)
-- Synapse SDK client initialised with custom Multicall3 override; full storage payment integration ready once Synapse ships Calibration contracts
-
-### Lit Protocol
-- Encryption at upload: `LitJsSdk.encryptString()` with access control conditions tied to `isPurchased()`
-- Lit Action calls `isPurchased(recordingId, buyer)` on Filecoin Calibration RPC — no server ever holds keys
-- GPS coordinates also encrypted with the same conditions — precise location only revealed to buyer
-- Decryption: `LitJsSdk.decryptToString()` with session signatures after on-chain purchase confirmed
-- AES-256-GCM local fallback when Lit nodes unreachable (demo resilience; key management note in `lib/lit.ts`)
-
-### Hypercerts (AT Protocol)
-- Minted on every purchase via `org.hypercerts.claim.activity` record on certified.one PDS
-- The Hypercert is the buyer's proof they funded a piece of the public record
-- Queried by wallet address via `com.atproto.repo.listRecords`
-
-### ERC-8004 (Agents With Receipts)
-- `AgentRegistry.sol` implements all three ERC-8004 registries in one contract
-- Every corroboration creates an on-chain validation record; agent reputation is updated
-- High-reputation agents carry more evidential weight in future corroborations
-- `app/api/identity/route.ts` exposes agent identity lookups
-
-### SigLIP 2 (AI Corroboration)
-- `google/siglip-so400m-patch14-384` via HuggingFace Inference API
-- Visual embeddings compared with cosine similarity — threshold 0.85
-- Corroborating agents earn a share of every future purchase of the recording
-- `lib/siglip.ts`, `app/api/corroborate/route.ts`
+```
+radrr-app/
+├── agents/
+│   ├── corroboration-agent.ts  # ERC-8004 autonomous SigLIP 2 corroboration loop
+│   └── trust-agent.ts          # Monitors corroboration agent reputation, issues trust-endorsed credential
+├── app/
+│   ├── agent/                  # Agent status page — reputation gauge, credentials, activity log
+│   ├── api/
+│   │   ├── agent/              # ERC-8004 reputation + log API
+│   │   ├── anchor/             # Recording anchor
+│   │   ├── bids/               # Bid queries
+│   │   ├── corroborate/        # SigLIP 2 pipeline
+│   │   ├── hypercerts/         # Hypercert queries
+│   │   ├── identity/           # Agent identity
+│   │   ├── purchase/           # Purchase verification + Hypercert + reputation
+│   │   ├── recordings/         # Public listing
+│   │   ├── release-key/        # Server-side XOR key release
+│   │   ├── upload/             # Raw video upload
+│   │   ├── upload-encrypted/   # Encrypted video upload
+│   │   ├── upload-key/         # Key upload to IPFS
+│   │   ├── upload-thumbnail/   # Thumbnail upload
+│   │   └── upload-trailer/     # Trailer upload
+│   ├── dashboard/              # Witness/buyer dashboard
+│   ├── marketplace/            # Browse + filter + bid
+│   ├── record/                 # In-browser recording UI
+│   ├── recording/[id]/         # Detail page + purchase + client-side decryption
+│   └── page.tsx                # Homepage — live feed + features + CTA
+├── components/
+│   ├── Navbar.tsx              # Navigation: Browse, Record, Dashboard, Agent
+│   ├── FootageCard.tsx         # Homepage footage card with geocoded location
+│   ├── MarketplaceCard.tsx     # Marketplace card — bid + buy
+│   └── ConnectWallet.tsx       # wagmi wallet connection (injected connector)
+├── contracts/filecoin/
+│   └── src/
+│       ├── Radrr.sol           # Core marketplace contract
+│       └── AgentRegistry.sol   # ERC-8004 identity + reputation + validation
+├── hooks/
+│   └── useLocationName.ts      # Reverse geocoding hook (Nominatim)
+├── lib/
+│   ├── encryption-client.ts    # AES-256-GCM + XOR key obfuscation (browser)
+│   ├── filecoin.ts             # viem FVM contract interactions
+│   ├── geocode.ts              # Nominatim reverse geocoding with module-level cache
+│   ├── hypercerts.ts           # AT Protocol Hypercert minting
+│   ├── siglip.ts               # SigLIP 2 embeddings via HuggingFace
+│   ├── storacha.ts             # Storacha w3up client
+│   └── synapse.ts              # Synapse SDK client
+└── public/
+    ├── agent.json              # ERC-8004 agent manifest (machine-readable)
+    └── agent_log.json          # Structured execution log
+```
 
 ---
 
@@ -333,9 +459,9 @@ Explorer: [calibration.filfox.info](https://calibration.filfox.info/en)
 ### Prerequisites
 
 - Node.js 20+
-- A Filecoin Calibration wallet with tFIL ([faucet](https://faucet.calibration.fildev.network/))
+- A Filecoin Calibration wallet with tFIL — [faucet](https://faucet.calibration.fildev.network/)
 - Storacha space + delegation proof
-- HuggingFace API key
+- HuggingFace API key (for SigLIP 2)
 - certified.one account (for Hypercerts)
 
 ### Install
@@ -346,23 +472,23 @@ npm install
 
 ### Environment Variables
 
-Copy `.env.local.example` to `.env.local` and fill in:
+Copy `.env.local.example` to `.env.local`:
 
 | Variable | Description |
 |---|---|
 | `FILECOIN_CONTRACT_ADDRESS` | Radrr.sol address on Calibration |
 | `FILECOIN_AGENT_REGISTRY_ADDRESS` | AgentRegistry.sol address |
-| `FILECOIN_AGENT_ADDRESS` | Agent wallet address |
+| `FILECOIN_AGENT_ADDRESS` | Corroboration agent wallet address |
 | `FILECOIN_AGENT_PRIVATE_KEY` | Agent private key (`0x...`) |
 | `FILECOIN_RPC_URL` | Calibration RPC (default: glif.io) |
 | `NEXT_PUBLIC_FILECOIN_CONTRACT_ADDRESS` | Same, exposed to browser |
-| `NEXT_PUBLIC_FILECOIN_CHAIN_ID` | `314159` |
-| `EVM_PLATFORM_PRIVATE_KEY` | Platform deployer wallet |
+| `NEXT_PUBLIC_FILECOIN_RPC_URL` | Same, exposed to browser |
+| `EVM_PLATFORM_PRIVATE_KEY` | Platform deployer wallet private key |
+| `ENCRYPTION_SECRET` | Server secret for XOR key obfuscation |
 | `STORACHA_PROOF` | Base64-encoded w3up delegation CAR |
 | `STORACHA_PRINCIPAL` | Base64-encoded ed25519 principal (optional) |
 | `CERTIFIED_APP_HANDLE` | certified.one handle |
 | `CERTIFIED_APP_PASSWORD` | AT Protocol app password |
-| `CERTIFIED_APP_DID` | DID (optional, speeds up queries) |
 | `CERTIFIED_APP_PDS` | PDS URL (`https://certified.one`) |
 | `HUGGINGFACE_API_KEY` | HuggingFace token for SigLIP 2 |
 
@@ -383,47 +509,57 @@ w3 delegation create <server-did> --can 'store/add' --can 'upload/add' | base64
 npm run dev
 ```
 
+### Run Agents
+
+```bash
+# Corroboration agent — polls every 30s
+npx ts-node agents/corroboration-agent.ts
+
+# Trust agent — polls every 60s
+npx ts-node agents/trust-agent.ts
+```
+
 ### Deploy Contracts
 
 ```bash
 cd contracts/filecoin
 npx hardhat run deploy.ts --network filecoin_calibration
-# Multicall3 (if needed on a new network):
-npx hardhat run deploy-multicall3.cjs --network filecoin_calibration
 ```
 
 ---
 
-## Project Structure
+## Sponsor Integrations
 
-```
-radrr-app/
-├── app/
-│   ├── api/
-│   │   ├── record/            # Anchor recording on Filecoin FVM
-│   │   ├── upload-encrypted/  # Lit encrypt + Storacha upload
-│   │   ├── upload-trailer/    # Public trailer upload
-│   │   ├── purchase/          # Purchase verification + Hypercert mint
-│   │   ├── corroborate/       # SigLIP 2 AI corroboration
-│   │   ├── identity/          # ERC-8004 agent identity
-│   │   ├── recordings/        # Public listing
-│   │   ├── bids/              # Bid queries
-│   │   └── hypercerts/        # Hypercert queries
-│   ├── record/                # Recording UI
-│   ├── recording/[id]/        # Recording detail + purchase
-│   └── page.tsx               # Homepage
-├── components/                # UI components
-├── contracts/filecoin/
-│   └── src/
-│       ├── Radrr.sol          # Core marketplace contract
-│       ├── AgentRegistry.sol  # ERC-8004 registries
-│       └── Multicall3.sol     # Deployed Multicall3
-├── lib/
-│   ├── storacha.ts            # Filecoin Pin via w3up
-│   ├── lit.ts                 # Lit Protocol encrypt/decrypt
-│   ├── synapse.ts             # Synapse SDK client + Filecoin Pin
-│   ├── siglip.ts              # SigLIP 2 embeddings
-│   ├── hypercerts.ts          # AT Protocol Hypercerts
-│   └── filecoin.ts            # FVM contract interactions
-└── public/
-```
+### Filecoin / FVM
+- `Radrr.sol` and `AgentRegistry.sol` deployed on Filecoin FVM Calibration (chain 314159)
+- Merkle root of GPS + timestamp anchored at capture time — immutable before any sale
+- Purchase enforces automatic 85/10/5 tFIL splits on-chain, no intermediary
+- All viem contract interactions in `lib/filecoin.ts`
+
+### Storacha
+- `@storacha/client` for all persistent storage — no central server holds video
+- `uploadFile()` for encrypted video, trailers, thumbnails
+- `uploadJson()` for recording metadata and agent execution logs
+- Stable `ed25519` principal across restarts via `STORACHA_PRINCIPAL`
+- Synapse SDK integrated with custom Multicall3 override for Calibration
+
+### ERC-8004 (Agents With Receipts)
+- `AgentRegistry.sol` implements all three ERC-8004 registries in a single contract
+- Every corroboration creates an immutable on-chain validation record
+- Two autonomous agents: corroboration agent (SigLIP 2) + trust agent (reputation monitor)
+- Trust agent endorses only if corroboration agent score ≥ 700/1000 — trust is earned, not assumed
+- Purchase events call `recordAgentTaskSuccess()` — the marketplace directly feeds agent reputation
+- `/agent` page visualises reputation gauge, credentials, and activity log with Filfox tx links
+- `public/agent.json` is the machine-readable ERC-8004 agent manifest
+
+### Hypercerts (AT Protocol)
+- Minted on every verified purchase via `org.hypercerts.claim.activity` on certified.one PDS
+- Buyers hold a portable credential proving they funded verified citizen journalism
+- Queryable by wallet address via `/api/hypercerts/by-owner/[address]`
+
+### SigLIP 2 / AI Corroboration
+- `google/siglip-so400m-patch14-384` via HuggingFace Inference API
+- Visual embeddings compared with cosine similarity — threshold 0.85
+- Corroborating agents earn 10% of every future purchase of recordings they verify
+- Full 7-phase decision loop (discover → plan → execute → verify → commit → reputation → log)
+- All phases logged to `agent_log.json` and stored on Filecoin
