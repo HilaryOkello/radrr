@@ -304,25 +304,6 @@ export default function AgentPage() {
 
           {data && (
             <div className="space-y-8">
-              {/* Trust status banner */}
-              <div className={`flex items-center gap-3 px-4 py-3 rounded-base border-2 text-sm font-base ${
-                data.trustAgent.endorsed
-                  ? "border-chart-5 bg-chart-5/10"
-                  : "border-border bg-secondary"
-              }`}>
-                <span className="text-xl">{data.trustAgent.endorsed ? "✓" : "○"}</span>
-                <div>
-                  <span className="font-medium">
-                    {data.trustAgent.endorsed
-                      ? "Corroboration Agent is trust-endorsed"
-                      : "Corroboration Agent awaiting trust endorsement"}
-                  </span>
-                  <span className="text-muted-foreground ml-2 text-xs">
-                    Trust Agent requires score ≥ {data.trustAgent.threshold}/1000 to issue endorsement
-                  </span>
-                </div>
-              </div>
-
               {/* Two-agent grid — side by side on md+, stacked on mobile */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <AgentCard agent={data.corroborationAgent} shared={data.shared} />
