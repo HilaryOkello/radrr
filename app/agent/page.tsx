@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const FILFOX = "https://calibration.filfox.info/en";
@@ -39,11 +38,32 @@ interface PageData {
   trustAgent: AgentInfo;
 }
 
-function scoreColor(score: number) {
-  if (score >= 800) return "bg-chart-5 text-white";
-  if (score >= 500) return "bg-main text-black";
-  if (score >= 200) return "bg-chart-2 text-black";
-  return "bg-destructive text-white";
+// Plain span chip — avoids cva bg-main override issues on Badge
+function Chip({ children, color = "default" }: { children: React.ReactNode; color?: string }) {
+  const styles: Record<string, string> = {
+    green:   "bg-chart-5 text-white",
+    blue:    "text-white",
+    yellow:  "bg-main text-black",
+    orange:  "bg-chart-2 text-black",
+    red:     "bg-destructive text-white",
+    default: "bg-secondary text-foreground border border-border",
+  };
+  const inlineStyle = color === "blue" ? { backgroundColor: "#0099FF" } : undefined;
+  return (
+    <span
+      className={`inline-flex items-center rounded-base px-2.5 py-1 text-xs font-base whitespace-nowrap ${styles[color] ?? styles.default}`}
+      style={inlineStyle}
+    >
+      {children}
+    </span>
+  );
+}
+
+function scoreChipColor(score: number) {
+  if (score >= 800) return "green";
+  if (score >= 500) return "yellow";
+  if (score >= 200) return "orange";
+  return "red";
 }
 
 function scoreLabel(score: number) {
@@ -53,17 +73,14 @@ function scoreLabel(score: number) {
   return "New Agent";
 }
 
-function phaseColor(phase: string) {
+function phaseChipColor(phase: string) {
   switch (phase) {
-    case "commit":    return "bg-chart-5 text-white";
-    case "reputation":
-    case "endorse":   return "bg-[#0099FF] text-white";
-    case "execute":   return "bg-main text-black";
-    case "verify":
-    case "evaluate":  return "bg-chart-2 text-black";
-    case "warn":
-    case "error":     return "bg-destructive text-white";
-    default:          return "bg-secondary text-foreground";
+    case "commit":                    return "green";
+    case "reputation": case "endorse": return "blue";
+    case "execute":                   return "yellow";
+    case "verify": case "evaluate":   return "orange";
+    case "warn": case "error":        return "red";
+    default:                          return "default";
   }
 }
 
@@ -89,13 +106,13 @@ function AgentCard({ agent, shared }: { agent: AgentInfo; shared: PageData["shar
       {/* Header */}
       <Card className="border-2 border-border">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm flex items-center gap-2 flex-wrap">
+          <CardTitle className="text-base flex items-center gap-2 flex-wrap">
             {agent.name}
-            <Badge className="bg-chart-5 text-white text-[10px]">ERC-8004</Badge>
+            <Chip color="green">ERC-8004</Chip>
             {agent.endorsed !== undefined && (
-              <Badge className={agent.endorsed ? "bg-[#0099FF] text-white text-[10px]" : "bg-secondary text-foreground text-[10px]"}>
+              <Chip color={agent.endorsed ? "blue" : "default"}>
                 {agent.endorsed ? "✓ trust-endorsed" : "not endorsed"}
-              </Badge>
+              </Chip>
             )}
           </CardTitle>
         </CardHeader>
@@ -147,9 +164,9 @@ function AgentCard({ agent, shared }: { agent: AgentInfo; shared: PageData["shar
             <span className="text-muted-foreground text-xs font-base mb-1">/ 1000</span>
           </div>
           <ReputationBar score={score} />
-          <Badge className={`${scoreColor(score)} w-full justify-center text-xs`}>
-            {scoreLabel(score)}
-          </Badge>
+          <Chip color={scoreChipColor(score)}>
+            <span className="w-full text-center">{scoreLabel(score)}</span>
+          </Chip>
           <div className="grid grid-cols-2 gap-2 text-center text-xs">
             <div className="border border-border rounded-base p-2">
               <div className="font-heading text-lg text-chart-5">{agent.reputation.tasksCompleted}</div>
@@ -179,7 +196,7 @@ function AgentCard({ agent, shared }: { agent: AgentInfo; shared: PageData["shar
           ) : (
             <div className="flex flex-wrap gap-2">
               {agent.credentials.map((c) => (
-                <Badge key={c} className="bg-[#0099FF] text-white text-[10px]">✓ {c}</Badge>
+                <Chip key={c} color="blue">✓ {c}</Chip>
               ))}
             </div>
           )}
@@ -193,9 +210,9 @@ function AgentCard({ agent, shared }: { agent: AgentInfo; shared: PageData["shar
         </CardHeader>
         <CardContent className="space-y-1.5">
           {agent.decisionLoop.map((phase, i) => (
-            <div key={phase} className="flex items-center gap-2 text-xs">
-              <span className="text-muted-foreground font-mono w-4">{i + 1}.</span>
-              <Badge className={`${phaseColor(phase)} text-[10px] px-2 py-0.5`}>{phase}</Badge>
+            <div key={phase} className="flex items-center gap-2">
+              <span className="text-muted-foreground font-mono text-xs w-4">{i + 1}.</span>
+              <Chip color={phaseChipColor(phase)}>{phase}</Chip>
             </div>
           ))}
         </CardContent>
@@ -222,9 +239,9 @@ function ActivityLog({ entries, total, title }: { entries: Array<Record<string, 
               <span className="text-muted-foreground font-mono">
                 {entry.timestamp ? new Date(String(entry.timestamp)).toLocaleString() : "—"}
               </span>
-              <Badge className={`${phaseColor(String(entry.phase ?? ""))} text-[10px] px-2 py-0.5`}>
+              <Chip color={phaseChipColor(String(entry.phase ?? ""))}>
                 {String(entry.phase ?? "unknown")}
-              </Badge>
+              </Chip>
               {entry.success !== undefined && (
                 <span className={`ml-auto ${entry.success ? "text-chart-5" : "text-destructive"}`}>
                   {entry.success ? "✓" : "✗"}
